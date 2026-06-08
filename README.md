@@ -1,5 +1,7 @@
 # Continuum — Capture, Save & Resume AI Chats
 
+> 🏆 Winner — Hack the Valley 2026
+
 Continuum is a browser extension that captures an AI chat session and lets you pick it back up in a fresh chat, so you never lose your context when you hit a length or message limit. Capture a conversation on one site, then resume it — with the full history handed over — on another.
 
 It runs entirely on your own device. There's no account, no server, and nothing gets sent anywhere unless you ask it to.
