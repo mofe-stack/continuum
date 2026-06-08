@@ -1003,7 +1003,7 @@ label.cn-label {
    Just a rounded thumb — no track, no up/down arrow buttons. Applied to EVERY
    scrollable element inside the panel's shadow root (`:host *`), so it doesn't
    matter which element actually scrolls. Scoped to the shadow root, so
-   claude.ai's own scrollbars are untouched. */
+   the host page's own scrollbars are untouched. */
 :host {
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: var(--cn-line-strong) transparent;

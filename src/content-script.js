@@ -1,7 +1,7 @@
 // content-script.js — entry point. Runs last in the js[] load order, so the
 // namespace pieces (model, storage, claudeAdapter, ui.button, ui.panel) already
 // exist on window.Continuum. Decides when the button should be visible and keeps
-// it in sync with claude.ai's client-side (SPA) navigation.
+// it in sync with the AI site's client-side (SPA) navigation.
 
 (function () {
   "use strict";
@@ -47,7 +47,7 @@
     debounceTimer = setTimeout(sync, 120);
   }
 
-  // claude.ai is a React SPA: clicking a chat changes the URL via React Router
+  // The AI sites are React SPAs: clicking a chat changes the URL via React Router
   // WITHOUT a page reload, and React's initial render can wipe DOM nodes we added
   // too early (this is why the button was missing on the FIRST chat of a fresh
   // tab but fine when switching chats afterward). We can't reliably intercept
@@ -61,7 +61,7 @@
     window.addEventListener("popstate", scheduleSync);
   }
 
-  // Dev helpers: console context-switching is flaky on claude.ai's SPA, so allow
+  // Dev helpers: console context-switching is flaky on these SPAs, so allow
   // triggering the diagnostics via a localStorage flag set from the page's own
   // console (page + content script share localStorage on the same origin):
   //   localStorage.setItem("continuum_probe", "1"); location.reload();
@@ -131,7 +131,7 @@
     maybeAutoProbe();
     // If the user just clicked "Resume in new chat", a marker is waiting in
     // storage — auto-fill this fresh tab's composer + attachments. Runs on any
-    // claude.ai page (the resume target /new is not a /chat/ page).
+    // supported AI page (the resume target, e.g. /new, is not a /chat/ page).
     if (Continuum.resumeInjector && Continuum.resumeInjector.checkPendingResume) {
       Continuum.resumeInjector.checkPendingResume();
     }

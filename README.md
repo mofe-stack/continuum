@@ -32,7 +32,24 @@ Right now Continuum works with:
 
 More platforms are coming soon.
 
-A captured chat from any of these can be resumed into Claude or ChatGPT today; Gemini and others as resume targets are still being wired up. (A chat *captured* from Gemini can already be resumed into Claude or ChatGPT — the source and the destination don't have to match.)
+A captured chat from any of these can be resumed into Claude, ChatGPT, or Gemini today; more sites (Perplexity, Grok, DeepSeek, Copilot) are still being wired up as resume targets. The source and the destination don't have to match — a chat captured on one site can be resumed into another.
+
+## What gets captured
+
+Every site captures the full conversation text. What comes through for **attachments** depends on what each site lets an extension reach:
+
+| | Claude | ChatGPT | Gemini |
+|---|:---:|:---:|:---:|
+| Messages | ✅ | ✅ | ✅ |
+| Images you uploaded | ✅ | ✅ | name only ¹ |
+| AI-generated images | — | ✅ | name only ¹ |
+| Files you uploaded | ✅ ² | ✅ | ✅ |
+| AI-generated files | — | ✅ | name only |
+
+✅ saved in full · "name only" = listed in the transcript but the file/image itself isn't saved · — = not captured
+
+¹ Gemini serves its images from locked URLs an extension can't download, so they come through by name, not saved.
+² Files you send to Claude's code tool (like a `.zip`) can't be pulled back out, so those are noted by name only.
 
 ## Privacy
 
