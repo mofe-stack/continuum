@@ -48,9 +48,9 @@ Every site captures the full conversation text. What comes through for **attachm
 
 **What the symbols mean:**
 
-- ✅; saved in full
-- **name only**; listed in the transcript, but the file/image itself isn't saved
-- **—**; not captured
+- ✅: saved in full
+- **name only**: listed in the transcript, but the file/image itself isn't saved
+- **—**: not captured
 
 **Notes:**
 
