@@ -1,6 +1,6 @@
 // pdf-export.js — builds the single-file "conversation-history.pdf" used by the
-// resume flow. claude.ai can't read inside a .zip in-chat, but it CAN read a PDF
-// (text) and SEE images embedded in PDF pages (vision) — so a PDF is the only
+// resume flow. The AI sites can't read inside a .zip in-chat, but they CAN read a
+// PDF (text) and SEE images embedded in PDF pages (vision) — so a PDF is the only
 // single attachment that carries the whole conversation in a form the model can
 // actually use.
 //
@@ -10,14 +10,14 @@
 // transcript's order/flow. Text-file contents are already inlined in the markdown.
 //
 // Binary DOCUMENTS (PDF, DOCX, …) are deliberately NOT merged into this PDF — they
-// ride alongside as their own attachments (claude.ai reads multiple files fine),
+// ride alongside as their own attachments (the AI sites read multiple files fine),
 // and the transcript references them by name. `collectResumeDocuments` gathers
 // them for the resume flow. Only images get embedded here.
 //
 // SCALE: large chats can carry ~100 images. Embedding full-resolution PNGs makes
-// a huge (50–100 MB), slow-to-build PDF that claude.ai rejects on upload. So we
-// DOWNSCALE every image to a sane max dimension and JPEG-encode it — Claude's
-// vision downsamples large images anyway (~1568px), so this loses nothing the
+// a huge (50–100 MB), slow-to-build PDF that the AI sites reject on upload. So we
+// DOWNSCALE every image to a sane max dimension and JPEG-encode it — model vision
+// downsamples large images anyway (Claude, e.g., to ~1568px), so this loses nothing the
 // model would see while cutting the file to a few MB. We also yield to the event
 // loop during the build so the tab doesn't freeze.
 //
@@ -86,7 +86,7 @@
   const cleanHandoffMarkdown = (text) => String(text == null ? "" : text).split("\n").map(stripMarkdownLine).join("\n");
 
   // Decode an image blob, downscale to MAX_IMG_DIM, and JPEG-encode via canvas.
-  // (jsPDF also doesn't reliably accept WEBP, which claude.ai serves a lot of —
+  // (jsPDF also doesn't reliably accept WEBP, which the AI sites serve a lot of —
   // re-encoding to JPEG fixes that too.) Returns { dataUrl, format, w, h } or null.
   async function blobToImage(blob) {
     try {

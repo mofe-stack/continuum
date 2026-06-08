@@ -2,7 +2,7 @@
 //   • main   — current-chat stats, capture button, saved-sessions list
 //   • detail — a single saved session with Resume / Copy / Save / Delete
 // plus a delete-confirmation dialog. Renders into the shared shadow root so
-// claude.ai styles can't leak in.
+// the host page's styles can't leak in.
 
 (function () {
   "use strict";
@@ -498,7 +498,7 @@
   // Builds what the resume-injector uploads into a fresh chat: the handoff
   // markdown (as conversation-history.md) plus the byte-backed attachments the
   // model needs as real files — every IMAGE (so a vision model can see it) and
-  // every NON-TEXT file (so Claude can read it natively). Text files are skipped
+  // every NON-TEXT file (so the AI can read it natively). Text files are skipped
   // here because their contents are already inlined in the markdown (att.text),
   // so re-uploading them would just duplicate tokens.
   // Returns { historyText, files: [{ name, blob, type }] }.
@@ -524,7 +524,7 @@
   }
 
   // Clean, human-readable transcript for the "Copy chat history" button — meant
-  // to be pasted into a doc / shared. "Bold labels" style: a **You** / **Claude**
+  // to be pasted into a doc / shared. "Bold labels" style: a **You** / **Assistant**
   // label above each message, blank lines between turns, attachments shown as
   // tidy references (text-file contents inlined in a fenced block; images/binaries
   // as `_[Image: …]_` / `_[File: …]_`). Always verbatim — no compression, no
@@ -659,8 +659,9 @@
       "  </div>",
       '  <div class="cn-statrow" data-d-stats></div>',
       '  <div class="cn-actions">',
-      // Resume → expands an inline picker of target AIs. Only Claude is wired up;
-      // the others are placeholders (disabled) until per-site injectors exist.
+      // Resume → expands an inline picker of target AIs. Claude, ChatGPT, and
+      // Gemini are wired up; the rest (Perplexity, Grok, DeepSeek, Copilot) are
+      // placeholders (disabled) until per-site injectors exist.
       '    <div class="cn-resume" data-resume-wrap>',
       '      <button class="cn-btn-primary" data-resume-btn>' + svg("play") +
         "<span>Resume in new chat</span>" +
@@ -808,9 +809,9 @@
     root.appendChild(backdropEl);
     root.appendChild(panelEl);
 
-    // claude.ai has a global "type anywhere → focus the chat composer" key
+    // Some AI sites have a global "type anywhere → focus the chat composer" key
     // handler on the document. Without this, keystrokes in our textarea bubble
-    // out of the panel, claude.ai grabs them, and the text lands in its chat box.
+    // out of the panel, the site grabs them, and the text lands in its chat box.
     // Stop key/input events from leaving the panel so our inputs keep them.
     ["keydown", "keyup", "keypress", "input", "beforeinput"].forEach((type) => {
       panelEl.addEventListener(type, (e) => e.stopPropagation());
@@ -1721,7 +1722,7 @@
       }
     }
     // Clipboard copy is the fallback: if auto-fill in the new tab fails (e.g.
-    // claude.ai changed its composer markup), the user can still paste.
+    // the AI site changed its composer markup), the user can still paste.
     const ok = await copyToClipboard(buildHandoff(currentDetail));
     // Hand off to the new tab via a small marker; the resume-injector there reads
     // it, loads this session from IndexedDB, and auto-fills the composer + files.

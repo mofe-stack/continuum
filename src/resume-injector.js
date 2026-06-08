@@ -1,14 +1,14 @@
-// resume-injector.js — runs in the freshly-opened AI tab (claude.ai or
-// chatgpt.com) after the user picks a "Resume in" target. The source tab leaves
+// resume-injector.js — runs in the freshly-opened AI tab (claude.ai,
+// chatgpt.com, or gemini.google.com) after the user picks a "Resume in" target. The source tab leaves
 // a small marker in chrome.storage.local ({ sessionId, includeFiles, compress,
 // target, ts }); here we read it, load that session from IndexedDB, rebuild the
 // handoff markdown + attachment files, then auto-fill the composer with the
 // editable preamble and attach the files. We do NOT submit — the user reviews
 // and presses Send. The composer/send/file selectors cover both sites.
 //
-// Everything here touches claude.ai's live DOM (the ProseMirror composer and the
-// hidden file <input>), so it is FRAGILE in the same way the capture selectors
-// are: claude.ai can rename/restructure without notice. Mitigations: multiple
+// Everything here touches the AI site's live DOM (e.g. Claude's ProseMirror
+// composer and the hidden file <input>), so it is FRAGILE in the same way the
+// capture selectors are: the sites can rename/restructure without notice. Mitigations: multiple
 // selector candidates + fallbacks, a probeComposer() dumper, and the clipboard
 // fallback the panel already set (a failed inject never strands the user — the
 // handoff is still on their clipboard to paste).
@@ -179,8 +179,8 @@
   }
 
   // ── composer text injection ──────────────────────────────────────────
-  // claude.ai's editor is a React-controlled ProseMirror contenteditable (or, as
-  // a fallback, a textarea). For each we use the mechanism that triggers the
+  // The editors are React-controlled contenteditables (Claude's is ProseMirror) or,
+  // as a fallback, a textarea. For each we use the mechanism that triggers the
   // framework's own input handling so the value "sticks".
   function setComposerText(editor, text) {
     if (!editor || !text) return false;
@@ -260,7 +260,7 @@
   }
 
   // ── file attachment ──────────────────────────────────────────────────
-  // Build File objects and hand them to claude.ai's uploader. Primary path: set
+  // Build File objects and hand them to the site's uploader. Primary path: set
   // the hidden <input type=file>.files via a DataTransfer + change event.
   // Fallback: dispatch a drop event carrying the files on the composer.
   function buildFiles(fileSpecs) {
@@ -647,7 +647,7 @@
 
     // Primary: conversation-history.pdf (full transcript + images embedded
     // inline) PLUS any binary documents (PDF/DOCX/…) as their own attachments —
-    // documents are NOT merged into the PDF, claude.ai reads multiple files fine.
+    // documents are NOT merged into the PDF, the AI sites read multiple files fine.
     // Fallback: if PDF generation isn't available/fails, attach the markdown +
     // a CAPPED set of images so a huge chat doesn't dump ~100 attachments and
     // overwhelm the uploader.
@@ -705,8 +705,8 @@
       const allDocs = files.filter((f) => !isImg(f));
       const images = wantMarkdown ? (marker.includeImages === true ? allImages : []) : allImages;
       const docs = (wantMarkdown ? marker.includeFiles === true : marker.includeFiles !== false) ? allDocs : [];
-      // No cap — attach everything the user explicitly opted into. claude.ai may
-      // reject a batch over its own ~20-attachment limit, but that's the user's call.
+      // No cap — attach everything the user explicitly opted into. The AI site may
+      // reject a batch over its own attachment limit (claude.ai caps ~20), but that's the user's call.
       fileObjects = buildFiles([mdFile].concat(docs, images));
     }
 
@@ -791,7 +791,7 @@
     toast("Filled your message + attached " + what + " — review and Send.", true);
   }
 
-  // Called from content-script init() on every claude.ai page load.
+  // Called from content-script init() on every supported AI page load.
   async function checkPendingResume() {
     let marker;
     try {
@@ -813,7 +813,7 @@
   }
 
   // Diagnostic: dump composer / file-input candidates so the selectors can be
-  // fixed fast when claude.ai changes its markup. Run from the content-script
+  // fixed fast when the AI site changes its markup. Run from the content-script
   // context (or via a localStorage flag, like probe()).
   function probeComposer() {
     const composerCounts = {};

@@ -1,6 +1,6 @@
 // floating-button.js — injects the quiet bottom-right button and owns the single
-// shadow-DOM host that isolates all Continuum UI from claude.ai's CSS (and vice
-// versa). The panel (capture-panel.js) renders into this same shadow root.
+// shadow-DOM host that isolates all Continuum UI from the host page's CSS (and
+// vice versa). The panel (capture-panel.js) renders into this same shadow root.
 
 (function () {
   "use strict";
