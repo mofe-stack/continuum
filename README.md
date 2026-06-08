@@ -41,21 +41,21 @@ Every site captures the full conversation text. What comes through for **attachm
 | | Claude | ChatGPT | Gemini |
 |---|:---:|:---:|:---:|
 | Messages | ✅ | ✅ | ✅ |
-| Images you uploaded | ✅ | ✅ | name only ¹ |
-| AI-generated images | — | ✅ | name only ¹ |
-| Files you uploaded | ✅ ² | ✅ | ✅ |
+| Images you uploaded | ✅ | ✅ | name only |
+| AI-generated images | — | ✅ | name only |
+| Files you uploaded | ✅ | ✅ | ✅ |
 | AI-generated files | — | ✅ | name only |
 
 **What the symbols mean:**
 
-- ✅ — saved in full
-- **name only** — listed in the transcript, but the file/image itself isn't saved
-- **—** — not captured
+- ✅; saved in full
+- **name only**; listed in the transcript, but the file/image itself isn't saved
+- **—**; not captured
 
-**Footnotes:**
+**Notes:**
 
-- **¹** Gemini serves its images from locked URLs an extension can't download, so they come through by name, not saved.
-- **²** Claude captures your normal uploads (images, PDFs, docs, text) fine. The one exception is files that got routed to Claude's code/analysis tool — the ones that, when you click them, say they're too large and you have to download them. Those bytes live only in Claude's temporary sandbox and can't be pulled back out, so they're noted by name. (Files Claude *generates* for you — the download cards — aren't captured either; that's the "—" row above.)
+- Gemini serves its images from locked URLs an extension can't download, so they come through by name, not saved.
+- Claude captures your normal uploads (images, PDFs, docs, text) fine. The one exception is files that got routed to Claude's code/analysis tool — the ones that, when you click them, say they're too large and you have to download them. Those bytes live only in Claude's temporary sandbox and can't be pulled back out, so they're noted by name. (Files Claude *generates* for you — the download cards — aren't captured either; that's the "—" row above.)
 
 ## Privacy
 
