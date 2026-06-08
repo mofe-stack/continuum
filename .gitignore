@@ -14,6 +14,10 @@ node_modules/
 tests/eval-gate.js
 tests/_gate-samples/
 
+# Personal / internal — kept local, not published
+STATUS.md
+make_store_shots.ps1
+
 # Tooling / editor / OS
 .claude/
 .vscode/

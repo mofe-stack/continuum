@@ -85,7 +85,6 @@ icons/                Extension icons
 tests/                Unit tests for the adapters, compressor, and sanitizer
 build-firefox.js      Packages the Firefox .xpi
 PRIVACY.md            Privacy policy
-STATUS.md             Detailed notes on how each part works
 ```
 
 ## License
