@@ -1,0 +1,23 @@
+{
+  "name": "continuum",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "private": "true",
+  "devDependencies": {
+    "gpt-tokenizer": "^3.4.0"
+  },
+  "dependencies": {
+    "jspdf": "^4.2.1"
+  }
+}

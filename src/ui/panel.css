@@ -1,0 +1,1141 @@
+/* panel.css — loaded into Continuum's shadow root, so these styles are fully
+   isolated from claude.ai. Class names stay namespaced (cn-/continuum-) for
+   readability.
+
+   Design language: minimal "ink on warm paper". Near-monochrome so it sits
+   quietly inside claude.ai instead of competing with it. Hairline borders,
+   flat surfaces, one filled CTA, everything else ghost. Monospace for
+   metadata/labels (technical, intentional); system sans for titles + actions.
+   Micro-interactions only — 140ms, colour/border, never layout-shifting. */
+
+:host {
+  /* Surfaces — cool near-white to pair with charcoal */
+  --cn-paper: #fcfcfd;
+  --cn-hover: #f3f4f6;
+  /* Ink — charcoal slate (the mostly-grayscale base) */
+  --cn-ink: #1f2937;
+  --cn-ink-2: #4b5563;
+  --cn-ink-3: #6b7280;
+  /* Lines */
+  --cn-line: #e5e7eb;
+  --cn-line-strong: #d1d5db;
+  /* Accent — midnight indigo. The single pop: logo + focus only. */
+  --cn-accent: #3730a3;
+  --cn-accent-hover: #2e2885;
+  --cn-accent-tint: #eeedfa;
+  /* Source-AI brand marks (saved-session rows + resume picker) */
+  --cn-claude: #cc785c;
+  --cn-openai: #10a37f;
+  --cn-gemini: #4285f4;
+  --cn-perplexity: #20b8cd;
+  --cn-grok: #71767b;
+  --cn-deepseek: #4d6bfe;
+  --cn-copilot: #14b8a6;
+  /* Intent */
+  --cn-danger: #dc2626;
+  --cn-danger-tint: #fef2f2;
+  --cn-ok: #059669;
+  --cn-ok-tint: #ecfdf5;
+  /* Geometry + motion */
+  --cn-radius: 8px;
+  --cn-t: 140ms ease;
+
+  --cn-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --cn-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+
+:host,
+* {
+  box-sizing: border-box;
+}
+
+/* ── Floating action button ──────────────────────────────────────────── */
+.continuum-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--cn-line-strong);
+  background: var(--cn-paper);
+  color: var(--cn-ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2147483646;
+  transition: box-shadow var(--cn-t), border-color var(--cn-t);
+  font-family: var(--cn-sans);
+}
+.continuum-fab:hover {
+  border-color: var(--cn-accent);
+  /* Soft 2px indigo ring + lift. */
+  box-shadow: 0 0 0 2px rgba(55, 48, 163, 0.28),
+    0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Backdrop + panel shell ──────────────────────────────────────────── */
+.continuum-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 18, 14, 0);
+  z-index: 2147483646;
+  pointer-events: none;
+  transition: background 0.2s ease;
+}
+.continuum-backdrop.open {
+  background: rgba(20, 18, 14, 0.14);
+  pointer-events: auto;
+}
+
+.continuum-panel {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  /* Float as a content-height card. Capped to a compact height (and never past
+     the viewport) so a long saved-sessions list scrolls inside the card via its
+     single side scrollbar, instead of stretching the panel down the screen. */
+  max-height: min(640px, calc(100vh - 32px));
+  background: var(--cn-paper);
+  color: var(--cn-ink);
+  /* More vivid indigo than the base accent so the thin border reads as colour. */
+  border: 1.5px solid #4f46e5;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(20, 18, 14, 0.18);
+  z-index: 2147483647;
+  transform: translateX(calc(100% + 24px));
+  transition: transform 0.26s cubic-bezier(0.22, 0.61, 0.36, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  font-family: var(--cn-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-y: auto;
+}
+.continuum-panel.open {
+  transform: translateX(0);
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+.cn-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  margin-bottom: 18px;
+}
+.cn-mark {
+  display: inline-flex;
+  flex: none;
+  color: var(--cn-ink);
+}
+.cn-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  flex: 1;
+}
+.cn-iconbtn {
+  border: none;
+  background: transparent;
+  color: var(--cn-ink-3);
+  cursor: pointer;
+  padding: 6px;
+  margin: -6px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--cn-t), color var(--cn-t);
+}
+.cn-iconbtn:hover {
+  background: var(--cn-hover);
+  color: var(--cn-ink);
+}
+
+/* ── Shared label / section rhythm ───────────────────────────────────── */
+.cn-section {
+  padding: 2px 0;
+}
+.cn-label {
+  font-family: var(--cn-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--cn-ink-3);
+  margin-bottom: 8px;
+}
+.cn-chat-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+.cn-stats {
+  font-family: var(--cn-mono);
+  font-size: 12px;
+  color: var(--cn-ink-2);
+}
+.cn-started {
+  font-family: var(--cn-mono);
+  font-size: 12px;
+  color: var(--cn-ink-3);
+  margin-top: 3px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+/* Primary, filled ink — the single strongest CTA on each view. */
+.cn-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 11px 14px;
+  border: 1px solid var(--cn-ink);
+  border-radius: var(--cn-radius);
+  background: var(--cn-ink);
+  color: var(--cn-paper);
+  font-family: var(--cn-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--cn-t), border-color var(--cn-t),
+    opacity var(--cn-t);
+}
+.cn-btn-primary:hover {
+  background: #000;
+  border-color: #000;
+}
+.cn-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Resume → inline AI picker (expands under the button). */
+.cn-resume {
+  margin-top: 16px;
+}
+.cn-resume .cn-btn-primary {
+  margin-top: 0;
+}
+/* Expand caret on the Resume button — points down, flips up when the picker is
+   open, so the button reads as a dropdown affordance. */
+.cn-resume-caret {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  transition: transform var(--cn-t);
+}
+.cn-resume.cn-resume-open .cn-resume-caret {
+  transform: rotate(180deg);
+}
+/* Inline AI picker — animated open/close. The grid 0fr→1fr trick eases the
+   height exactly to the content (no max-height guess / jank); the rows then
+   fade + rise into place on a slight per-row stagger so they "pop" in sequence
+   instead of appearing all at once. Collapsing has no stagger, so it's snappy. */
+.cn-resume-targets {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: 0;
+  opacity: 0;
+  transition: grid-template-rows 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease,
+    margin-top 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cn-resume.cn-resume-open .cn-resume-targets {
+  grid-template-rows: 1fr;
+  margin-top: 6px;
+  opacity: 1;
+}
+/* The clipped inner wrapper carries the border so it's hidden when collapsed. */
+.cn-resume-targets-inner {
+  overflow: hidden;
+  min-height: 0;
+  border: 1px solid var(--cn-line);
+  border-radius: var(--cn-radius);
+}
+/* Rows start nudged down + transparent; settle in when open. The overshoot
+   easing on transform gives the gentle "pop". (Higher specificity than the base
+   .cn-resume-target rule, so this transition wins and still covers :hover bg.) */
+.cn-resume-targets-inner .cn-resume-target {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: background var(--cn-t),
+    opacity 0.28s ease,
+    transform 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.cn-resume.cn-resume-open .cn-resume-targets-inner .cn-resume-target {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Stagger only the opacity + transform (not the hover background = first 0s). */
+.cn-resume.cn-resume-open .cn-resume-targets-inner .cn-resume-target:nth-child(1) { transition-delay: 0s, 0.03s, 0.03s; }
+.cn-resume.cn-resume-open .cn-resume-targets-inner .cn-resume-target:nth-child(2) { transition-delay: 0s, 0.07s, 0.07s; }
+.cn-resume.cn-resume-open .cn-resume-targets-inner .cn-resume-target:nth-child(3) { transition-delay: 0s, 0.11s, 0.11s; }
+.cn-resume.cn-resume-open .cn-resume-targets-inner .cn-resume-target:nth-child(4) { transition-delay: 0s, 0.15s, 0.15s; }
+.cn-resume.cn-resume-open .cn-resume-targets-inner .cn-resume-target:nth-child(5) { transition-delay: 0s, 0.19s, 0.19s; }
+.cn-resume.cn-resume-open .cn-resume-targets-inner .cn-resume-target:nth-child(6) { transition-delay: 0s, 0.23s, 0.23s; }
+.cn-resume.cn-resume-open .cn-resume-targets-inner .cn-resume-target:nth-child(7) { transition-delay: 0s, 0.27s, 0.27s; }
+.cn-resume-target {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-bottom: 1px solid var(--cn-line);
+  background: var(--cn-paper);
+  color: var(--cn-ink);
+  font-family: var(--cn-sans);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--cn-t);
+}
+.cn-resume-target:last-child {
+  border-bottom: none;
+}
+.cn-resume-target:hover:not(.disabled) {
+  background: var(--cn-hover);
+}
+.cn-resume-target.disabled {
+  color: var(--cn-ink-3);
+  cursor: default;
+}
+.cn-resume-logo {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  flex: none;
+}
+.cn-resume-target.disabled .cn-resume-logo {
+  opacity: 0.5;
+}
+.cn-soon {
+  margin-left: auto;
+  font-family: var(--cn-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cn-ink-3);
+  border: 1px solid var(--cn-line-strong);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+/* Ghost — hairline outline, fills on hover. */
+.cn-btn-ghost {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--cn-line-strong);
+  border-radius: var(--cn-radius);
+  background: var(--cn-paper);
+  color: var(--cn-ink);
+  font-family: var(--cn-sans);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--cn-t), border-color var(--cn-t);
+}
+.cn-btn-ghost:hover {
+  background: var(--cn-hover);
+  border-color: var(--cn-ink-3);
+}
+.cn-btn-ghost svg {
+  color: var(--cn-ink-2);
+  flex: none;
+}
+
+.cn-progress {
+  /* Takes no space when empty (idle), so the status sits right under the button;
+     only reserves height while a capture is actually reporting progress. */
+  min-height: 0;
+  margin-top: 0;
+  font-family: var(--cn-mono);
+  font-size: 11px;
+  color: var(--cn-ink-2);
+}
+.cn-progress:not(:empty) {
+  min-height: 16px;
+  margin-top: 8px;
+}
+
+/* ── Divider ─────────────────────────────────────────────────────────── */
+.cn-divider {
+  height: 1px;
+  background: var(--cn-line);
+  margin: 18px 0;
+}
+
+/* ── Saved sessions list ─────────────────────────────────────────────── */
+.cn-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Folder tree (auto-grouped by AI) ────────────────────────────────── */
+.cn-folder-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  padding-left: calc(10px + var(--cn-depth, 0) * 14px);
+  margin: 0 -10px;
+  border-radius: var(--cn-radius);
+  cursor: pointer;
+  color: var(--cn-ink);
+  transition: background var(--cn-t);
+}
+.cn-folder-head:hover {
+  background: var(--cn-hover);
+}
+.cn-folder-chevron {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  color: var(--cn-ink-3);
+  transition: transform var(--cn-t);
+}
+.cn-folder.collapsed > .cn-folder-head .cn-folder-chevron {
+  transform: rotate(-90deg);
+}
+.cn-folder-logo {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  margin-left: -2px;
+}
+/* Folder names: semibold like the "Current chat" title, but a touch smaller. */
+.cn-folder-name {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cn-folder-count {
+  flex: 1 1 auto;
+  color: var(--cn-ink-3);
+  font-family: var(--cn-mono);
+  font-size: 11px;
+}
+.cn-folder-export {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--cn-ink-3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background var(--cn-t), color var(--cn-t);
+}
+.cn-folder-export:hover {
+  background: var(--cn-hover);
+  color: var(--cn-ink);
+}
+.cn-folder.collapsed > .cn-folder-body {
+  display: none;
+}
+/* Chat rows sit one level deeper than their (sub-)folder head. */
+.cn-folder-body .cn-item {
+  padding-left: calc(10px + (var(--cn-depth, 0) + 1) * 14px);
+}
+.cn-folder-head:focus-visible,
+.cn-folder-export:focus-visible {
+  outline: 2px solid var(--cn-ink);
+  outline-offset: 2px;
+}
+
+.cn-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  margin: 0 -10px;
+  border-radius: var(--cn-radius);
+  cursor: pointer;
+  transition: background var(--cn-t);
+}
+.cn-item:hover {
+  background: var(--cn-hover);
+}
+.cn-item-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 400;
+  color: var(--cn-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cn-item-date {
+  font-family: var(--cn-mono);
+  color: var(--cn-ink-3);
+  font-size: 11px;
+  flex: none;
+}
+.cn-empty {
+  color: var(--cn-ink-3);
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+/* ── Multi-select (bulk delete) ──────────────────────────────────────── */
+.cn-saved-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+/* a small text button (the "Select" / "Cancel" toggle) — mono, like a label */
+.cn-btn-link {
+  border: 0;
+  background: none;
+  padding: 2px 0;
+  font-family: var(--cn-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--cn-ink-3);
+  cursor: pointer;
+  transition: color var(--cn-t);
+}
+.cn-btn-link:hover {
+  color: var(--cn-ink);
+}
+.cn-select-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+/* keep the bar's buttons inline + auto-width regardless of their base styles */
+.cn-select-bar > button {
+  width: auto;
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+.cn-select-bar [data-delete-selected] {
+  margin-left: auto; /* push Delete to the right edge */
+}
+/* checkbox indicator shown on rows while in select mode */
+.cn-item-check {
+  position: relative;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--cn-line-strong);
+  border-radius: 4px;
+  transition: background var(--cn-t), border-color var(--cn-t);
+}
+.cn-item.selected {
+  background: var(--cn-hover);
+}
+.cn-item.selected .cn-item-check {
+  background: var(--cn-ink);
+  border-color: var(--cn-ink);
+}
+.cn-item.selected .cn-item-check::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--cn-paper);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ── Detail view ─────────────────────────────────────────────────────── */
+.cn-detail-head {
+  text-align: center;
+  padding: 4px 0 2px;
+}
+.cn-detail-head .cn-chat-title {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+.cn-detail-dates {
+  font-family: var(--cn-mono);
+  font-size: 12px;
+  color: var(--cn-ink-3);
+  line-height: 1.6;
+}
+
+.cn-statrow {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin: 16px 0 20px;
+  font-family: var(--cn-mono);
+  font-size: 12px;
+  color: var(--cn-ink-2);
+}
+.cn-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cn-stat svg {
+  color: var(--cn-ink-3);
+}
+
+.cn-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Quiet danger — text only, tints on hover. */
+/* Compress toggle — sits inside .cn-actions directly under "Resume in new
+   chat" so it reads as a modifier on that one action. Same boxed style as
+   the action buttons (border, rounded, paper background) so it visually
+   belongs in the action row; tints to accent when the box is checked. */
+.cn-compress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--cn-line);
+  border-radius: var(--cn-radius);
+  background: var(--cn-paper);
+  cursor: pointer;
+  transition: border-color var(--cn-t), background var(--cn-t);
+}
+.cn-compress:hover {
+  border-color: var(--cn-ink-3);
+  background: var(--cn-hover);
+}
+.cn-compress input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--cn-ink); /* monochrome tick — no purple */
+}
+/* Checked state: keep it neutral (just a slightly firmer border). The checkbox
+   tick already shows the state — no purple row highlight. */
+/* Checked: a clear ink outline (charcoal in light, light in dark) — the same
+   "highlighted" affordance the purple gave, but on-theme. */
+.cn-compress:has(input:checked) {
+  border-color: var(--cn-ink);
+}
+.cn-compress-text {
+  font-family: var(--cn-mono);
+  font-size: 12px;
+  color: var(--cn-ink-2);
+  line-height: 1.4;
+}
+
+/* Resume format selector (PDF / MD) in the detail view — the radio pills reuse
+   .cn-radio-group/.cn-radio; this just stacks them above the pros/cons hint. */
+.cn-format-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cn-format-hint {
+  margin-bottom: 0;
+}
+
+.cn-btn-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+  padding: 11px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--cn-radius);
+  background: transparent;
+  color: var(--cn-danger);
+  font-family: var(--cn-sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--cn-t);
+}
+.cn-btn-danger:hover {
+  background: var(--cn-danger-tint);
+}
+
+/* ── Confirm dialog ──────────────────────────────────────────────────── */
+.cn-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 18, 14, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--cn-t);
+}
+/* When a dialog opens, the panel's scroll is frozen AND reset to top in JS, so the
+   absolutely-positioned backdrop (inset:0 of the scroll content) lines up exactly
+   with the visible card — no half-dimmed strip on a previously-scrolled view. */
+.continuum-panel.cn-dialog-open {
+  overflow: hidden;
+}
+.cn-dialog-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.cn-dialog {
+  width: 100%;
+  max-width: 280px;
+  background: var(--cn-paper);
+  border: 1px solid var(--cn-line-strong);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(20, 18, 14, 0.22);
+  padding: 20px;
+  text-align: center;
+  transform: translateY(6px) scale(0.98);
+  transition: transform var(--cn-t);
+}
+.cn-dialog-backdrop.open .cn-dialog {
+  transform: none;
+}
+.cn-dialog-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.cn-dialog-sub {
+  font-family: var(--cn-mono);
+  font-size: 11px;
+  color: var(--cn-ink-3);
+  margin-bottom: 18px;
+}
+.cn-dialog-row {
+  display: flex;
+  gap: 10px;
+}
+.cn-dialog-row button {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: var(--cn-radius);
+  font-family: var(--cn-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--cn-t), border-color var(--cn-t);
+}
+.cn-dialog-cancel {
+  border: 1px solid var(--cn-line-strong);
+  background: var(--cn-paper);
+  color: var(--cn-ink);
+}
+.cn-dialog-cancel:hover {
+  background: var(--cn-hover);
+  border-color: var(--cn-ink-3);
+}
+.cn-dialog-confirm {
+  border: 1px solid var(--cn-danger);
+  background: var(--cn-danger);
+  color: #fff;
+}
+.cn-dialog-confirm:hover {
+  background: #9a2f27;
+  border-color: #9a2f27;
+}
+
+/* ── Toast ───────────────────────────────────────────────────────────── */
+.cn-toast {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  padding: 10px 14px;
+  border-radius: var(--cn-radius);
+  font-family: var(--cn-mono);
+  font-size: 12px;
+  text-align: center;
+  border: 1px solid transparent;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  z-index: 20;
+}
+.cn-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Inline status under the Capture button (Session saved / deleted) — stays in
+   flow right below the button instead of floating over the list like the toast.
+   Collapsed (0 height, 0 opacity) when idle so it takes no space; animates open
+   and closed smoothly so it never pops in/out or jumps the layout. */
+.cn-status {
+  margin-top: 0;
+  max-height: 0;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--cn-radius);
+  font-family: var(--cn-mono);
+  font-size: 12px;
+  text-align: center;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.22s ease, opacity 0.22s ease, margin-top 0.22s ease,
+    padding-top 0.22s ease, padding-bottom 0.22s ease;
+}
+.cn-status.show {
+  margin-top: 8px;
+  max-height: 120px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  opacity: 1;
+}
+.cn-status.ok {
+  background: var(--cn-ok-tint);
+  border-color: #b7e4c8;
+  color: var(--cn-ok);
+}
+.cn-status.err {
+  background: var(--cn-danger-tint);
+  border-color: #f6c9c9;
+  color: var(--cn-danger);
+}
+:host([data-theme="dark"]) .cn-status.ok {
+  border-color: #1f5a45;
+}
+:host([data-theme="dark"]) .cn-status.err {
+  border-color: #6b2424;
+}
+.cn-toast.ok {
+  background: var(--cn-ok-tint);
+  border-color: #b7e4c8;
+  color: var(--cn-ok);
+}
+.cn-toast.err {
+  background: var(--cn-danger-tint);
+  border-color: #f6c9c9;
+  color: var(--cn-danger);
+}
+
+/* ── Focus + motion ──────────────────────────────────────────────────── */
+.continuum-fab:focus-visible,
+.cn-iconbtn:focus-visible,
+.cn-btn-primary:focus-visible,
+.cn-btn-ghost:focus-visible,
+.cn-btn-danger:focus-visible,
+.cn-item:focus-visible,
+.cn-dialog-row button:focus-visible {
+  outline: 2px solid var(--cn-ink);
+  outline-offset: 2px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .continuum-panel,
+  .continuum-backdrop,
+  .cn-dialog,
+  .cn-dialog-backdrop,
+  .cn-toast,
+  .cn-fab,
+  .cn-btn-primary,
+  .cn-btn-ghost,
+  .cn-item,
+  .cn-textarea,
+  .cn-status {
+    transition: none !important;
+  }
+}
+
+/* ── Settings view ───────────────────────────────────────────────────── */
+.cn-radio-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cn-radio-group-stack {
+  flex-direction: column;
+  gap: 8px;
+}
+.cn-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border: 1px solid var(--cn-line);
+  border-radius: var(--cn-radius);
+  background: var(--cn-paper);
+  transition: border-color var(--cn-t), background var(--cn-t);
+}
+.cn-radio:hover {
+  background: var(--cn-hover);
+}
+.cn-radio:has(input:checked) {
+  border-color: var(--cn-ink); /* neutral ink outline (no purple), like .cn-compress */
+}
+.cn-radio input[type="radio"] {
+  accent-color: var(--cn-ink); /* monochrome dot — no purple */
+  margin: 0;
+  cursor: pointer;
+}
+.cn-radio-stack {
+  align-items: flex-start;
+  padding: 10px 12px;
+}
+.cn-radio-stack input[type="radio"] {
+  margin-top: 2px;
+}
+.cn-radio-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cn-radio-label {
+  font-size: 14px;
+  color: var(--cn-ink);
+  line-height: 1.3;
+}
+.cn-radio-desc {
+  font-size: 12px;
+  color: var(--cn-ink-3);
+  line-height: 1.4;
+}
+
+/* ── Resume preamble (settings textarea) ─────────────────────────────── */
+/* The Resume-preamble title is a real <label for> (click focuses the textarea);
+   .cn-label is used as a block heading elsewhere, so keep label variants block. */
+label.cn-label {
+  display: block;
+  cursor: pointer;
+}
+.cn-hint {
+  font-size: 12px;
+  color: var(--cn-ink-2); /* readable help text (>=4.5:1 on paper), not the faint ink-3 */
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+.cn-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--cn-line-strong);
+  border-radius: var(--cn-radius);
+  background: var(--cn-paper);
+  color: var(--cn-ink);
+  font-family: var(--cn-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  resize: none; /* no drag-grip in the corner — keep it minimal */
+  min-height: 132px;
+  margin-top: 10px; /* breathing room below the PDF/Markdown format toggle */
+  transition: border-color var(--cn-t), box-shadow var(--cn-t);
+}
+/* Visible focus for keyboard AND click (text fields always get :focus-visible):
+   solid NEUTRAL ink outline (no purple) — clearly visible in BOTH light and dark
+   themes (--cn-ink flips to near-white on dark). */
+.cn-textarea:focus-visible {
+  outline: 2px solid var(--cn-ink);
+  outline-offset: 2px;
+  border-color: var(--cn-ink);
+}
+/* Text/number inputs (Settings → AI compression). */
+.cn-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  margin-top: 8px;
+  border: 1px solid var(--cn-line-strong);
+  border-radius: var(--cn-radius);
+  background: var(--cn-paper);
+  color: var(--cn-ink);
+  font-family: var(--cn-sans);
+  font-size: 13px;
+  transition: border-color var(--cn-t), box-shadow var(--cn-t);
+}
+.cn-input:focus-visible {
+  outline: 2px solid var(--cn-ink);
+  outline-offset: 2px;
+  border-color: var(--cn-ink);
+}
+.cn-input-narrow {
+  width: 84px;
+}
+.cn-field-label {
+  display: block;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--cn-ink-2);
+}
+.cn-btn-small {
+  width: auto;
+  padding: 8px 12px;
+  font-size: 12px;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* ── Minimal scrollbars ──────────────────────────────────────────────────
+   Just a rounded thumb — no track, no up/down arrow buttons. Applied to EVERY
+   scrollable element inside the panel's shadow root (`:host *`), so it doesn't
+   matter which element actually scrolls. Scoped to the shadow root, so
+   claude.ai's own scrollbars are untouched. */
+:host {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--cn-line-strong) transparent;
+}
+:host *::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+:host *::-webkit-scrollbar-track {
+  background: transparent;
+  /* Keep the thumb clear of the rounded top/bottom corners (and the × button)
+     when scrolled fully up or down. */
+  margin: 14px 0;
+}
+:host *::-webkit-scrollbar-corner {
+  background: transparent;
+}
+:host *::-webkit-scrollbar-thumb {
+  background: var(--cn-line-strong);
+  border: 3px solid transparent; /* inset so the bar floats, not edge-to-edge */
+  border-radius: 8px;
+  background-clip: padding-box;
+  min-height: 40px; /* never shrink to a dot on very long content */
+}
+/* Remove the arrow buttons (every variant Chromium exposes). */
+:host *::-webkit-scrollbar-button,
+:host *::-webkit-scrollbar-button:single-button,
+:host *::-webkit-scrollbar-button:vertical:start,
+:host *::-webkit-scrollbar-button:vertical:end,
+:host *::-webkit-scrollbar-button:horizontal:start,
+:host *::-webkit-scrollbar-button:horizontal:end {
+  display: none;
+  width: 0;
+  height: 0;
+}
+/* The Resume-message textarea is small, so the panel's 14px track inset is too
+   much here — bring the bar closer to the ends, still clearly not touching.
+   (Same specificity as `:host *`, placed after, so source order wins.) */
+.cn-textarea::-webkit-scrollbar-track {
+  margin: 6px 0;
+}
+
+/* ── Theme toggle (switch) ───────────────────────────────────────────── */
+.cn-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 0;
+  cursor: pointer;
+}
+.cn-switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  flex: none;
+}
+.cn-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.cn-switch-track {
+  position: absolute;
+  inset: 0;
+  background: var(--cn-line-strong);
+  border-radius: 999px;
+  transition: background var(--cn-t);
+}
+.cn-switch-track::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--cn-paper);
+  border-radius: 50%;
+  transition: transform var(--cn-t);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.cn-switch input:checked + .cn-switch-track {
+  background: var(--cn-ink);
+}
+.cn-switch input:checked + .cn-switch-track::before {
+  transform: translateX(16px);
+}
+.cn-switch input:focus-visible + .cn-switch-track {
+  outline: 2px solid var(--cn-ink);
+  outline-offset: 2px;
+}
+
+/* ── Dark theme ──────────────────────────────────────────────────────── */
+/* Mirrors light mode's monochrome character — flipped to ink-on-paper but
+   with no colour accent. Focus rings use a bright neutral so they stay
+   readable without introducing the light-mode indigo. */
+/* Theme lives on the shadow HOST so the dark variables cascade to EVERYTHING in
+   the shadow root — the panel AND the floating button (which is a sibling of the
+   panel, not a descendant, so panel-scoped vars never reached it). */
+:host([data-theme="dark"]) {
+  --cn-paper: #1b1f27;
+  --cn-hover: #262b35;
+  --cn-ink: #e5e7eb;
+  --cn-ink-2: #cbd5e1;
+  --cn-ink-3: #94a3b8;
+  --cn-line: #2d333f;
+  --cn-line-strong: #3a4150;
+  --cn-accent: #e5e7eb;
+  --cn-accent-hover: #ffffff;
+  --cn-accent-tint: #2a2f3a;
+  --cn-danger: #f87171;
+  --cn-danger-tint: #2d1818;
+  --cn-ok: #34d399;
+  --cn-ok-tint: #143028;
+}
+:host([data-theme="dark"]) .continuum-panel {
+  border-color: var(--cn-line-strong);
+}
+/* The primary button hard-codes hover: #000 in light mode; that's wrong on a
+   dark surface, so lift to the brightest ink instead so the button still
+   reads as "more emphasized" on hover. */
+:host([data-theme="dark"]) .cn-btn-primary:hover {
+  background: var(--cn-accent-hover);
+  color: var(--cn-paper);
+}
+:host([data-theme="dark"]) .cn-toast.ok {
+  border-color: #1f5a45;
+}
+:host([data-theme="dark"]) .cn-toast.err {
+  border-color: #6b2424;
+}
