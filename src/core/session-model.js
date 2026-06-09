@@ -73,5 +73,33 @@
     return session.stats;
   }
 
-  Continuum.model = { uuid, createSession, addMedia, recomputeStats };
+  // Single source of truth for "will this attachment actually be UPLOADED on
+  // resume?" — used by the panel's "Attach files/images" toggle counts AND both
+  // resume builders (collectResumeFiles, collectResumeDocuments), so the count
+  // always equals what actually attaches.
+  //
+  // hasBytes = we captured the file's bytes (mediaId + a real blob). A too-big /
+  // download-only upload we could only name-reference has no blob.
+  //
+  // A FILE is attachable only when we have its bytes AND it isn't text that's
+  // already inlined in the transcript: text content (pasted blocks, .md/.csv)
+  // rides in the transcript, so re-attaching it would be redundant — only binary
+  // files (PDF, DOCX, …) need to ride along as real attachments. Images are
+  // attachable whenever we have their bytes.
+  function hasBytes(att, media) {
+    if (!att || !att.mediaId) return false;
+    const m = (media || {})[att.mediaId];
+    return !!(m && m.blob);
+  }
+  function attachableImage(att, media) {
+    return !!att && att.type === "image" && hasBytes(att, media);
+  }
+  function attachableFile(att, media) {
+    return !!att && att.type === "file" && att.text == null && hasBytes(att, media);
+  }
+
+  Continuum.model = {
+    uuid, createSession, addMedia, recomputeStats,
+    attachableImage, attachableFile,
+  };
 })();
