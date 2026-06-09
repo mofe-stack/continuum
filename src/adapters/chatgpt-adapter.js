@@ -214,7 +214,10 @@
         // every upload here and let captureFast fetch its bytes by file id.)
         const mime = a.mime_type || a.mimeType || "";
         const isImg = /^image\//i.test(mime) || /\.(png|jpe?g|gif|webp|svg|heic|heif|bmp|avif|tiff?)$/i.test(name);
-        push({ id: a.id || a.file_id || null, name: name, mime: mime, isImg: isImg });
+        // ChatGPT flags a pasted-in block (vs a real upload) with is_big_paste.
+        // It rides in the transcript as text, so it isn't a "file" for counting
+        // (and is never attachable).
+        push({ id: a.id || a.file_id || null, name: name, mime: mime, isImg: isImg, isPasted: !!a.is_big_paste });
       }
     }
     const parts = (msg && msg.content && Array.isArray(msg.content.parts)) ? msg.content.parts : [];
@@ -367,6 +370,7 @@
       const attachments = [];
       for (const a of r.atts) {
         const att = { type: a.isImg ? "image" : "file", mediaId: null, name: a.name, mediaType: a.mime };
+        if (a.isPasted) att.isPasted = true; // big-paste → transcript text, not a "file"
         attachments.push(att);
         if (a.id) {
           fetchTasks.push({ att: att, fileId: a.id, name: a.name, isImg: a.isImg });
@@ -472,8 +476,9 @@
         for (const a of r.atts) {
           if (a.isImg) images++;
           // Only count ATTACHABLE files (have a file id, or a sandbox path we can
-          // resolve) so the preview matches the saved stat after capture.
-          else if (a.id || a.sandbox) files++;
+          // resolve) so the preview matches the saved stat after capture. A big
+          // paste is transcript text, not a file — don't count it.
+          else if (!a.isPasted && (a.id || a.sandbox)) files++;
         }
       }
       const value = { messages: messages, images: images, files: files };

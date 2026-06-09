@@ -65,7 +65,9 @@
         // keys on mediaId, so an un-fetchable upload shows in the count but offers no
         // attach option (you can't attach what we couldn't capture). Applies to all
         // providers — no per-site special case.
-        else if (att.type === "file" && (att.mediaId || fromUser)) files++;
+        // Pasted content (text pasted into the chat) is NOT a file — it rides in the
+        // transcript as text — so it never counts here.
+        else if (att.type === "file" && !att.isPasted && (att.mediaId || fromUser)) files++;
       }
       artifacts += (turn.artifacts || []).length;
     }
