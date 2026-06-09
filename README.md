@@ -69,45 +69,49 @@ The full policy is in [PRIVACY.md](./PRIVACY.md).
 
 ## Running it locally
 
-You can load the extension unpacked while it's still in review.
+You can load the extension unpacked while it's still in review. Build first, then load the folder for your browser:
 
-**Chrome / Edge**
+```bash
+node build-chrome.js     # → build/chrome/
+node build-firefox.js    # → build/firefox/
+```
+
+**Chrome / Opera / Edge**
 1. Go to `chrome://extensions`
 2. Turn on **Developer mode** (top right)
-3. Click **Load unpacked** and select the project folder
+3. Click **Load unpacked** and select the **`build/chrome`** folder
 
 **Firefox**
 1. Go to `about:debugging#/runtime/this-firefox`
 2. Click **Load Temporary Add-on**
-3. Select the `manifest.json` in the project folder
+3. Select **`build/firefox/manifest.json`**
 
 ## Building the packages
 
-The build scripts just zip the source as-is — no bundling, minifying, or code generation. What you see in the repo is what ships.
+Continuum ships from one shared `src/` — only the manifest differs per browser (Chrome uses a service-worker background; Firefox uses a scripts background plus `gecko` settings). The build scripts copy the source as-is — no bundling, minifying, or code generation — and write both an unpacked folder (for loading during dev) and a packaged file (for the store).
 
 ```bash
-# Firefox .xpi (run from this folder)
-node build-firefox.js
-
-# Chrome .zip (run from the chrome build folder)
-node build-chrome.js
+node build-firefox.js    # → build/firefox/  and  continuum-firefox.xpi
+node build-chrome.js     # → build/chrome/   and  continuum-chrome.zip
 ```
 
 ## Project layout
 
 ```
-manifest.json         Extension manifest (Firefox build)
-src/
-  background.js       Background worker (handles cross-origin image fetches, etc.)
-  content-script.js   Entry point injected into supported AI sites
-  adapters/           Per-site capture logic (Claude, ChatGPT, Gemini)
-  core/               Storage, settings, compression, session model, PDF export
-  ui/                 Floating button + capture panel
-  vendor/             Third-party libs (fflate, jsPDF)
-icons/                Extension icons
-tests/                Unit tests for the adapters, compressor, and sanitizer
-build-firefox.js      Packages the Firefox .xpi
-PRIVACY.md            Privacy policy
+manifest.firefox.json  Firefox manifest (scripts background + gecko settings)
+manifest.chrome.json   Chrome manifest (service-worker background)
+src/                   Shared source — used by both builds
+  background.js        Background worker (handles cross-origin image fetches, etc.)
+  content-script.js    Entry point injected into supported AI sites
+  adapters/            Per-site capture logic (Claude, ChatGPT, Gemini)
+  core/                Storage, settings, compression, session model, PDF export
+  ui/                  Floating button + capture panel
+  vendor/              Third-party libs (fflate, jsPDF)
+icons/                 Extension icons
+tests/                 Unit tests for the adapters, compressor, and sanitizer
+build-firefox.js       Builds the Firefox .xpi (+ build/firefox/)
+build-chrome.js        Builds the Chrome .zip (+ build/chrome/)
+PRIVACY.md             Privacy policy
 ```
 
 ## License

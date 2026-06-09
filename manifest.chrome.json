@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "Continuum: Capture, Save and Resume ChatGPT, Claude, Gemini & More AI Chats",
+  "version": "1.0.0",
+  "description": "Capture an AI chat session and resume it in a new chat on any supported platform — never lose context to message/length limits.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Continuum",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": ["storage", "unlimitedStorage"],
+  "host_permissions": [
+    "https://claude.ai/*",
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://gemini.google.com/*",
+    "https://*.googleusercontent.com/*",
+    "https://api.anthropic.com/*",
+    "https://api.openai.com/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://api.perplexity.ai/*",
+    "https://api.x.ai/*",
+    "https://api.deepseek.com/*"
+  ],
+  "background": { "service_worker": "src/background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://claude.ai/*", "https://chatgpt.com/*", "https://chat.openai.com/*", "https://gemini.google.com/*"],
+      "run_at": "document_idle",
+      "js": [
+        "src/vendor/fflate.min.js",
+        "src/vendor/jspdf.umd.min.js",
+        "src/core/session-model.js",
+        "src/core/storage.js",
+        "src/core/settings.js",
+        "src/core/compressor.js",
+        "src/core/llm-compressor.js",
+        "src/adapters/claude-adapter.js",
+        "src/adapters/chatgpt-adapter.js",
+        "src/adapters/gemini-adapter.js",
+        "src/ui/floating-button.js",
+        "src/ui/capture-panel.js",
+        "src/core/pdf-export.js",
+        "src/resume-injector.js",
+        "src/content-script.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/ui/panel.css", "icons/*"],
+      "matches": ["https://claude.ai/*", "https://chatgpt.com/*", "https://chat.openai.com/*", "https://gemini.google.com/*"]
+    }
+  ]
+}
