@@ -877,6 +877,11 @@
     // otherwise. (Filenames can carry stray newlines/tabs — this PDF's did — so
     // we still clean those, but we don't synthesize id-based names.)
     const name = (f.file_name || f.name || f.filename || "attachment").replace(/[\r\n\t]+/g, " ").trim();
+    // Pasted content (text pasted straight into the chat) comes back with an EMPTY
+    // file_name and a bare file_type like "txt" — vs a real upload, which has a
+    // filename ("notes.md") and a MIME type ("text/markdown"). It rides in the
+    // transcript as text, so it isn't a "file" for counting (and never attaches).
+    const isPasted = !String(f.file_name || f.name || f.filename || "").trim();
     const isImg =
       f.file_kind === "image" ||
       /^image\//i.test(mime) ||
@@ -893,7 +898,7 @@
     const width = Number(dims.image_width) || null;
     const height = Number(dims.image_height) || null;
     const pageCount = (f.document_asset && Number(f.document_asset.page_count)) || null;
-    return { name, url, mediaType, isImg, isText, text, width, height, pageCount };
+    return { name, url, mediaType, isImg, isText, text, width, height, pageCount, isPasted };
   }
 
   // Attachments are the user's UPLOADS only — read from the message's files /
@@ -1021,6 +1026,7 @@
       const attachments = [];
       for (const a of r.atts) {
         const att = { type: a.isImg ? "image" : "file", mediaId: null, name: a.name, mediaType: a.mediaType };
+        if (a.isPasted) att.isPasted = true; // pasted text → not a "file", just transcript content
         if (a.isImg && a.width && a.height) {
           att.width = a.width;
           att.height = a.height;
@@ -1120,8 +1126,9 @@
           // A file YOU uploaded counts (shown even if unfetchable, e.g. a sandbox
           // .zip blob); AI files count only when attachable (url/inline text). The
           // attach toggle keys on captured bytes, so unfetchable uploads can't be
-          // attached. Matches recomputeStats so preview == saved.
-          else if (fromUser || a.url || a.text != null) files++;
+          // attached. Pasted content is transcript text, NOT a file — don't count
+          // it. Matches recomputeStats so preview == saved.
+          else if (!a.isPasted && (fromUser || a.url || a.text != null)) files++;
         }
       }
       const value = { messages: parsed.records.length, images, files };
