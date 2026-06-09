@@ -11,7 +11,7 @@ It runs entirely on your own device. There's no account, no server, and nothing 
 The extension is going through store review. Links will go here once it's approved:
 
 - **Chrome Web Store:** _coming soon_
-- **Firefox Add-ons:** _coming soon_
+- **Firefox Add-ons:** https://addons.mozilla.org/en-US/firefox/addon/continuum/
 
 Until then, you can run it unpacked — see [Running it locally](#running-it-locally) below.
 
