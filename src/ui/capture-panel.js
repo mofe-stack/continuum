@@ -505,18 +505,16 @@
   function collectResumeFiles(session, opts) {
     const historyText = buildHandoff(session, opts);
     const media = session.media || {};
+    const M = Continuum.model;
     const files = [];
     const seen = new Set();
     for (const turn of session.turns || []) {
       for (const att of turn.attachments || []) {
-        const isImage = att.type === "image";
-        const isInlinedText = att.type === "file" && att.text != null;
-        if (!isImage && !(att.type === "file" && !isInlinedText)) continue;
-        if (!att.mediaId) continue; // no bytes captured → nothing to upload
-        const m = media[att.mediaId];
-        if (!m || !m.blob) continue;
+        const isImage = M.attachableImage(att, media);
+        if (!isImage && !M.attachableFile(att, media)) continue;
         if (seen.has(att.mediaId)) continue; // dedupe shared blobs
         seen.add(att.mediaId);
+        const m = media[att.mediaId];
         files.push({ name: att.name || (isImage ? "image" : "file"), blob: m.blob, type: m.blob.type || m.mimeType || "" });
       }
     }
@@ -1169,11 +1167,13 @@
     // real attach is possible. Visibility/labels per format → updateAttachRows().
     _detailFileCount = 0;
     _detailImageCount = 0;
+    const _media = session.media || {};
     for (const turn of session.turns || []) {
       for (const att of turn.attachments || []) {
-        if (!att.mediaId) continue; // name-only reference → not attachable
-        if (att.type === "image") _detailImageCount++;
-        else if (att.type === "file") _detailFileCount++;
+        // Same predicate the resume builders use, so the toggle count always
+        // equals what actually attaches.
+        if (Continuum.model.attachableImage(att, _media)) _detailImageCount++;
+        else if (Continuum.model.attachableFile(att, _media)) _detailFileCount++;
       }
     }
     includeFilesEnabled = false;

@@ -293,22 +293,24 @@
   }
 
   // Collects the FILES to attach alongside conversation-history.pdf: every
-  // byte-backed file attachment (PDF, DOCX, XLSX, and also text files like
-  // .md/.csv — even though their text is inlined in the transcript, the user may
-  // want the real file). Images are excluded — they're embedded in the PDF.
+  // byte-backed file attachment (PDF, DOCX, XLSX, …) whose bytes were captured.
+  // Inlined-text files (pasted content, uploaded .md/.csv whose text is already
+  // in the transcript) are skipped — re-attaching them would just duplicate the
+  // content. Images are excluded — they're embedded in the PDF.
   // De-duped by mediaId. Returns [{ name, blob, type }] in transcript order.
-  // This is also what the panel's "Attach files" toggle counts, so the toggle
-  // matches the visible file count.
+  // Uses the same predicate as the Markdown path (collectResumeFiles) and the
+  // panel's "Attach files" toggle count, so the count always equals what
+  // actually attaches.
   function collectResumeDocuments(session) {
-    const media = session.media || {};
+    const media = (session && session.media) || {};
+    const M = Continuum.model;
     const out = [];
     const seen = new Set();
     for (const turn of (session && session.turns) || []) {
       for (const att of turn.attachments || []) {
-        if (att.type !== "file" || !att.mediaId) continue;
+        if (!M.attachableFile(att, media)) continue;
         if (seen.has(att.mediaId)) continue;
         const m = media[att.mediaId];
-        if (!m || !m.blob) continue;
         seen.add(att.mediaId);
         out.push({
           name: att.name || "document",
