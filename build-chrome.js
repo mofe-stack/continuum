@@ -1,14 +1,15 @@
-// build-firefox.js — packages the Firefox build from the shared source.
+// build-chrome.js — packages the Chrome/Opera/Edge build from the shared source.
 //
 // It copies the source AS-IS — no transforming, minifying, bundling, or code
-// generation. The Firefox manifest (manifest.firefox.json) is written into the
+// generation. The Chrome manifest (manifest.chrome.json) is written into the
 // package as manifest.json; icons/ and src/ are included byte-for-byte. The
-// Chrome build (build-chrome.js) uses the exact same src/ — only the manifest
-// differs between the two.
+// Firefox build (build-firefox.js) uses the exact same src/ — only the manifest
+// differs between the two (Chrome uses a service-worker background; Firefox uses
+// a scripts background + gecko settings).
 //
-// Usage:  node build-firefox.js
-//   → build/firefox/            (unpacked — load via about:debugging for testing)
-//   → continuum-firefox.xpi     (packaged — upload to AMO)
+// Usage:  node build-chrome.js
+//   → build/chrome/             (unpacked — load via chrome://extensions → Load unpacked)
+//   → continuum-chrome.zip      (packaged — upload to the Chrome Web Store)
 "use strict";
 
 const fs = require("fs");
@@ -16,9 +17,9 @@ const path = require("path");
 const fflate = require("./src/vendor/fflate.min.js");
 
 const root = __dirname;
-const MANIFEST = "manifest.firefox.json"; // written into the package as manifest.json
-const OUTDIR = path.join(root, "build", "firefox");
-const OUTPKG = path.join(root, "continuum-firefox.xpi");
+const MANIFEST = "manifest.chrome.json"; // written into the package as manifest.json
+const OUTDIR = path.join(root, "build", "chrome");
+const OUTPKG = path.join(root, "continuum-chrome.zip");
 
 const INCLUDE = ["icons", "src"];
 const SKIP = new Set(["icons/generate_icons.py"]); // dev-only file
@@ -37,7 +38,7 @@ function walk(rel) {
 }
 for (const item of INCLUDE) walk(item);
 
-// Unpacked folder (for load-as-temporary-add-on testing).
+// Unpacked folder (point "Load unpacked" at this).
 fs.rmSync(OUTDIR, { recursive: true, force: true });
 for (const [rel, bytes] of Object.entries(files)) {
   const dest = path.join(OUTDIR, rel);
@@ -45,9 +46,9 @@ for (const [rel, bytes] of Object.entries(files)) {
   fs.writeFileSync(dest, bytes);
 }
 
-// Packaged .xpi (for the store).
+// Packaged .zip (for the store).
 fs.writeFileSync(OUTPKG, Buffer.from(fflate.zipSync(files, { level: 6 })));
 
-console.log("Firefox build: " + Object.keys(files).length + " files");
+console.log("Chrome build: " + Object.keys(files).length + " files");
 console.log("  unpacked → " + OUTDIR);
 console.log("  package  → " + OUTPKG);
