@@ -135,6 +135,7 @@
     if (/(^|\.)claude\.ai$/.test(h)) return "claude";
     if (/(^|\.)chatgpt\.com$/.test(h) || /(^|\.)chat\.openai\.com$/.test(h)) return "chatgpt";
     if (/(^|\.)gemini\.google\.com$/.test(h)) return "gemini";
+    if (/(^|\.)perplexity\.ai$/.test(h)) return "perplexity";
     return null;
   }
 
@@ -657,9 +658,9 @@
       "  </div>",
       '  <div class="cn-statrow" data-d-stats></div>',
       '  <div class="cn-actions">',
-      // Resume → expands an inline picker of target AIs. Claude, ChatGPT, and
-      // Gemini are wired up; the rest (Perplexity, Grok, DeepSeek, Copilot) are
-      // placeholders (disabled) until per-site injectors exist.
+      // Resume → expands an inline picker of target AIs. Claude, ChatGPT,
+      // Gemini, and Perplexity are wired up; the rest (Grok, DeepSeek, Copilot)
+      // are placeholders (disabled) until per-site injectors exist.
       '    <div class="cn-resume" data-resume-wrap>',
       '      <button class="cn-btn-primary" data-resume-btn>' + svg("play") +
         "<span>Resume in new chat</span>" +
@@ -674,9 +675,9 @@
       '        <button class="cn-resume-target" data-resume-target="gemini">' +
         '<span class="cn-resume-logo">' + providerLogo("gemini", 18) +
         "</span><span>Gemini</span></button>",
-      '        <button class="cn-resume-target disabled" data-resume-target="perplexity" disabled>' +
+      '        <button class="cn-resume-target" data-resume-target="perplexity">' +
         '<span class="cn-resume-logo">' + providerLogo("perplexity", 18) +
-        '</span><span>Perplexity</span><span class="cn-soon">soon</span></button>',
+        "</span><span>Perplexity</span></button>",
       '        <button class="cn-resume-target disabled" data-resume-target="grok" disabled>' +
         '<span class="cn-resume-logo">' + providerLogo("grok", 18) +
         '</span><span>Grok</span><span class="cn-soon">soon</span></button>',
@@ -1688,7 +1689,12 @@
   }
 
   // New-chat URL per resume target.
-  const RESUME_URLS = { claude: "https://claude.ai/new", chatgpt: "https://chatgpt.com/", gemini: "https://gemini.google.com/app" };
+  const RESUME_URLS = {
+    claude: "https://claude.ai/new",
+    chatgpt: "https://chatgpt.com/",
+    gemini: "https://gemini.google.com/app",
+    perplexity: "https://www.perplexity.ai/",
+  };
 
   async function onResume(target) {
     if (!currentDetail) return;

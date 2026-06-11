@@ -17,6 +17,9 @@
     if (/(?:^|\.)gemini\.google\.com$/i.test(h) && Continuum.geminiAdapter) {
       return Continuum.geminiAdapter;
     }
+    if (/(?:^|\.)perplexity\.ai$/i.test(h) && Continuum.perplexityAdapter) {
+      return Continuum.perplexityAdapter;
+    }
     return Continuum.claudeAdapter;
   }
   Continuum.getActiveAdapter = getActiveAdapter;
@@ -32,6 +35,10 @@
     // Multi-account sessions prefix the path with /u/<n> (e.g. /u/1/app/<id>), so
     // allow that optional segment — otherwise the button never mounts on a 2nd+ account.
     if (/(?:^|\.)gemini\.google\.com$/i.test(h)) return /^(?:\/u\/\d+)?\/app\/[^/]+/.test(location.pathname);
+    // Perplexity threads live at /search/<slug> (PROVISIONAL until the probe
+    // confirms — the probe itself runs via the localStorage flag on ANY
+    // perplexity.ai page, independent of this gate).
+    if (/(?:^|\.)perplexity\.ai$/i.test(h)) return /^\/search\/[^/]+/.test(location.pathname);
     return /^\/chat\//.test(location.pathname);
   }
 

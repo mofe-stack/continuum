@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Continuum: Capture, Save and Resume ChatGPT, Claude, Gemini & More AI Chats",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Capture an AI chat session and resume it in a new chat on any supported platform — never lose context to message/length limits.",
   "icons": {
     "16": "icons/icon16.png",
@@ -22,6 +22,8 @@
     "https://chatgpt.com/*",
     "https://chat.openai.com/*",
     "https://gemini.google.com/*",
+    "https://www.perplexity.ai/*",
+    "https://perplexity.ai/*",
     "https://*.googleusercontent.com/*",
     "https://api.anthropic.com/*",
     "https://api.openai.com/*",
@@ -33,7 +35,7 @@
   "background": { "service_worker": "src/background.js" },
   "content_scripts": [
     {
-      "matches": ["https://claude.ai/*", "https://chatgpt.com/*", "https://chat.openai.com/*", "https://gemini.google.com/*"],
+      "matches": ["https://claude.ai/*", "https://chatgpt.com/*", "https://chat.openai.com/*", "https://gemini.google.com/*", "https://www.perplexity.ai/*", "https://perplexity.ai/*"],
       "run_at": "document_idle",
       "js": [
         "src/vendor/fflate.min.js",
@@ -46,6 +48,7 @@
         "src/adapters/claude-adapter.js",
         "src/adapters/chatgpt-adapter.js",
         "src/adapters/gemini-adapter.js",
+        "src/adapters/perplexity-adapter.js",
         "src/ui/floating-button.js",
         "src/ui/capture-panel.js",
         "src/core/pdf-export.js",
@@ -57,7 +60,7 @@
   "web_accessible_resources": [
     {
       "resources": ["src/ui/panel.css", "icons/*"],
-      "matches": ["https://claude.ai/*", "https://chatgpt.com/*", "https://chat.openai.com/*", "https://gemini.google.com/*"]
+      "matches": ["https://claude.ai/*", "https://chatgpt.com/*", "https://chat.openai.com/*", "https://gemini.google.com/*", "https://www.perplexity.ai/*", "https://perplexity.ai/*"]
     }
   ]
 }

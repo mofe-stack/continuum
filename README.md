@@ -29,22 +29,23 @@ Right now Continuum works with:
 - **Claude** (claude.ai)
 - **ChatGPT** (chatgpt.com)
 - **Gemini** (gemini.google.com)
+- **Perplexity** (perplexity.ai)
 
 More platforms are coming soon.
 
-A captured chat from any of these can be resumed into Claude, ChatGPT, or Gemini today; more sites (Perplexity, Grok, DeepSeek, Copilot) are still being wired up as resume targets. The source and the destination don't have to match — a chat captured on one site can be resumed into another.
+A captured chat from any of these can be resumed into Claude, ChatGPT, Gemini, or Perplexity today; more sites (Grok, DeepSeek, Copilot) are still being wired up as resume targets. The source and the destination don't have to match — a chat captured on one site can be resumed into another.
 
 ## What gets captured
 
 Every site captures the full conversation text. What comes through for **attachments** depends on what each site lets an extension reach:
 
-| | Claude | ChatGPT | Gemini |
-|---|:---:|:---:|:---:|
-| Messages | ✅ | ✅ | ✅ |
-| Images you uploaded | ✅ | ✅ | name only |
-| AI-generated images | — | ✅ | name only |
-| Files you uploaded | ✅ | ✅ | ✅ |
-| AI-generated files | — | ✅ | name only |
+| | Claude | ChatGPT | Gemini | Perplexity |
+|---|:---:|:---:|:---:|:---:|
+| Messages | ✅ | ✅ | ✅ | ✅ |
+| Images you uploaded | ✅ | ✅ | name only | name only |
+| Images in answers | — | ✅ | name only | ✅ |
+| Files you uploaded | ✅ | ✅ | ✅ | name only |
+| AI-generated files | — | ✅ | name only | — |
 
 **What the symbols mean:**
 
@@ -55,6 +56,7 @@ Every site captures the full conversation text. What comes through for **attachm
 **Notes:**
 
 - Gemini serves its images from locked URLs an extension can't download, so they come through by name, not saved.
+- Perplexity renders your uploads as plain filename chips with no downloadable URL behind them, so uploaded images and files come through by name only. Images that appear inside answers are saved. The transcript keeps the answer's full formatting (headings, lists, code, tables); the little citation number chips and the Sources/Images side panels are left out — they're web results, not the conversation.
 - Claude captures your normal uploads (images, PDFs, docs, text) fine. The one exception is files that got routed to Claude's code/analysis tool — the ones that, when you click them, say they're too large and you have to download them. Those bytes live only in Claude's temporary sandbox and can't be pulled back out, so they're noted by name. (Files Claude *generates* for you — the download cards — aren't captured either; that's the "—" row above.)
 
 ## Privacy
@@ -103,7 +105,7 @@ manifest.chrome.json   Chrome manifest (service-worker background)
 src/                   Shared source — used by both builds
   background.js        Background worker (handles cross-origin image fetches, etc.)
   content-script.js    Entry point injected into supported AI sites
-  adapters/            Per-site capture logic (Claude, ChatGPT, Gemini)
+  adapters/            Per-site capture logic (Claude, ChatGPT, Gemini, Perplexity)
   core/                Storage, settings, compression, session model, PDF export
   ui/                  Floating button + capture panel
   vendor/              Third-party libs (fflate, jsPDF)
