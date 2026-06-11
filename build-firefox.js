@@ -13,7 +13,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const fflate = require("./src/vendor/fflate.min.js");
+const { buildZip } = require("./zip-writer.js");
 
 const root = __dirname;
 const MANIFEST = "manifest.firefox.json"; // written into the package as manifest.json
@@ -45,8 +45,9 @@ for (const [rel, bytes] of Object.entries(files)) {
   fs.writeFileSync(dest, bytes);
 }
 
-// Packaged .xpi (for the store).
-fs.writeFileSync(OUTPKG, Buffer.from(fflate.zipSync(files, { level: 6 })));
+// Packaged .xpi (for the store). Zipped via Node's zlib, NOT fflate —
+// AMO's upload validation 500s on fflate-deflated zips (see zip-writer.js).
+fs.writeFileSync(OUTPKG, buildZip(files));
 
 console.log("Firefox build: " + Object.keys(files).length + " files");
 console.log("  unpacked → " + OUTDIR);
