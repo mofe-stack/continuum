@@ -1,5 +1,5 @@
 // resume-injector.js — runs in the freshly-opened AI tab (claude.ai,
-// chatgpt.com, or gemini.google.com) after the user picks a "Resume in" target. The source tab leaves
+// chatgpt.com, gemini.google.com, or perplexity.ai) after the user picks a "Resume in" target. The source tab leaves
 // a small marker in chrome.storage.local ({ sessionId, includeFiles, compress,
 // target, ts }); here we read it, load that session from IndexedDB, rebuild the
 // handoff markdown + attachment files, then auto-fill the composer with the
@@ -31,8 +31,11 @@
   }
 
   // Composer candidates, most specific first. Covers claude.ai (ProseMirror),
-  // chatgpt.com (#prompt-textarea contenteditable / legacy textarea), and
-  // gemini.google.com (a Quill .ql-editor inside <rich-textarea>).
+  // chatgpt.com (#prompt-textarea contenteditable / legacy textarea),
+  // gemini.google.com (a Quill .ql-editor inside <rich-textarea>), and
+  // perplexity.ai ("ask-input" naming, seen in its data-testids — PROVISIONAL
+  // until probeComposer() is run on a live perplexity.ai page; the generic
+  // contenteditable/textarea fallbacks below cover it meanwhile).
   const COMPOSER_SELECTORS = [
     'div[contenteditable="true"].ProseMirror',
     ".ProseMirror[contenteditable='true']",
@@ -41,6 +44,10 @@
     '[data-testid="chat-input"] [contenteditable="true"]',
     "rich-textarea .ql-editor",
     '.ql-editor[contenteditable="true"]',
+    '#ask-input[contenteditable="true"]',
+    "#ask-input",
+    '[data-testid="ask-input"]',
+    'textarea[placeholder*="ask" i]',
     '[contenteditable="true"]',
     'textarea[data-testid="chat-input"]',
     "main textarea",
@@ -182,8 +189,18 @@
   // The editors are React-controlled contenteditables (Claude's is ProseMirror) or,
   // as a fallback, a textarea. For each we use the mechanism that triggers the
   // framework's own input handling so the value "sticks".
-  function setComposerText(editor, text) {
+  //
+  // ASYNC + presence-checked: execCommand("insertText")'s RETURN VALUE is not
+  // trustworthy — an editor that handles beforeinput itself (Perplexity's)
+  // preventDefaults it, execCommand reports false, yet the text LANDS. Treating
+  // that false as failure fired the paste fallback on top of the successful
+  // insert = the doubled-preamble bug. So after each method we WAIT a beat and
+  // check whether the text is actually in the editor; the next method runs only
+  // when it genuinely isn't.
+  async function setComposerText(editor, text) {
     if (!editor || !text) return false;
+    const probe = text.trim().slice(0, 16);
+    const landed = () => !probe || (composerText(editor) || "").indexOf(probe) !== -1;
     editor.focus();
 
     // Textarea path: set via the native value setter, then fire input so React sees it.
@@ -202,30 +219,50 @@
     }
 
     // contenteditable / ProseMirror / Lexical path: insertText is intercepted by
-    // the editor and routed through its normal input pipeline. selectAll FIRST so
-    // the insert REPLACES any existing content instead of appending — this makes
-    // the call idempotent, so the verify-retry loop / post-attach re-assert can't
-    // stack a second copy of the preamble (the "message sent twice" bug on
-    // ChatGPT, whose Lexical editor is slow to reflect textContent so the verify
-    // check re-fired).
+    // the editor and routed through its normal input pipeline. Select ALL the
+    // editor's existing content FIRST so the insert REPLACES instead of
+    // appending — this makes the call idempotent, so the verify-retry loop /
+    // post-attach re-assert / paste fallback can't stack a second copy of the
+    // preamble (seen on ChatGPT, then again on Perplexity, where the doubled
+    // message screenshot came from). NOTE: execCommand("selectAll") scopes to
+    // the FOCUSED EDITING HOST, which on some editors (Perplexity's) isn't the
+    // node we matched — it silently selects nothing and the insert appends. A
+    // Range over the editor's own contents is framework-agnostic, so do that;
+    // execCommand("selectAll") stays as a same-call extra sweep.
+    const selectAllIn = (el) => {
+      try {
+        const sel = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    };
     try {
-      document.execCommand("selectAll", false, null);
-      const ok = document.execCommand("insertText", false, text);
-      if (ok && (editor.textContent || "").indexOf(text.slice(0, 12)) !== -1) return true;
+      if (!selectAllIn(editor)) document.execCommand("selectAll", false, null);
+      document.execCommand("insertText", false, text); // return value untrustworthy — verify below
     } catch (e) {
-      /* fall through to paste */
+      /* judged by the presence check below either way */
     }
+    // Give an async editor (Lexical processes beforeinput in its own update
+    // cycle) a moment to commit, then trust only what's actually in the DOM.
+    await sleep(180);
+    if (landed()) return true;
 
     // Fallback: synthesize a paste with the text on a DataTransfer. The editor
-    // handles paste events and inserts the plain text. selectAll first so the
-    // paste replaces rather than appends (same idempotency reason as above).
+    // handles paste events and inserts the plain text. Only reached when the
+    // text is verifiably NOT in the editor, so this can't stack a second copy.
     try {
-      document.execCommand("selectAll", false, null);
+      if (!selectAllIn(editor)) document.execCommand("selectAll", false, null);
       const dt = new DataTransfer();
       dt.setData("text/plain", text);
       const evt = new ClipboardEvent("paste", { bubbles: true, cancelable: true, clipboardData: dt });
       editor.dispatchEvent(evt);
-      return true;
+      await sleep(180);
+      return landed();
     } catch (e) {
       console.warn("[Continuum] setComposerText: all injection methods failed:", e);
       return false;
@@ -249,9 +286,17 @@
     for (let i = 0; i < (attempts || 6); i++) {
       const editor = findComposer();
       if (editor && editor.isConnected) {
-        setComposerText(editor, text);
+        // Already filled (a slow editor reflected the PREVIOUS attempt after its
+        // verify window passed)? Don't write again — a re-insert on an editor
+        // whose select-all doesn't take would APPEND a duplicate preamble.
+        if (probe && composerText(editor).trim().indexOf(probe) !== -1) return true;
+        await setComposerText(editor, text);
         await sleep(250);
         if (!probe || composerText(editor).trim().indexOf(probe) !== -1) return true;
+        // One slow editor (ChatGPT's Lexical) can need a beat longer than 250ms
+        // to reflect textContent — give it one more read before re-writing.
+        await sleep(350);
+        if (composerText(editor).trim().indexOf(probe) !== -1) return true;
       } else {
         await sleep(250);
       }
