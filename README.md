@@ -8,12 +8,10 @@ It runs entirely on your own device. There's no account, no server, and nothing 
 
 ## Get it
 
-The extension is going through store review. Links will go here once it's approved:
-
-- **Chrome Web Store:** _coming soon_
+- **Chrome Web Store:** https://chromewebstore.google.com/detail/continuum-capture-save-an/nnohcpdjcfhkpmplgpcabpfipnokinbi
 - **Firefox Add-ons:** https://addons.mozilla.org/en-US/firefox/addon/continuum/
 
-Until then, you can run it unpacked — see [Running it locally](#running-it-locally) below.
+Or run it unpacked — see [Running it locally](#running-it-locally) below.
 
 ## What it does
 
