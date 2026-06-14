@@ -60,14 +60,16 @@
         if (att.type === "image") images++;
         // A file YOU uploaded always COUNTS — it's real chat content worth showing,
         // even if its bytes can't be retrieved (e.g. a Claude code-sandbox .zip blob).
-        // AI-generated files count only when attachable (mediaId). Whether a counted
-        // file can actually be ATTACHED is a SEPARATE check: the "Attach files" toggle
-        // keys on mediaId, so an un-fetchable upload shows in the count but offers no
-        // attach option (you can't attach what we couldn't capture). Applies to all
-        // providers — no per-site special case.
+        // AI-generated files count when attachable (mediaId) OR when explicitly
+        // flagged `generated` — files the model produced (e.g. Claude's download
+        // cards) are real chat content worth surfacing by name even though their
+        // bytes aren't fetchable. Whether a counted file can actually be ATTACHED
+        // is a SEPARATE check: the "Attach files" toggle keys on mediaId, so an
+        // un-fetchable file shows in the count but offers no attach option (you
+        // can't attach what we couldn't capture). Applies to all providers.
         // Pasted content (text pasted into the chat) is NOT a file — it rides in the
         // transcript as text — so it never counts here.
-        else if (att.type === "file" && !att.isPasted && (att.mediaId || fromUser)) files++;
+        else if (att.type === "file" && !att.isPasted && (att.mediaId || fromUser || att.generated)) files++;
       }
       artifacts += (turn.artifacts || []).length;
     }
