@@ -1202,14 +1202,11 @@
   // reopening the panel.
   function refreshCurrentChat(force) {
     if (!panelEl) return;
-    // renderScan: this is the panel-open / manual path (NOT the live tick), so it's
-    // safe to let the adapter do a one-time full-render to mount lazily-loaded
-    // content (e.g. Claude's generated-image iframe) for an accurate count.
-    refreshTitleAndStats(force, true);
+    refreshTitleAndStats(force);
     refreshStarted();
   }
 
-  function refreshTitleAndStats(force, renderScan) {
+  function refreshTitleAndStats(force) {
     const adapter = activeAdapter();
     const title = adapter ? adapter.detectTitle() : "Current conversation";
     const convKey = location.pathname;
@@ -1233,7 +1230,7 @@
     // remembered for next open). Matching the saved session's counts.
     // Returns the in-flight promise so the live loop can gate overlapping pulls.
     if (adapter && adapter.peekStatsFast) {
-      return adapter.peekStatsFast(force, renderScan).then((fast) => {
+      return adapter.peekStatsFast(force).then((fast) => {
         if (fast && statsEl.isConnected) {
           statsCache[convKey] = fast;
           persistStatsCache();
@@ -1324,10 +1321,7 @@
     liveSig = sig;
     liveBusy = true;
     liveLastForced = Date.now();
-    // Live tick: refresh stats but DON'T render-scan — a scroll pass every few
-    // seconds would make the page jump. (Generated content is counted via the
-    // one-time render on panel open / capture.)
-    Promise.resolve(refreshTitleAndStats(true, false)).then(() => {
+    Promise.resolve(refreshTitleAndStats(true)).then(() => {
       liveBusy = false;
     }, () => {
       liveBusy = false;
