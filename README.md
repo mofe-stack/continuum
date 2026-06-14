@@ -41,7 +41,7 @@ Every site captures the full conversation text. What comes through for **attachm
 |---|:---:|:---:|:---:|:---:|
 | Messages | ✅ | ✅ | ✅ | ✅ |
 | Images you uploaded | ✅ | ✅ | name only | name only |
-| Images in answers | — | ✅ | name only | ✅ |
+| Images in answers | — | ✅ | ✅ | ✅ |
 | Files you uploaded | ✅ | ✅ | name only | name only |
 | AI-generated files | name only | ✅ | name only | — |
 
@@ -53,7 +53,7 @@ Every site captures the full conversation text. What comes through for **attachm
 
 **Notes:**
 
-- Gemini serves its images and uploaded files from locked URLs an extension can't download (the "Open" on a file card is a JS handler, not a real link), so they come through by name, not saved.
+- Gemini's images that appear *in answers* (ones it generates for you) are saved in full. Your *uploaded* images and files, though, come from locked URLs an extension can't download (and a file card's "Open" is a JS handler, not a real link), so those come through by name only.
 - Perplexity renders your uploads as plain filename chips with no downloadable URL behind them, so uploaded images and files come through by name only. Images that appear inside answers are saved. The transcript keeps the answer's full formatting (headings, lists, code, tables); the little citation number chips and the Sources/Images side panels are left out — they're web results, not the conversation.
 - Perplexity only generates downloadable files via Labs (a Pro feature), which we haven't been able to test; regular threads don't produce file artifacts, so there's nothing to capture there.
 - Claude captures your normal uploads (images, PDFs, docs, text) fine. The one exception is files that got routed to Claude's code/analysis tool — the ones that, when you click them, say they're too large and you have to download them. Those bytes live only in Claude's temporary sandbox and can't be pulled back out, so they're noted by name. Files Claude *generates* for you — the download cards — are also captured by name only: their Download button is a script handler with no link behind it, so the file itself can't be pulled out.
