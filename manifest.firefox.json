@@ -53,6 +53,7 @@
         "src/vendor/jspdf.umd.min.js",
         "src/core/session-model.js",
         "src/core/storage.js",
+        "src/core/upload-vault.js",
         "src/core/settings.js",
         "src/core/compressor.js",
         "src/core/llm-compressor.js",
@@ -66,6 +67,12 @@
         "src/resume-injector.js",
         "src/content-script.js"
       ]
+    },
+    {
+      "matches": ["https://gemini.google.com/*"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "js": ["src/inject/gemini-upload-interceptor.js"]
     }
   ],
   "web_accessible_resources": [

@@ -296,7 +296,14 @@
       if (seenImg.has(url)) continue;
       seenImg.add(url);
       const alt = (img.getAttribute("alt") || "").trim();
-      out.push({ kind: "image", name: alt || "image.png", url: url });
+      // Mark images YOU uploaded (probe-confirmed marker: data-test-id=uploaded-img,
+      // inside user-query-file-preview). On revisit their src is a locked
+      // googleusercontent URL we can't fetch — capture() recovers those from the
+      // upload vault by matching upload order, so flag them here.
+      const isUpload =
+        img.getAttribute("data-test-id") === "uploaded-img" ||
+        !!img.closest("user-query-file-preview, user-query-file-carousel");
+      out.push({ kind: "image", name: alt || "image.png", url: url, isUpload: isUpload });
     }
     for (const card of findFileCards(el)) {
       // A card that's purely an image preview we already captured → skip.
@@ -425,6 +432,7 @@
 
     const turnEls = collectTurnEls();
     const fetchTasks = [];
+    const uploadImgAtts = []; // your uploaded images, in upload order (vault matching)
     const turns = [];
     for (const t of turnEls) {
       const textEl = t.role === "user" ? firstMatch(t.el, SEL.userText) : firstMatch(t.el, SEL.modelText);
@@ -436,6 +444,7 @@
       for (const a of rawAtts) {
         const att = { type: a.kind === "image" ? "image" : "file", mediaId: null, name: a.name, mediaType: "" };
         attachments.push(att);
+        if (a.kind === "image" && a.isUpload) uploadImgAtts.push(att);
         if (a.url) fetchTasks.push({ att: att, url: a.url, name: a.name, isImg: a.kind === "image" });
       }
       if (!text && !attachments.length) continue; // skip empty/placeholder turns
@@ -456,6 +465,30 @@
         task.att.src = task.url; // keep the URL so a failed fetch isn't silently lost
       }
     });
+
+    // Recover uploaded images we couldn't fetch (revisit → locked googleusercontent
+    // URL) from the upload vault: bytes grabbed at upload time by the main-world
+    // interceptor. Matched by ORDER — the Nth uploaded image in this conversation ↔
+    // the Nth vault entry (Gemini's revisited upload <img> exposes no filename).
+    try {
+      if (uploadImgAtts.some((att) => !att.mediaId) && Continuum.uploadVault) {
+        const convId = (location.pathname.match(/\/app\/([a-z0-9-]+)/i) || [])[1] || null;
+        const vault = await Continuum.uploadVault.getImagesForConversation(convId);
+        uploadImgAtts.forEach((att, i) => {
+          const v = vault[i];
+          if (att.mediaId || !v) return;
+          try {
+            const blob = new Blob([Continuum.uploadVault.b64ToBytes(v.b64)], { type: v.type || "image/png" });
+            att.mediaId = M.addMedia(session, blob, blob.type, v.name || att.name);
+            delete att.src; // bytes recovered — drop the dead URL
+          } catch (e) {
+            /* leave it name-only */
+          }
+        });
+      }
+    } catch (e) {
+      console.warn("[Continuum] gemini upload-vault recovery failed:", e);
+    }
 
     session.turns = turns;
     M.recomputeStats(session);
