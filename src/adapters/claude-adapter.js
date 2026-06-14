@@ -365,6 +365,26 @@
     return out;
   }
 
+  // Images Claude GENERATED — NAME ONLY. Probe-confirmed (2026-06): a generated
+  // image/visual renders inside a CROSS-ORIGIN iframe (claudemcpcontent.com,
+  // sandboxed), so its pixels are unreachable. But the iframe ELEMENT (on our
+  // page) is titled "visualize: <name>", so we can recover the name. Returns
+  // [{ el, name }]. Keyed on the "visualize:" title pattern so non-image artifacts
+  // (react/html/code previews in similar iframes) aren't miscounted as images.
+  function collectGeneratedImages() {
+    const out = [];
+    const seen = new Set();
+    document.querySelectorAll("iframe[title]").forEach((f) => {
+      const title = (f.getAttribute("title") || "").trim();
+      if (!/^visualize\s*:/i.test(title)) return;
+      const name = title.replace(/^visualize\s*:\s*/i, "").trim() || "generated image";
+      if (seen.has(name)) return;
+      seen.add(name);
+      out.push({ el: f, name });
+    });
+    return out;
+  }
+
   // Best-effort artifact capture: reads each inline artifact card's title, then
   // opens it to read the rendered body (<pre>/<code>/prose). Returns
   // [{ el, title, type, content }]. All clicks/reads are guarded. PROVISIONAL.
@@ -544,7 +564,7 @@
     const generated = collectGeneratedFiles(new Set(files.map((f) => f.name)));
     return {
       messages: turns.length,
-      images: collectImages().length,
+      images: collectImages().length + collectGeneratedImages().length,
       files: files.length + generated.length,
     };
   }
@@ -646,6 +666,12 @@
     for (const g of collectGeneratedFiles(fileNames)) {
       const rec = recordFor(g.el);
       if (rec) rec.attachments.push({ type: "file", mediaId: null, name: g.name, generated: true });
+    }
+
+    // Generated images (cross-origin iframe previews) — names only.
+    for (const g of collectGeneratedImages()) {
+      const rec = recordFor(g.el);
+      if (rec) rec.attachments.push({ type: "image", mediaId: null, name: g.name, generated: true });
     }
 
     // Images — fetch each unique blob and attach to its owning turn.
@@ -1114,35 +1140,39 @@
       }
     });
 
-    // Files Claude GENERATED (download cards) — name-only references. They live
-    // only in the DOM (the raw-mode API collapses them to a stripped placeholder,
-    // see probeMessages), so scan the page and fold them into the matching
-    // assistant turn. No bytes are fetchable (the Download control is a JS-handler
-    // button, not a link), so they count + list by name, like Gemini's. Best-
-    // effort: a long, unscrolled chat may have generated cards not yet mounted.
+    // Content Claude GENERATED — name-only references that live only in the DOM
+    // (the raw-mode API collapses them to a stripped placeholder, see probeMessages):
+    //   • download cards → file refs (the Download control is a JS-handler button,
+    //     no link, so the bytes aren't fetchable)
+    //   • images/visuals → image refs (rendered in a cross-origin claudemcpcontent
+    //     iframe whose pixels we can't read; name comes from the iframe title)
+    // Fold each into the matching assistant turn by order. Best-effort: a long,
+    // unscrolled chat may have generated content not yet mounted.
     try {
       const uploadNames = new Set();
       for (const t of turns) for (const a of t.attachments) if (a.name) uploadNames.add(a.name);
-      const generated = collectGeneratedFiles(uploadNames);
-      if (generated.length) {
+      const extras = collectGeneratedFiles(uploadNames)
+        .map((g) => ({ el: g.el, type: "file", name: g.name }))
+        .concat(collectGeneratedImages().map((g) => ({ el: g.el, type: "image", name: g.name })));
+      if (extras.length) {
         const domTurns = collectTurns().turns;
         const turnSet = new Set(domTurns.map((t) => t.el));
         const domAssistantEls = domTurns.filter((t) => t.role === "assistant").map((t) => t.el);
         const apiAssistants = turns.filter((t) => t.role === "assistant");
-        for (const g of generated) {
-          // Map the card's DOM assistant turn to the same-indexed API assistant
-          // record (both follow the active path in order); fall back to the last.
+        for (const g of extras) {
+          // Map the DOM assistant turn to the same-indexed API assistant record
+          // (both follow the active path in order); fall back to the last.
           const owner = ownerTurn(g.el, turnSet);
           const idx = owner ? domAssistantEls.indexOf(owner) : -1;
           const rec =
             idx >= 0 && idx < apiAssistants.length
               ? apiAssistants[idx]
               : apiAssistants[apiAssistants.length - 1];
-          if (rec) rec.attachments.push({ type: "file", mediaId: null, name: g.name, generated: true });
+          if (rec) rec.attachments.push({ type: g.type, mediaId: null, name: g.name, generated: true });
         }
       }
     } catch (e) {
-      console.warn("[Continuum] captureFast: generated-file scan failed:", e);
+      console.warn("[Continuum] captureFast: generated-content scan failed:", e);
     }
 
     session.turns = turns;
@@ -1192,13 +1222,14 @@
           else if (!a.isPasted && (fromUser || a.url || a.text != null)) files++;
         }
       }
-      // Generated download cards are DOM-only (the raw-mode API can't see them —
-      // see captureFast); count those not already counted as uploads so the panel
-      // reflects them and matches the saved session's recomputeStats.
+      // Generated download cards + images are DOM-only (the raw-mode API can't see
+      // them — see captureFast); count those not already counted as uploads so the
+      // panel reflects them and matches the saved session's recomputeStats.
       try {
         const uploadNames = new Set();
         for (const r of parsed.records) for (const a of r.atts) if (a.name) uploadNames.add(a.name);
         files += collectGeneratedFiles(uploadNames).length;
+        images += collectGeneratedImages().length;
       } catch (e) {
         /* best-effort — DOM scan failure shouldn't break the preview */
       }
@@ -1577,6 +1608,7 @@
       // Discovery aids for the new capture paths (verify these before relying on them):
       fileUrls: files.map((f) => f.name + " -> " + (f.url || "NO URL FOUND")),
       generatedFileNames: generated.map((g) => g.name),
+      generatedImageNames: collectGeneratedImages().map((g) => g.name),
       artifactCardCount: artifactCards.length,
       artifactSamples: artifactCards.slice(0, 3).map((el) => ({
         testid: el.getAttribute("data-testid"),
