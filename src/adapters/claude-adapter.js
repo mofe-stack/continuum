@@ -1146,8 +1146,16 @@
     //     no link, so the bytes aren't fetchable)
     //   • images/visuals → image refs (rendered in a cross-origin claudemcpcontent
     //     iframe whose pixels we can't read; name comes from the iframe title)
-    // Fold each into the matching assistant turn by order. Best-effort: a long,
-    // unscrolled chat may have generated content not yet mounted.
+    // Fold each into the matching assistant turn by order.
+    // Claude lazily mounts these (esp. the artifact iframe) only when scrolled into
+    // view, so the API path must do a render pass first or it misses generated
+    // content on an unscrolled chat — the "had to scroll up for it to count" bug.
+    try {
+      progress("Loading generated content…");
+      await ensureFullRender(findScrollContainer());
+    } catch (e) {
+      /* best-effort — proceed with whatever's mounted */
+    }
     try {
       const uploadNames = new Set();
       for (const t of turns) for (const a of t.attachments) if (a.name) uploadNames.add(a.name);
@@ -1193,7 +1201,15 @@
   // refreshes if the panel is reopened after a while.
   let _peekStatsCache = null; // { convId, ts, value }
   const PEEK_STATS_TTL_MS = 60000;
-  async function peekStatsFast(force) {
+  // Conversations whose DOM we've already render-scanned for generated content, so
+  // the (visible) scroll pass happens at most ONCE per chat per page load — never
+  // on the panel's 3.5s live tick (which would make the page jump constantly).
+  const _statsRendered = new Set();
+  // `renderScan` (passed only from the panel-open path, NOT the live tick): do a
+  // one-time full-render so lazily-mounted generated content (Claude's artifact
+  // iframe / download cards) is in the DOM and gets counted without the user
+  // having to scroll up manually.
+  async function peekStatsFast(force, renderScan) {
     const convId = (location.pathname.match(/\/chat\/([0-9a-f-]{8,})/i) || [])[1] || "";
     if (
       !force &&
@@ -1202,6 +1218,14 @@
       Date.now() - _peekStatsCache.ts < PEEK_STATS_TTL_MS
     ) {
       return _peekStatsCache.value;
+    }
+    if (renderScan && !_statsRendered.has(convId)) {
+      _statsRendered.add(convId);
+      try {
+        await ensureFullRender(findScrollContainer());
+      } catch (e) {
+        /* best-effort — count whatever's mounted */
+      }
     }
     try {
       const data = await fetchConversationData();
