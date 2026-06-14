@@ -49,7 +49,17 @@
   const YIELD_EVERY_LINES = 1500; // unblock the main thread on huge transcripts
 
   function getJsPDF() {
-    const ns = window.jspdf || (typeof self !== "undefined" ? self.jspdf : null);
+    // The vendored jsPDF UMD attaches to `globalThis`. On Chrome a content
+    // script's globalThis === window, so window.jspdf works; on Firefox the
+    // content-script sandbox's globalThis is a SEPARATE object from the page
+    // window, so window.jspdf is undefined and we'd wrongly conclude jsPDF isn't
+    // loaded (→ resume silently falls back to Markdown). Check globalThis first,
+    // then window/self, so the PDF path works in both browsers.
+    const ns =
+      (typeof globalThis !== "undefined" && globalThis.jspdf) ||
+      (typeof window !== "undefined" && window.jspdf) ||
+      (typeof self !== "undefined" && self.jspdf) ||
+      null;
     return ns && ns.jsPDF ? ns.jsPDF : null;
   }
 
