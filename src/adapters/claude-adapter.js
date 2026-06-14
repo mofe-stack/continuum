@@ -317,23 +317,51 @@
     return out;
   }
 
-  // Best-effort: files Claude GENERATED and offers via an explicit download link.
-  // Names only (no bytes). Skips anything already captured as an upload.
-  // PROVISIONAL — verify the real download-card markup with probe().
+  // Files Claude GENERATED and offers for download. NAME-ONLY: probe-confirmed
+  // (2026-06) that these live only in the DOM — the raw-mode API collapses them to
+  // an unsupported-block placeholder we strip — and the card's Download control is
+  // a <button> with a JS handler (no href), so the bytes aren't fetchable. Returns
+  // [{ el, name }]. Skips anything already captured as an upload (excludeNames).
+  const GEN_HAS_EXT_RE = /\.[a-z0-9]{1,8}$/i;
+  const GEN_TYPE_RE = /[·•]\s*([a-z0-9]{2,5})\b/i; // the card's "Image · SVG" type badge
   function collectGeneratedFiles(excludeNames) {
     const seen = new Set();
     const out = [];
+    const add = (el, name) => {
+      if (!name || seen.has(name) || (excludeNames && excludeNames.has(name))) return;
+      seen.add(name);
+      out.push({ el, name });
+    };
+    // (a) Legacy / generic: an explicit download anchor with a real filename.
     document.querySelectorAll("a[download]").forEach((a) => {
       let name = (a.getAttribute("download") || "").trim();
       if (!name) {
         const href = a.getAttribute("href") || "";
         name = (href.split(/[?#]/)[0].split("/").pop() || "").trim();
       }
-      if (!name || !/\.[a-z0-9]{1,8}$/i.test(name)) return;
-      if (seen.has(name) || (excludeNames && excludeNames.has(name))) return;
-      seen.add(name);
-      out.push({ el: a, name });
+      if (name && GEN_HAS_EXT_RE.test(name)) add(a, name);
     });
+    // (b) Current claude.ai: the generated-file card's "Download <filename>"
+    // button (probe-confirmed). The filename is the aria-label minus the
+    // "Download " prefix; when it carries no extension we append the card's type
+    // badge ("… · SVG" → ".svg") by climbing to the small card wrapper.
+    document
+      .querySelectorAll('button[aria-label^="Download " i], [role="button"][aria-label^="Download " i]')
+      .forEach((btn) => {
+        let name = (btn.getAttribute("aria-label") || "").replace(/^\s*download\s+/i, "").trim();
+        if (!name) return;
+        if (!GEN_HAS_EXT_RE.test(name)) {
+          let node = btn;
+          for (let i = 0; i < 6 && node.parentElement; i++) {
+            node = node.parentElement;
+            const txt = (node.textContent || "").replace(/\s+/g, " ").trim();
+            if (txt.length > 200) break; // climbed into the message prose — stop
+            const m = txt.match(GEN_TYPE_RE);
+            if (m) { name = name + "." + m[1].toLowerCase(); break; }
+          }
+        }
+        add(btn, name);
+      });
     return out;
   }
 
@@ -512,10 +540,12 @@
   // capture() runs its full-render scroll.
   function peekStats() {
     const { turns } = collectTurns();
+    const files = collectFiles();
+    const generated = collectGeneratedFiles(new Set(files.map((f) => f.name)));
     return {
       messages: turns.length,
       images: collectImages().length,
-      files: collectFiles().length,
+      files: files.length + generated.length,
     };
   }
 
@@ -1084,6 +1114,37 @@
       }
     });
 
+    // Files Claude GENERATED (download cards) — name-only references. They live
+    // only in the DOM (the raw-mode API collapses them to a stripped placeholder,
+    // see probeMessages), so scan the page and fold them into the matching
+    // assistant turn. No bytes are fetchable (the Download control is a JS-handler
+    // button, not a link), so they count + list by name, like Gemini's. Best-
+    // effort: a long, unscrolled chat may have generated cards not yet mounted.
+    try {
+      const uploadNames = new Set();
+      for (const t of turns) for (const a of t.attachments) if (a.name) uploadNames.add(a.name);
+      const generated = collectGeneratedFiles(uploadNames);
+      if (generated.length) {
+        const domTurns = collectTurns().turns;
+        const turnSet = new Set(domTurns.map((t) => t.el));
+        const domAssistantEls = domTurns.filter((t) => t.role === "assistant").map((t) => t.el);
+        const apiAssistants = turns.filter((t) => t.role === "assistant");
+        for (const g of generated) {
+          // Map the card's DOM assistant turn to the same-indexed API assistant
+          // record (both follow the active path in order); fall back to the last.
+          const owner = ownerTurn(g.el, turnSet);
+          const idx = owner ? domAssistantEls.indexOf(owner) : -1;
+          const rec =
+            idx >= 0 && idx < apiAssistants.length
+              ? apiAssistants[idx]
+              : apiAssistants[apiAssistants.length - 1];
+          if (rec) rec.attachments.push({ type: "file", mediaId: null, name: g.name, generated: true });
+        }
+      }
+    } catch (e) {
+      console.warn("[Continuum] captureFast: generated-file scan failed:", e);
+    }
+
     session.turns = turns;
     M.recomputeStats(session);
 
@@ -1130,6 +1191,16 @@
           // it. Matches recomputeStats so preview == saved.
           else if (!a.isPasted && (fromUser || a.url || a.text != null)) files++;
         }
+      }
+      // Generated download cards are DOM-only (the raw-mode API can't see them —
+      // see captureFast); count those not already counted as uploads so the panel
+      // reflects them and matches the saved session's recomputeStats.
+      try {
+        const uploadNames = new Set();
+        for (const r of parsed.records) for (const a of r.atts) if (a.name) uploadNames.add(a.name);
+        files += collectGeneratedFiles(uploadNames).length;
+      } catch (e) {
+        /* best-effort — DOM scan failure shouldn't break the preview */
       }
       const value = { messages: parsed.records.length, images, files };
       _peekStatsCache = { convId, ts: Date.now(), value };
