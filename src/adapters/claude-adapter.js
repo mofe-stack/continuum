@@ -1146,8 +1146,17 @@
     //     no link, so the bytes aren't fetchable)
     //   • images/visuals → image refs (rendered in a cross-origin claudemcpcontent
     //     iframe whose pixels we can't read; name comes from the iframe title)
-    // Fold each into the matching assistant turn by order. Best-effort: a long,
-    // unscrolled chat may have generated content not yet mounted.
+    // Fold each into the matching assistant turn by order.
+    // Claude lazily mounts these (esp. the artifact iframe) only when scrolled into
+    // view, so render the whole conversation first — otherwise a capture of an
+    // unscrolled chat misses the generated content from the SAVED session. This
+    // runs only on an explicit capture (a brief scroll there is fine); the live
+    // panel counter stays scroll-free and best-effort by design.
+    try {
+      await ensureFullRender(findScrollContainer());
+    } catch (e) {
+      /* best-effort — proceed with whatever's mounted */
+    }
     try {
       const uploadNames = new Set();
       for (const t of turns) for (const a of t.attachments) if (a.name) uploadNames.add(a.name);
