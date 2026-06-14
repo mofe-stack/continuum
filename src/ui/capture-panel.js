@@ -392,7 +392,6 @@
             // what the resume PDF embeds — its alt text isn't drawn, hence the caption.
             lines.push("_[Image: " + att.name + "]_");
             if (att._path) lines.push("![" + att.name + "](" + att._path + ")");
-            else lines.push("_(not captured)_");
           }
         }
         // Files from the summarized middle, carried onto the summary turn by the
@@ -418,7 +417,7 @@
       for (const att of turn.attachments || []) {
         lines.push("");
         if (att.type === "image") {
-          lines.push(att._path ? "![" + att.name + "](" + att._path + ")" : "[image: " + att.name + " — not captured]");
+          lines.push(att._path ? "![" + att.name + "](" + att._path + ")" : "[image: " + att.name + "]");
         } else if (att.type === "file") {
           if (att.text != null) {
             lines.push("**File: " + att.name + "**");
@@ -430,11 +429,10 @@
           } else if (att._path) {
             lines.push("[file: " + att.name + " → " + att._path + "]");
           } else {
-            // No bytes/text/path → a reference only. In practice these are
-            // code-sandbox "blob" uploads (e.g. .zip) whose bytes claude.ai won't
-            // serve back — flag it so the resumed chat knows the file existed but
-            // isn't attached, rather than implying it's available.
-            lines.push("[file: " + att.name + " — not captured (bytes unavailable)]");
+            // No bytes/text/path → a name-only reference (e.g. code-sandbox "blob"
+            // uploads like .zip whose bytes claude.ai won't serve back). Listed by
+            // name so the resumed chat knows the file existed.
+            lines.push("[file: " + att.name + "]");
           }
         }
       }
