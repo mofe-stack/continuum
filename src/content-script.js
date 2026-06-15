@@ -141,6 +141,10 @@
     try {
       chrome.runtime.onMessage.addListener((msg) => {
         if (!msg || msg.type !== "continuum-toggle-panel") return;
+        // Only on an actual conversation page — same gate as the floating button.
+        // Otherwise the next sync() tick unmounts the button and closes the panel
+        // right after it opens (the "opens then immediately closes" on a home page).
+        if (!isConversationPage()) return;
         try {
           if (Continuum.ui && Continuum.ui.button && Continuum.ui.panel) {
             Continuum.ui.panel.toggle(Continuum.ui.button.ensureHost());
