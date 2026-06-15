@@ -10,7 +10,6 @@
   },
   "action": {
     "default_title": "Continuum",
-    "default_popup": "src/ui/permission-popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -18,7 +17,7 @@
     }
   },
   "permissions": ["storage", "unlimitedStorage"],
-  "optional_host_permissions": [
+  "host_permissions": [
     "https://claude.ai/*",
     "https://chatgpt.com/*",
     "https://chat.openai.com/*",
