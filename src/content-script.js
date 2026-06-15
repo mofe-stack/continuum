@@ -132,9 +132,32 @@
     }
   }
 
+  // Toolbar action click (relayed from the background) → open/close the panel,
+  // exactly like the in-page floating button. ensureHost() builds the shadow root
+  // if needed, so this works even on a non-conversation page where the floating
+  // button is hidden. Top frame only — content scripts also run in subframes.
+  function listenForToolbar() {
+    if (window.top !== window) return;
+    try {
+      chrome.runtime.onMessage.addListener((msg) => {
+        if (!msg || msg.type !== "continuum-toggle-panel") return;
+        try {
+          if (Continuum.ui && Continuum.ui.button && Continuum.ui.panel) {
+            Continuum.ui.panel.toggle(Continuum.ui.button.ensureHost());
+          }
+        } catch (e) {
+          /* ignore */
+        }
+      });
+    } catch (e) {
+      /* runtime messaging unavailable */
+    }
+  }
+
   function init() {
     watchNavigation();
     scheduleSync();
+    listenForToolbar();
     maybeAutoProbe();
     // If the user just clicked "Resume in new chat", a marker is waiting in
     // storage — auto-fill this fresh tab's composer + attachments. Runs on any

@@ -184,6 +184,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   return true; // async response
 });
 
+// Toolbar button → toggle the in-page Continuum panel (same as the floating
+// button). The action has no popup, so onClicked fires here; we ask the active
+// tab's content script to open/close the panel. On a tab with no content script
+// (an unsupported site) the message just no-ops — we swallow the lastError.
+chrome.action.onClicked.addListener((tab) => {
+  if (!tab || tab.id == null) return;
+  try {
+    chrome.tabs.sendMessage(tab.id, { type: "continuum-toggle-panel" }, () => {
+      void chrome.runtime.lastError;
+    });
+  } catch (e) {
+    /* ignore */
+  }
+});
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg || msg.type !== "continuum-summarize") return false;
   console.log("[Continuum bg] summarize request — provider:", msg.provider, "| key set:", !!msg.apiKey, "| chars:", (msg.text || "").length);
