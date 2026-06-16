@@ -168,6 +168,10 @@
       if (node.getAttribute("role") === "button") return "";
       const cls = typeof node.className === "string" ? node.className : "";
       if (/\bsr-only\b/i.test(cls)) return ""; // screen-reader-only labels
+      // Extended-thinking body: claude.ai renders it in a collapsible whose wrapper
+      // uses a `grid-template-rows` transition. Skip it so the reasoning never lands
+      // in the transcript (the API path strips it separately; see stripLeadingThinking).
+      if (cls.indexOf("grid-template-rows") !== -1) return "";
       const tid = node.getAttribute("data-testid") || "";
       if (/-button$/i.test(tid)) return "";
 
@@ -1033,6 +1037,89 @@
     return { records, branchTotal: rawMessages.length, activeTotal: activePath.length };
   }
 
+  // --- Extended-thinking stripping ----------------------------------------
+  // claude.ai's API mashes Claude's extended thinking onto the FRONT of msg.text
+  // with NO delimiter (verified 2026-06 via probe: reasoning and answer are
+  // concatenated, e.g. "…matter most.Kind of, but…"), so the text alone can't be
+  // split. The fix uses the DOM: every assistant turn carries a screen-reader-only
+  // <h2 class="sr-only">"Claude responded: <the full answer>"</h2> — the ANSWER with
+  // NO thinking, present even when the thinking block is collapsed (so no scroll or
+  // expand is needed). We take the START of that answer as an ANCHOR, find where it
+  // begins inside the API blob, and cut the thinking off the front.
+
+  // Normalize for fuzzy matching: keep only [a-z0-9] so the DOM answer (Markdown)
+  // matches the whitespace/markdown-laden API text regardless of formatting.
+  function normForMatch(s) {
+    return String(s == null ? "" : s).toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+
+  // Extract one assistant turn's CLEAN answer (Markdown) from the DOM, with the
+  // thinking blocks removed. claude.ai lays each turn out (in .font-claude-response)
+  // as a sequence of [thinking, answer] pairs; the thinking is the `row-start-1`
+  // wrapper holding the `grid-template-rows` collapsible (verified 2026-06 via probe).
+  // We CLONE the response (never touch the live page), drop those thinking wrappers,
+  // and run the normal Markdown extractor on what's left — so every answer segment +
+  // its formatting survives, every thinking block (summary, body, "Done") is gone, and
+  // no scroll/expand is needed (the answer prose is always in the DOM).
+  function domAnswerText(turnEl) {
+    const resp = turnEl.querySelector(".font-claude-response") || turnEl;
+    let clone;
+    try {
+      clone = resp.cloneNode(true);
+    } catch (e) {
+      return "";
+    }
+    clone.querySelectorAll('[class*="grid-template-rows"]').forEach((g) => {
+      // Remove the whole thinking block (summary + collapsible + "Done"), keeping its
+      // sibling answer row. Fallback to just the collapsible body if the wrapper class
+      // ever changes — that can only UNDER-strip (leak a summary line), never drop an
+      // answer.
+      const block = g.closest('[class*="row-start-1"]') || g;
+      if (block && block.parentElement) block.remove();
+    });
+    return extractText(clone);
+  }
+
+  // Collect every (top-level) assistant turn's clean DOM answer. Returns
+  // [{ anchor, text }]: `anchor` = normalized first 60 chars (to match the right API
+  // message — the answer's start appears in the API blob after the thinking), `text` =
+  // the Markdown answer. Deduped. No scroll/expand.
+  function collectDomAnswers() {
+    const out = [];
+    const seen = new Set();
+    document.querySelectorAll("[data-is-streaming]").forEach((turn) => {
+      // Top-level reply containers only (skip nested streaming sub-blocks).
+      let p = turn.parentElement;
+      while (p) {
+        if (p.matches && p.matches("[data-is-streaming]")) return;
+        p = p.parentElement;
+      }
+      const text = domAnswerText(turn);
+      if (!text || text.length < 8) return;
+      const anchor = normForMatch(text).slice(0, 60);
+      if (anchor.length >= 16 && !seen.has(anchor)) {
+        seen.add(anchor);
+        out.push({ anchor: anchor, text: text });
+      }
+    });
+    return out;
+  }
+
+  // Replace an assistant answer's thinking-laden API text with the clean DOM answer.
+  // Matches by anchor (the DOM answer's start appears in the API blob after the
+  // thinking). Returns the DOM answer when matched, else the original API text — so a
+  // markup change or an unmounted turn degrades to "thinking not stripped", never to a
+  // corrupted/empty answer.
+  function stripThinking(apiText, domAnswers) {
+    const text = String(apiText == null ? "" : apiText);
+    if (!domAnswers.length) return text;
+    const apiNorm = normForMatch(text);
+    for (const d of domAnswers) {
+      if (apiNorm.indexOf(d.anchor) !== -1) return d.text;
+    }
+    return text;
+  }
+
   async function captureFast(onProgress) {
     const progress = typeof onProgress === "function" ? onProgress : () => {};
     const M = model();
@@ -1073,6 +1160,11 @@
     const session = M.createSession({ title, startedAt });
     session.captureMethod = "api";
 
+    // Extended-thinking removal: read each turn's clean answer from the DOM with the
+    // thinking blocks stripped (no scroll/expand) so we can swap it in for the API's
+    // thinking-laden text below.
+    const domAnswers = collectDomAnswers();
+
     // Build turn records + attachment placeholders (order preserved), and queue
     // the blobs to fetch. Classification comes from the shared parser, so the
     // saved session's counts match the stats preview exactly.
@@ -1109,7 +1201,9 @@
         // like .zip) aren't fetchable from claude.ai, so they stay as name-only
         // references in the transcript — no bytes are captured for them.
       }
-      return { role: r.role, content: [{ type: "text", text: r.text }], attachments, artifacts: [] };
+      const text =
+        r.role === "assistant" && domAnswers.length ? stripThinking(r.text, domAnswers) : r.text;
+      return { role: r.role, content: [{ type: "text", text }], attachments, artifacts: [] };
     });
 
     // Fetch all blobs concurrently (capped) and fill the records in place. Bytes
@@ -1631,6 +1725,47 @@
     return report;
   }
 
+  // Diagnostic: how many thinking blocks the DOM exposes, and which assistant
+  // answers they'd be stripped from (before/after preview + chars removed). Run via
+  // the continuum_probe_think localStorage flag. Confirms the strip is matching.
+  async function probeThinking() {
+    const domAnswers = collectDomAnswers();
+    const report = {
+      domAnswers: domAnswers.length,
+      samples: domAnswers.slice(0, 3).map((a) => a.text.slice(0, 60) + "…"),
+      assistantTurnsStripped: 0,
+      matched: [],
+    };
+    let data = null;
+    try {
+      data = await fetchConversationData();
+    } catch (e) {
+      /* report DOM-only if the API read fails */
+    }
+    const parsed = data ? activeRecordsFromData(data) : null;
+    if (parsed) {
+      for (const r of parsed.records) {
+        if (r.role !== "assistant") continue;
+        const stripped = stripThinking(r.text, domAnswers);
+        if (stripped !== r.text) {
+          report.matched.push({
+            apiChars: r.text.length,
+            domAnswerChars: stripped.length,
+            wasThinking: r.text.slice(0, 70),
+            nowStartsWith: stripped.slice(0, 70),
+          });
+        }
+      }
+      report.assistantTurnsStripped = report.matched.length;
+    }
+    try {
+      console.log("[Continuum] thinking probe:\n" + JSON.stringify(report, null, 2));
+    } catch (e) {
+      console.log("[Continuum] thinking probe:", report);
+    }
+    return report;
+  }
+
   Continuum.claudeAdapter = {
     capture,
     captureFast,
@@ -1638,6 +1773,7 @@
     probeApiAttachments,
     probeFileDownload,
     probeMessages,
+    probeThinking,
     peekStats,
     peekStatsFast,
     peekSignal,

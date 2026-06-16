@@ -127,6 +127,14 @@
           if (a && a.probeFileDownload) a.probeFileDownload();
         }, 400);
       }
+      if (localStorage.getItem("continuum_probe_think")) {
+        localStorage.removeItem("continuum_probe_think");
+        console.log("[Continuum] thinking-probe flag detected — running probeThinking()…");
+        setTimeout(function () {
+          const a = getActiveAdapter();
+          if (a && a.probeThinking) a.probeThinking();
+        }, 800);
+      }
     } catch (e) {
       /* localStorage may be unavailable */
     }
