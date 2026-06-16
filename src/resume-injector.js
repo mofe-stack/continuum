@@ -124,7 +124,7 @@
     return { card, body };
   }
 
-  function toast(message, ok) {
+  function toast(message, ok, durationMs) {
     try {
       const { card } = makeToastCard(message, !ok);
       document.body.appendChild(card);
@@ -132,7 +132,7 @@
       setTimeout(() => {
         card.style.opacity = "0";
         setTimeout(() => card.remove(), 300);
-      }, 5000);
+      }, durationMs || 5000);
     } catch (e) {
       /* DOM not ready — ignore */
     }
@@ -431,6 +431,89 @@
       console.warn("[Continuum] attachFiles: input + drop both failed:", e);
       return false;
     }
+  }
+
+  // ── ChatGPT file-upload-limit detection ──────────────────────────────
+  // ChatGPT caps how many files an ACCOUNT may upload in a rolling window (the
+  // free tier especially). When a resume's conversation-history.pdf would exceed
+  // that, ChatGPT silently refuses to mount the attachment and shows a notice in
+  // the composer like "You can send up to -5 files. Remove 5 to continue." (the
+  // NEGATIVE number = the per-account allowance is already exhausted). This isn't a
+  // Continuum failure — the bytes are fine, the account is just out of uploads — but
+  // from the user's side the file simply "doesn't attach", which is baffling. We
+  // detect that notice so we can explain exactly what happened and what to do.
+  const UPLOAD_LIMIT_RE =
+    /remove\s+\d+\s+to\s+continue|send\s+up\s+to\s+-?\d+\s+files?|(?:reached|hit|exceeded|over)\b[^.]{0,30}\b(?:upload|file)|file[-\s]?upload\s+limit|too\s+many\s+files|upload\s+limit\s+reached/i;
+
+  function isChatGptHost() {
+    return /(^|\.)chatgpt\.com$/i.test(location.hostname) || /(^|\.)chat\.openai\.com$/i.test(location.hostname);
+  }
+
+  // Look for ChatGPT's upload-limit notice near the composer. Returns the matched
+  // notice line (trimmed) so it can be quoted back to the user, or null if absent.
+  function findUploadLimitNotice(editor) {
+    const scopes = [];
+    const form = editor && editor.closest && editor.closest("form");
+    if (form) scopes.push(form);
+    const main = document.querySelector("main");
+    if (main) scopes.push(main);
+    if (!scopes.length) scopes.push(document.body);
+    for (const sc of scopes) {
+      let txt = "";
+      try {
+        txt = sc.innerText || sc.textContent || "";
+      } catch (e) {
+        txt = "";
+      }
+      for (const line of txt.split("\n")) {
+        const t = line.trim();
+        if (t && t.length <= 200 && UPLOAD_LIMIT_RE.test(t)) return t.slice(0, 160);
+      }
+    }
+    return null;
+  }
+
+  // Did ChatGPT actually MOUNT an attachment in the composer? After we set files on
+  // the hidden input, a successful upload renders a chip (filename + remove control /
+  // thumbnail). If none appears, the upload was rejected — sometimes with the notice
+  // above, sometimes SILENTLY (no text at all). We look for signals OUTSIDE the
+  // editor, since the preamble inside it also mentions the filename.
+  function chatgptAttachmentPresent(editor, names) {
+    const form =
+      (editor && editor.closest && editor.closest("form")) ||
+      document.querySelector("main form") ||
+      document.querySelector("main") ||
+      document.body;
+    // 1) A remove-attachment control — present for both file and image chips.
+    if (form.querySelector('button[aria-label*="remove" i]')) return true;
+    // 2) The attached file name rendered as a chip (outside the editor's own text).
+    //    Use a short, truncation-tolerant prefix of each name's base.
+    const keys = (names || [])
+      .map((n) => String(n || "").replace(/\.[a-z0-9]+$/i, "").slice(0, 12).toLowerCase())
+      .filter((k) => k.length >= 6);
+    if (keys.length) {
+      const els = form.querySelectorAll("span, div, a, p, button");
+      for (const el of els) {
+        if (editor && (el === editor || editor.contains(el))) continue;
+        const t = (el.textContent || "").trim().toLowerCase();
+        if (t && t.length <= 120 && keys.some((k) => t.indexOf(k) !== -1)) return true;
+      }
+    }
+    return false;
+  }
+
+  // After attaching on ChatGPT, poll briefly for the outcome: "ok" (a chip mounted),
+  // "limit" (an explicit upload-limit notice), or "missing" (no chip, no notice — the
+  // silent rejection). Returns fast on success; waits out the window only on failure.
+  async function chatgptAttachOutcome(editor, names) {
+    for (let i = 0; i < 10; i++) {
+      const live = findComposer() || editor;
+      const notice = findUploadLimitNotice(live);
+      if (notice) return { status: "limit", notice: notice };
+      if (chatgptAttachmentPresent(live, names)) return { status: "ok" };
+      await sleep(300);
+    }
+    return { status: "missing" };
   }
 
   // Gemini's upload is gated behind an OS file picker we can't drive, and synthetic
@@ -789,6 +872,26 @@
       prog.done();
       toast("Auto-fill didn't take — your handoff is on the clipboard, just paste it.", false);
       return;
+    }
+
+    // ChatGPT only: verify the file actually attached. ChatGPT caps per-account file
+    // uploads (free tier especially); over the cap it refuses the attachment —
+    // sometimes with a "…Remove N to continue" notice, sometimes SILENTLY. Either way
+    // no chip mounts, so if we don't see one we tell the user WHY (and that it isn't
+    // Continuum). Runs before auto-send so we never fire a Send that's missing the file.
+    if (isChatGptHost() && fileObjects.length) {
+      const outcome = await chatgptAttachOutcome(findComposer() || editor, fileObjects.map((f) => f.name));
+      if (outcome.status !== "ok") {
+        prog.done();
+        toast(
+          "ChatGPT didn’t accept the file — likely its per-account upload limit (resets after a while). " +
+            "Your chat history is on your clipboard, so just paste it in instead.",
+          false,
+          9000
+        );
+        console.warn("[Continuum] resume: ChatGPT attachment not mounted —", outcome.status, outcome.notice || "");
+        return;
+      }
     }
 
     const what =
