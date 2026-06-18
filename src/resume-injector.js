@@ -442,8 +442,14 @@
   // Continuum failure — the bytes are fine, the account is just out of uploads — but
   // from the user's side the file simply "doesn't attach", which is baffling. We
   // detect that notice so we can explain exactly what happened and what to do.
+  // NOTE: the "send up to N files" branch requires a NEGATIVE number
+  // (send\s+up\s+to\s+-\d+). ChatGPT shows a benign "You can send up to 10
+  // files" hint while an upload is still validating; only the negative count
+  // ("…up to -5 files. Remove 5 to continue.") means the allowance is exhausted.
+  // A previous `-?\d+` matched the benign hint too, so the FIRST resume attempt
+  // would falsely report a limit while a perfectly fine upload was mid-flight.
   const UPLOAD_LIMIT_RE =
-    /remove\s+\d+\s+to\s+continue|send\s+up\s+to\s+-?\d+\s+files?|(?:reached|hit|exceeded|over)\b[^.]{0,30}\b(?:upload|file)|file[-\s]?upload\s+limit|too\s+many\s+files|upload\s+limit\s+reached/i;
+    /remove\s+\d+\s+to\s+continue|send\s+up\s+to\s+-\d+\s+files?|(?:reached|hit|exceeded|over)\b[^.]{0,30}\b(?:upload|file)|file[-\s]?upload\s+limit|too\s+many\s+files|upload\s+limit\s+reached/i;
 
   function isChatGptHost() {
     return /(^|\.)chatgpt\.com$/i.test(location.hostname) || /(^|\.)chat\.openai\.com$/i.test(location.hostname);
@@ -506,13 +512,24 @@
   // "limit" (an explicit upload-limit notice), or "missing" (no chip, no notice — the
   // silent rejection). Returns fast on success; waits out the window only on failure.
   async function chatgptAttachOutcome(editor, names) {
-    for (let i = 0; i < 10; i++) {
+    let limitNotice = null;
+    for (let i = 0; i < 12; i++) {
       const live = findComposer() || editor;
-      const notice = findUploadLimitNotice(live);
-      if (notice) return { status: "limit", notice: notice };
+      // A mounted chip is ground truth — check it FIRST so a successful upload
+      // always wins over a notice ChatGPT may have flashed transiently.
       if (chatgptAttachmentPresent(live, names)) return { status: "ok" };
+      // Remember a limit notice but DON'T bail on it yet: on the first attempt
+      // ChatGPT can show the allowance line for a beat while the upload is still
+      // validating, then mount the chip. Only a notice that's still standing
+      // after the chip has had time to appear is a real rejection.
+      const notice = findUploadLimitNotice(live);
+      if (notice) limitNotice = notice;
       await sleep(300);
     }
+    // Window elapsed with no chip. One last check (it may have mounted on the
+    // final tick) before concluding it was a genuine limit vs a silent miss.
+    if (chatgptAttachmentPresent(findComposer() || editor, names)) return { status: "ok" };
+    if (limitNotice) return { status: "limit", notice: limitNotice };
     return { status: "missing" };
   }
 
