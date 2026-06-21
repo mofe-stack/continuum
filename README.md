@@ -42,7 +42,7 @@ Every site captures the full conversation text. What comes through for **attachm
 | Messages | ✅ | ✅ | ✅ | ✅ |
 | Images you uploaded | ✅ | ✅ | ✅ | name only |
 | Images in answers | name only | ✅ | ✅ | ✅ |
-| Files you uploaded | ✅ | ✅ | name only | name only |
+| Files you uploaded | ✅* | ✅ | name only | name only |
 | AI-generated files | name only | ✅ | name only | — |
 
 **What the symbols mean:**
