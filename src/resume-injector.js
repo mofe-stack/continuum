@@ -144,27 +144,60 @@
   function progressToast(initial) {
     let card = null;
     let body = null;
-    let fill = null;
-    let timer = null;
-    let pct = 0;
-    // The provider API call has no granular progress events, so the bar follows a
-    // TIME curve: quick off the start, then a steadily-slowing but never-stalling
-    // crawl (so it doesn't park at one spot during the long API wait), snapping to
-    // 100% on done(). transform:scaleX (GPU-cheap); honors prefers-reduced-motion
-    // (no timer — it steps forward per phase instead).
+    let bar = null;
+    let anim = null;
+    let delayTimer = null;
+    let cycleTimer = null;
+    let cycleIdx = 0;
+    // The long step (AI compression) sends ONE message ("Summarizing N messages…")
+    // then goes silent for the whole API wait — a frozen label is what makes the
+    // wait feel boring. So during any quiet stretch we ROTATE friendly, on-brand
+    // status lines (with a soft fade) to keep the user watching. Real phase updates
+    // take over instantly and reset the rotation, so quick steps still show their
+    // own text — only the long silent wait cycles. A continuously moving bar runs
+    // underneath. Honors prefers-reduced-motion.
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // Elapsed-time → percent. Piecewise so motion stays perceptible the whole time:
-    // fast to ~36% in 3s, steady to ~71% by 10s, slow-but-moving to ~95% by 30s,
-    // then a faint crawl toward 99% (never hard-stops until done()).
-    const curve = (ms) => {
-      const s = ms / 1000;
-      if (s < 3) return 12 * s; // 0 → 36
-      if (s < 10) return 36 + 5 * (s - 3); // 36 → 71
-      if (s < 30) return 71 + 1.2 * (s - 10); // 71 → 95
-      return Math.min(99, 95 + 0.08 * (s - 30)); // 95 → 99 (still inching)
+    // Activity lines that loosely mirror what the handoff brief is doing — they read
+    // as progress and loop naturally if compression runs long.
+    const CYCLE = [
+      "Reading through the whole conversation…",
+      "Spotting the key decisions…",
+      "Keeping your code and snippets intact…",
+      "Tracking what's still in progress…",
+      "Lining up the next steps…",
+      "Holding on to the important context…",
+      "Weaving it into a clean handoff brief…",
+    ];
+    const setText = (msg) => {
+      if (!body) return;
+      if (reduce) {
+        body.textContent = msg;
+        return;
+      }
+      body.style.transition = "opacity .18s ease";
+      body.style.opacity = "0";
+      setTimeout(() => {
+        if (body) {
+          body.textContent = msg;
+          body.style.opacity = "1";
+        }
+      }, 180);
     };
-    const apply = () => {
-      if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(100, pct)) / 100 + ")";
+    const stopCycle = () => {
+      if (delayTimer) { clearTimeout(delayTimer); delayTimer = null; }
+      if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
+    };
+    const armCycle = () => {
+      // After a quiet beat with no new real phase, start rotating engaging lines.
+      stopCycle();
+      delayTimer = setTimeout(() => {
+        cycleIdx = 0;
+        setText(CYCLE[cycleIdx]);
+        cycleTimer = setInterval(() => {
+          cycleIdx = (cycleIdx + 1) % CYCLE.length;
+          setText(CYCLE[cycleIdx]);
+        }, 3600);
+      }, 2400);
     };
     try {
       const made = makeToastCard(initial, false);
@@ -174,56 +207,56 @@
       const accent = dark ? "#e5e7eb" : "#3730a3";
       const track = document.createElement("div");
       track.style.cssText =
-        "margin-top:9px;height:4px;border-radius:999px;overflow:hidden;" +
+        "position:relative;overflow:hidden;margin-top:9px;height:4px;border-radius:999px;" +
         "background:" + (dark ? "rgba(255,255,255,.12)" : "#e5e7eb") + ";";
-      fill = document.createElement("div");
-      fill.style.cssText =
-        "height:100%;width:100%;border-radius:999px;background:" + accent + ";" +
-        "transform:scaleX(0);transform-origin:left;will-change:transform;" +
-        (reduce ? "" : "transition:transform .16s linear;");
-      track.appendChild(fill);
+      bar = document.createElement("div");
+      bar.style.cssText =
+        "position:absolute;top:0;left:0;height:100%;width:38%;border-radius:999px;" +
+        "background:" + accent + ";will-change:transform;";
+      track.appendChild(bar);
       card.appendChild(track);
       document.body.appendChild(card);
       requestAnimationFrame(() => {
         card.style.opacity = "1";
-        apply();
       });
-      if (reduce) {
-        pct = 14; // a visible starting amount; update() steps it forward per phase
-        apply();
+      if (!reduce && bar.animate) {
+        // Continuous left→right sweep; loops until done() cancels it.
+        anim = bar.animate(
+          [{ transform: "translateX(-130%)" }, { transform: "translateX(365%)" }],
+          { duration: 1150, iterations: Infinity, easing: "cubic-bezier(.45,0,.25,1)" }
+        );
       } else {
-        const t0 = Date.now();
-        pct = 8; // small instant jump so it's visibly moving immediately
-        apply();
-        timer = setInterval(() => {
-          pct = Math.max(pct, curve(Date.now() - t0));
-          apply();
-        }, 100);
+        bar.style.width = "100%";
+        bar.style.opacity = "0.55";
       }
+      armCycle(); // rotate if the very first message stalls
     } catch (e) {
       card = null;
     }
     return {
       update(msg) {
-        if (body) body.textContent = msg;
-        if (reduce) {
-          pct = Math.min(96, pct + 22); // step the bar forward each phase
-          apply();
-        }
+        stopCycle(); // a real phase happened — show it immediately
+        setText(msg);
+        armCycle(); // if it goes quiet again (the compression wait), resume rotating
       },
       done() {
-        if (timer) {
-          clearInterval(timer);
-          timer = null;
+        stopCycle();
+        if (anim) {
+          try { anim.cancel(); } catch (e) {}
+          anim = null;
         }
-        pct = 100;
-        apply();
+        // Snap to a filled bar so it visibly completes, then fade out.
+        if (bar) {
+          bar.style.transform = "none";
+          bar.style.left = "0";
+          bar.style.width = "100%";
+          bar.style.opacity = "1";
+        }
         if (card) {
-          // Let 100% land before the card fades out.
           setTimeout(() => {
             card.style.opacity = "0";
             setTimeout(() => card.remove(), 300);
-          }, 280);
+          }, 240);
         }
       },
     };

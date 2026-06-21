@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Continuum — Allow access</title>
+    <style>
+      /* Continuum design language: minimal ink-on-paper, near-monochrome, hairline
+         borders, one filled CTA, mono for labels / sans for titles+actions, 140ms
+         micro-interactions. Standalone extension page → tokens mirror panel.css. */
+      :root {
+        --paper: #fcfcfd;
+        --bg: #f3f4f6;
+        --ink: #1f2937;
+        --ink-2: #4b5563;
+        --ink-3: #6b7280;
+        --line: #e5e7eb;
+        --accent: #3730a3;
+        --chip: #f3f4f6;
+        --cta-bg: #3730a3;
+        --cta-bg-hover: #2e2885;
+        --cta-ink: #ffffff;
+        --ok: #059669;
+        --radius: 12px;
+        --t: 140ms ease;
+        --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+          "Liberation Mono", monospace;
+      }
+      /* Matches Continuum's OWN theme (set on <html data-theme> by grant.js from
+         the extension's saved setting), not the OS preference. */
+      :root[data-theme="dark"] {
+        --paper: #1b1f27;
+        --bg: #14171d;
+        --ink: #e5e7eb;
+        --ink-2: #cbd5e1;
+        --ink-3: #94a3b8;
+        --line: #2d333f;
+        --accent: #c7d2fe;
+        --chip: #232934;
+        --cta-bg: #e5e7eb;
+        --cta-bg-hover: #ffffff;
+        --cta-ink: #1b1f27;
+        --ok: #34d399;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        display: grid;
+        place-items: center;
+        padding: 14px;
+      }
+      .card {
+        width: 100%;
+        max-width: 320px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 20px 20px 18px;
+        box-shadow: 0 14px 40px -22px rgba(16, 24, 40, 0.35);
+      }
+      .icon {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: var(--chip);
+        color: var(--accent);
+        margin-bottom: 11px;
+      }
+      .icon svg { width: 17px; height: 17px; display: block; }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        margin: 0 0 6px;
+      }
+      h1 {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+        margin: 0 0 7px;
+      }
+      p.desc {
+        font-size: 12.5px;
+        line-height: 1.45;
+        color: var(--ink-2);
+        margin: 0 0 12px;
+      }
+      .host {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-2);
+        background: var(--chip);
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 6px 9px;
+        margin: 0 0 14px;
+        word-break: break-all;
+      }
+      .actions { display: flex; flex-direction: column; gap: 7px; }
+      button {
+        font-family: var(--sans);
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 9px 12px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: background var(--t), border-color var(--t), color var(--t), opacity var(--t);
+      }
+      .btn-primary { background: var(--cta-bg); color: var(--cta-ink); }
+      .btn-primary:hover { background: var(--cta-bg-hover); }
+      .btn-primary:disabled { opacity: 0.6; cursor: default; }
+      .btn-ghost { background: transparent; color: var(--ink-2); border-color: var(--line); }
+      .btn-ghost:hover { color: var(--ink); border-color: var(--ink-3); }
+      button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .note {
+        font-size: 12px;
+        color: var(--ink-3);
+        margin: 12px 0 0;
+        min-height: 16px;
+        text-align: center;
+      }
+      .note.err { color: #dc2626; }
+      /* Success state */
+      .done { display: none; text-align: center; }
+      .done .icon {
+        margin: 0 auto 16px;
+        color: var(--ok);
+        background: transparent;
+        width: 48px; height: 48px;
+      }
+      .done .icon svg { width: 30px; height: 30px; }
+      body.granted .ask { display: none; }
+      body.granted .done { display: block; }
+      @media (prefers-reduced-motion: reduce) {
+        * { transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card" role="dialog" aria-labelledby="title">
+      <!-- ASK STATE -->
+      <div class="ask">
+        <div class="icon" aria-hidden="true">
+          <!-- shield-check (Lucide) -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+        </div>
+        <p class="eyebrow">Continuum · AI compression</p>
+        <h1 id="title">Allow access to <span id="provider">this provider</span></h1>
+        <p class="desc">
+          Continuum sends this chat to <span id="provider-2">the provider</span>'s API to
+          compress it. Your key and chats stay on your device and are sent only to
+          <span id="provider-4">the provider</span> — never to a Continuum server.
+        </p>
+        <p class="host" id="host">api.example.com</p>
+        <div class="actions">
+          <button class="btn-primary" id="allow" type="button">Allow access</button>
+          <button class="btn-ghost" id="cancel" type="button">Not now</button>
+        </div>
+        <p class="note" id="note" aria-live="polite"></p>
+      </div>
+
+      <!-- SUCCESS STATE -->
+      <div class="done">
+        <div class="icon" aria-hidden="true">
+          <!-- check-circle (Lucide) -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <path d="m9 11 3 3L22 4" />
+          </svg>
+        </div>
+        <h1>Access granted</h1>
+        <p class="desc" style="margin-bottom: 0">
+          Return to your chat and click <strong>Resume</strong> again — this won't be
+          asked for <span id="provider-3">this provider</span> next time.
+        </p>
+      </div>
+    </main>
+    <script src="grant.js"></script>
+  </body>
+</html>

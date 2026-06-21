@@ -701,10 +701,45 @@
   border-color: var(--cn-ink-3);
   background: var(--cn-hover);
 }
+/* Custom-drawn checkbox so it looks IDENTICAL across Chrome/Opera/Firefox —
+   native `accent-color` checkboxes render differently per browser. A clean
+   bordered box that fills with ink (monochrome — no purple) + a white tick when
+   checked. */
 .cn-compress input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  flex: 0 0 auto;
   margin: 0;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--cn-ink-3);
+  border-radius: 4px;
+  background: var(--cn-paper);
   cursor: pointer;
-  accent-color: var(--cn-ink); /* monochrome tick — no purple */
+  display: inline-grid;
+  place-content: center;
+  transition: background var(--cn-t), border-color var(--cn-t);
+}
+.cn-compress input[type="checkbox"]::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  transform: scale(0);
+  transition: transform 120ms ease;
+  background: var(--cn-paper); /* the tick — contrasts the filled box in both themes */
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+.cn-compress input[type="checkbox"]:checked {
+  background: var(--cn-ink);
+  border-color: var(--cn-ink);
+}
+.cn-compress input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+.cn-compress input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--cn-ink);
+  outline-offset: 2px;
 }
 /* Checked state: keep it neutral (just a slightly firmer border). The checkbox
    tick already shows the state — no purple row highlight. */
