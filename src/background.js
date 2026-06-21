@@ -222,3 +222,61 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
   return true; // keep the message channel open for the async response
 });
+
+// Provider-API hosts are OPTIONAL host permissions. Content scripts can't call
+// chrome.permissions, so the panel asks the worker to (1) check whether a host is
+// already granted and (2) open the small grant page (where the prompt can fire).
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!msg || msg.type !== "continuum-has-host") return false;
+  chrome.permissions
+    .contains({ origins: [msg.origin] })
+    .then((granted) => sendResponse({ ok: true, granted: !!granted }))
+    .catch((e) => sendResponse({ ok: false, granted: false, error: e && e.message ? e.message : String(e) }));
+  return true;
+});
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!msg || msg.type !== "continuum-open-grant") return false;
+  const url =
+    chrome.runtime.getURL("src/grant.html") +
+    "?provider=" + encodeURIComponent(msg.provider || "") +
+    "&origin=" + encodeURIComponent(msg.origin || "") +
+    "&theme=" + encodeURIComponent(msg.theme || "");
+  // A small, focused popup that opens at the TOP-RIGHT of the browser window, next
+  // to where Continuum's panel sits — so it reads as part of the extension rather
+  // than a stray window. Position is derived from the caller's window bounds.
+  const W = 372;
+  const H = 416;
+  const openAt = (bounds) => {
+    const opts = { url: url, type: "popup", width: W, height: H, focused: true };
+    if (bounds && bounds.width) {
+      opts.left = Math.max(0, (bounds.left || 0) + bounds.width - W - 18);
+      opts.top = Math.max(0, (bounds.top || 0) + 84);
+    }
+    try {
+      chrome.windows.create(opts, () => {
+        void chrome.runtime.lastError;
+        sendResponse({ ok: true });
+      });
+    } catch (e) {
+      try {
+        chrome.tabs.create({ url: url }, () => {
+          void chrome.runtime.lastError;
+          sendResponse({ ok: true });
+        });
+      } catch (e2) {
+        sendResponse({ ok: false, error: String(e2) });
+      }
+    }
+  };
+  const wid = sender && sender.tab && sender.tab.windowId;
+  if (wid != null && chrome.windows && chrome.windows.get) {
+    chrome.windows.get(wid, (win) => {
+      void chrome.runtime.lastError;
+      openAt(win || null);
+    });
+  } else {
+    openAt(null);
+  }
+  return true;
+});

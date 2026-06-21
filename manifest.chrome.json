@@ -24,7 +24,9 @@
     "https://gemini.google.com/*",
     "https://www.perplexity.ai/*",
     "https://perplexity.ai/*",
-    "https://*.googleusercontent.com/*",
+    "https://*.googleusercontent.com/*"
+  ],
+  "optional_host_permissions": [
     "https://api.anthropic.com/*",
     "https://api.openai.com/*",
     "https://generativelanguage.googleapis.com/*",

@@ -33,10 +33,10 @@
     "information-dense bullet points rather than full prose. Never drop or blur a piece of context " +
     "to hit that number, and never invent anything not in the transcript; if something is " +
     "ambiguous, preserve it as-is rather than guessing. " +
-    // Output format — the 7 fixed headings, in order, omit-empty.
+    // Output format — the 7 fixed headings, in order, ALWAYS present ("None" if empty).
     "OUTPUT FORMAT — organize the brief under these exact headings, in this order, with tight, " +
-    "information-dense bullet points under each. Omit any heading that has nothing to report. Do " +
-    "NOT include a heading with placeholder text like \"None\" or \"N/A\" — leave it out entirely. " +
+    "information-dense bullet points under each. ALWAYS include all 7 headings, in order, even if a " +
+    "section has nothing to report — for an empty section, write a single line: None. " +
     // Global retrieval + verbatim rule.
     "RETRIEVAL & VERBATIM (applies to the WHOLE brief, not any one section): when deciding what to " +
     "pull in, weight the LATEST and EARLIEST messages most heavily — the end holds the current " +

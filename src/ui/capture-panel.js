@@ -817,7 +817,7 @@
       '        <span class="cn-chip">Critical context</span>',
       '        <span class="cn-chip">Discarded attempts</span>',
       "      </div>",
-      '      <div class="cn-hint">Compresses the whole conversation into a structured brief while keeping full context. All your key details are kept (decisions, instructions, code, files, and images) and everything else is summarized. Any section with nothing to report is skipped.</div>',
+      '      <div class="cn-hint">Compresses the whole conversation into a structured brief while keeping full context. All your key details are kept (decisions, instructions, code, files, and images) and everything else is summarized. Empty sections just say None.</div>',
       "    </div>",
       "  </div>",
       '  <div class="cn-divider"></div>',
@@ -1778,6 +1778,49 @@
     perplexity: "https://www.perplexity.ai/",
   };
 
+  // Provider API hosts are OPTIONAL host permissions (kept out of the install-time
+  // prompt — least privilege for the store/featured review). They're requested at
+  // runtime here, on the resume click (a user gesture), only for the provider the
+  // user actually chose. The grant is extension-wide, so the background worker's
+  // fetch (verifyKey + the compression call in the new tab) is covered.
+  const PROVIDER_HOST = {
+    anthropic: "https://api.anthropic.com/*",
+    openai: "https://api.openai.com/*",
+    gemini: "https://generativelanguage.googleapis.com/*",
+    perplexity: "https://api.perplexity.ai/*",
+    grok: "https://api.x.ai/*",
+    deepseek: "https://api.deepseek.com/*",
+  };
+  function sendBg(message) {
+    return new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage(message, (resp) => {
+          void chrome.runtime.lastError; // swallow "no receiver" etc.
+          resolve(resp || null);
+        });
+      } catch (e) {
+        resolve(null);
+      }
+    });
+  }
+
+  // Content scripts can't call chrome.permissions, so the background worker checks
+  // whether the chosen provider's API host is already granted. If not, it opens the
+  // themed grant page (where the prompt CAN fire); the user grants once per provider,
+  // then clicks Resume again. Returns true only when access is already in place.
+  async function ensureProviderHost(provider) {
+    const origin = PROVIDER_HOST[provider];
+    if (!origin) return true;
+    const check = await sendBg({ type: "continuum-has-host", origin: origin });
+    if (check && check.granted) return true;
+    let theme = "light";
+    try {
+      if (Continuum.settings && Continuum.settings.getResolvedTheme) theme = Continuum.settings.getResolvedTheme();
+    } catch (e) {}
+    await sendBg({ type: "continuum-open-grant", provider: provider, origin: origin, theme: theme });
+    return false;
+  }
+
   async function onResume(target) {
     if (!currentDetail) return;
     target = RESUME_URLS[target] ? target : "claude";
@@ -1796,6 +1839,15 @@
       }
       if (!key) {
         showToast("Resume canceled — add a " + providerName(provider) + " API key in Settings.", false);
+        return;
+      }
+      // Provider API hosts are optional permissions and content scripts can't
+      // prompt — so if access isn't granted yet, this opens the grant window and
+      // asks the user to approve, then click Resume again. (We never ship an
+      // uncompressed chat when compression was requested.)
+      const allowed = await ensureProviderHost(provider);
+      if (!allowed) {
+        showToast("Allow access to " + providerName(provider) + " in the window that opened, then click Resume again.", false);
         return;
       }
       // Confirm the key actually works (catches invalid/expired keys here).

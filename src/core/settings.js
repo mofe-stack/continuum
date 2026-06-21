@@ -68,16 +68,16 @@
     "Continue from our previous conversation. Attached as `conversation-history.pdf` is a " +
     "structured handoff brief of our entire chat so far — organized under Completed work, Current " +
     "state, In progress, Next steps, Constraints, Critical context, and Discarded attempts, with " +
-    "the important exact values, code, decisions, and instructions preserved word-for-word. Images " +
-    "are embedded inline and files are referenced by name, each with a one-line note on what it is. " +
+    "the important decisions, instructions, code, files, and images preserved — images embedded " +
+    "inline and files referenced by name, with a one-line note on each. " +
     "This brief is your complete prior context — pick up exactly where we left off and follow the " +
     "Next steps. Don't recap it back to me; just continue as if this is the same conversation.";
   const DEFAULT_RESUME_PREAMBLE_COMPRESSED_MD =
     "Continue from our previous conversation. Attached as `conversation-history.md` is a structured " +
     "handoff brief of our entire chat so far — organized under Completed work, Current state, In " +
     "progress, Next steps, Constraints, Critical context, and Discarded attempts, with the " +
-    "important exact values, code, decisions, and instructions preserved word-for-word. Images and " +
-    "files are referenced by name (not attached), each with a one-line note on what it is. This " +
+    "important decisions, instructions, code, files, and images preserved — images and files " +
+    "referenced by name (not attached), with a one-line note on each. This " +
     "brief is your complete prior context — pick up exactly where we left off and follow the Next " +
     "steps. Don't recap it back to me; just continue as if this is the same conversation.";
   const MAX_PREAMBLE_LEN = 4000; // guard against pathological input
