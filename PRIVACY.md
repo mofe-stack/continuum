@@ -23,7 +23,7 @@ This data never leaves your device except in the two cases below, both of which
 
 ## When data leaves your device (only on your action)
 1. **Resuming a chat.** When you click "Resume in new chat," Continuum opens the
-   AI site you chose (Claude, ChatGPT, or Gemini) and places your captured
+   AI site you chose (Claude, ChatGPT, Gemini, or Perplexity) and places your captured
    conversation into that site's chat box / as an attachment. The data goes to
    that AI provider because you asked to continue the conversation there.
 2. **AI compression (optional, off by default).** If you turn on "Compress with
@@ -40,7 +40,7 @@ This data never leaves your device except in the two cases below, both of which
 
 ## Permissions, and why they're used
 - **Storage / unlimited storage** — to save your captured chats and settings on your device.
-- **Access to `claude.ai`, `chatgpt.com`, `gemini.google.com`** — to read the
+- **Access to `claude.ai`, `chatgpt.com`, `gemini.google.com`, `perplexity.ai`** — to read the
   conversation you're viewing so it can be captured, and to fill the chat box
   when you resume.
 - **Access to `*.googleusercontent.com`** — to fetch images shown in Gemini chats so they can be captured.

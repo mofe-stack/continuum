@@ -42,9 +42,28 @@
     return /^\/chat\//.test(location.pathname);
   }
 
+  // Some sessions hold a real conversation in the DOM WITHOUT the URL ever
+  // becoming a /c/<id> (or /chat/, /app/, /search/) page — most notably a
+  // LOGGED-OUT ChatGPT session, which stays on chatgpt.com/ the whole time. The
+  // URL gate alone hid the button there entirely ("you have to be logged in for
+  // it to work"). So we also treat "the page actually has message turns" as a
+  // conversation. Every adapter's peekSignal() is a cheap "<count>:<…>" string
+  // off one querySelectorAll, safe to poll on the sync loop, and works the same
+  // on all supported sites (Claude, ChatGPT, Gemini, Perplexity), signed in or not.
+  function hasVisibleConversation() {
+    try {
+      const a = getActiveAdapter();
+      if (!a || typeof a.peekSignal !== "function") return false;
+      return parseInt(a.peekSignal(), 10) > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+  Continuum.hasVisibleConversation = hasVisibleConversation;
+
   function sync() {
     if (!Continuum.ui || !Continuum.ui.button) return;
-    if (isConversationPage()) Continuum.ui.button.mount();
+    if (isConversationPage() || hasVisibleConversation()) Continuum.ui.button.mount();
     else Continuum.ui.button.unmount();
   }
 
@@ -149,10 +168,12 @@
     try {
       chrome.runtime.onMessage.addListener((msg) => {
         if (!msg || msg.type !== "continuum-toggle-panel") return;
-        // Only on an actual conversation page — same gate as the floating button.
-        // Otherwise the next sync() tick unmounts the button and closes the panel
-        // right after it opens (the "opens then immediately closes" on a home page).
-        if (!isConversationPage()) return;
+        // Same gate as the floating button: a conversation URL OR a page that
+        // actually has message turns (covers logged-out ChatGPT, which never gets
+        // a /c/<id> URL). Otherwise the next sync() tick unmounts the button and
+        // closes the panel right after it opens (the "opens then immediately
+        // closes" on a home page, which genuinely has nothing to capture).
+        if (!isConversationPage() && !hasVisibleConversation()) return;
         try {
           if (Continuum.ui && Continuum.ui.button && Continuum.ui.panel) {
             Continuum.ui.panel.toggle(Continuum.ui.button.ensureHost());

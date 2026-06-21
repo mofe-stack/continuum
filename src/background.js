@@ -35,16 +35,27 @@ const OPENAI_COMPATIBLE_URLS = {
 
 // Output-token cap. This is a CEILING, not a cost: providers bill only for tokens
 // actually generated, so a higher cap is free unless the model writes more (and the
-// system prompt's "roughly halve" keeps real output ~half the input). A flat 4096
-// silently TRUNCATED the summary on long chats — exactly where compression matters
-// most. So size the cap to the input: the summary targets ~half the middle, so we
-// budget ~0.6× the estimated input tokens (a little headroom over half) and clamp.
-const MAX_TOKENS_FLOOR = 1024;   // tiny middles still get room for a clean summary
-const MAX_TOKENS_CEIL = 16384;   // safety ceiling; well under model limits
-function maxTokensFor(text) {
-  const inputTokens = Math.ceil((text || "").length / 4.35); // same estimator as the panel
-  const budget = Math.ceil(inputTokens * 0.6);
-  return Math.min(MAX_TOKENS_CEIL, Math.max(MAX_TOKENS_FLOOR, budget));
+// brief is a condensed ~25–40% of the input). A flat 4096 silently TRUNCATED the
+// brief on long chats — exactly where compression matters most. So size the cap to
+// the input: budget ~0.5× the estimated input tokens (headroom over the ~25–40% the
+// brief actually needs) and clamp to the per-provider output limit.
+const MAX_TOKENS_FLOOR = 1024;   // tiny chats still get room for a clean brief
+// Per-provider output ceilings — kept at/under each default model's real cap so a
+// large brief isn't rejected or silently clamped (which would trip the truncation
+// guard and force a verbatim fallback). gemini-2.0-flash + sonar cap lower.
+const MAX_TOKENS_CEIL = {
+  anthropic: 32000, // claude-haiku-4-5 supports far more; 32k is plenty for a brief
+  openai: 16384,    // gpt-4o-mini output cap
+  gemini: 8192,     // gemini-2.0-flash output cap
+  perplexity: 8000, // sonar
+  grok: 16384,
+  deepseek: 8192,
+};
+function maxTokensFor(text, provider) {
+  const inputTokens = Math.ceil((text || "").length / 4.2); // ~o200k estimator, matches the panel
+  const budget = Math.ceil(inputTokens * 0.5);
+  const ceil = MAX_TOKENS_CEIL[provider] || 16384;
+  return Math.min(ceil, Math.max(MAX_TOKENS_FLOOR, budget));
 }
 
 // Truncation guard: if the model stopped because it hit the output cap, the summary
@@ -82,7 +93,7 @@ async function callAnthropic(a) {
       // Insurance in case CORS is enforced on the worker fetch; harmless otherwise.
       "anthropic-dangerous-direct-browser-access": "true",
     },
-    body: JSON.stringify({ model: a.model, max_tokens: maxTokensFor(a.text), system: a.system, messages: [{ role: "user", content: a.text }] }),
+    body: JSON.stringify({ model: a.model, max_tokens: maxTokensFor(a.text, "anthropic"), system: a.system, messages: [{ role: "user", content: a.text }] }),
   });
   const data = await readJson(res);
   if (!res.ok) throw new Error(errMsg(data, res));
@@ -98,7 +109,7 @@ async function callOpenAICompatible(url, a) {
     headers: { "content-type": "application/json", authorization: "Bearer " + a.apiKey },
     body: JSON.stringify({
       model: a.model,
-      max_tokens: maxTokensFor(a.text),
+      max_tokens: maxTokensFor(a.text, a.provider),
       messages: [
         { role: "system", content: a.system },
         { role: "user", content: a.text },
@@ -123,7 +134,7 @@ async function callGemini(a) {
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: a.system }] },
       contents: [{ role: "user", parts: [{ text: a.text }] }],
-      generationConfig: { maxOutputTokens: maxTokensFor(a.text) },
+      generationConfig: { maxOutputTokens: maxTokensFor(a.text, "gemini") },
     }),
   });
   const data = await readJson(res);
@@ -138,7 +149,7 @@ async function summarize(req) {
   const provider = req.provider || "anthropic";
   if (!req.apiKey) throw new Error("No API key for " + provider);
   const model = req.model || DEFAULT_MODELS[provider] || DEFAULT_MODELS.anthropic;
-  const a = { apiKey: req.apiKey, model: model, system: req.system, text: req.text };
+  const a = { apiKey: req.apiKey, model: model, system: req.system, text: req.text, provider: provider };
   let text;
   if (provider === "anthropic") text = await callAnthropic(a);
   else if (provider === "gemini") text = await callGemini(a);
@@ -201,15 +212,12 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg || msg.type !== "continuum-summarize") return false;
-  console.log("[Continuum bg] summarize request — provider:", msg.provider, "| key set:", !!msg.apiKey, "| chars:", (msg.text || "").length);
   summarize(msg)
     .then((text) => {
-      console.log("[Continuum bg] summarize ok — " + text.length + " chars");
       sendResponse({ ok: true, text: text });
     })
     .catch((e) => {
       const err = e && e.message ? e.message : String(e);
-      console.error("[Continuum bg] summarize failed:", err, e);
       sendResponse({ ok: false, error: err });
     });
   return true; // keep the message channel open for the async response

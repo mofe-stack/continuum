@@ -29,6 +29,7 @@
       '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
     code: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
     chevron: '<polyline points="6 9 12 15 18 9"/>',
+    search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
     gear:
       '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
   };
@@ -182,6 +183,7 @@
   let compressEnabled = false; // toggled by the "Compress with AI" checkbox in the detail view
   let markdownEnabled = false; // toggled by the "Resume as Markdown" checkbox (default off → PDF)
   let _expandProviderOnce = null; // provider folder to auto-expand on the NEXT list render (set after a capture)
+  let _savedQuery = ""; // saved-sessions search/filter text (matches title or AI name)
   let _selectMode = false; // multi-select mode in the saved list (checkboxes + bulk delete)
   const _selectedIds = new Set(); // ids ticked while in select mode
   let _bulkDeleteIds = null; // ids queued for the delete dialog's bulk path (vs single currentDetail)
@@ -206,16 +208,23 @@
       if (imagesLabel && _detailImageCount > 0) imagesLabel.textContent = "Attach " + plural(_detailImageCount, "image") + " to the new chat";
     }
   }
-  // Settings → "Resume message": PDF and Markdown each have their own editable
-  // message. _preambleFormat tracks which the textarea is editing; _preambleDrafts
-  // holds the live (possibly unsaved) text for each so the toggle can swap instantly.
-  let _preambleFormat = "pdf";
-  const _preambleDrafts = { pdf: "", markdown: "" };
-  const preambleKeyFor = (fmt) => (fmt === "markdown" ? "resumePreambleMd" : "resumePreamble");
-  const preambleDefaultFor = (fmt) =>
-    (fmt === "markdown"
-      ? Continuum.settings.DEFAULT_RESUME_PREAMBLE_MD
-      : Continuum.settings.DEFAULT_RESUME_PREAMBLE) || "";
+  // Settings → "Resume message": FOUR editable messages — {verbatim, compressed}
+  // × {PDF, Markdown}. _preambleFormat + _preambleCompressed track which the
+  // textarea is editing; _preambleDrafts holds each live (possibly unsaved) draft so
+  // the format radio + the Compress-with-AI toggle can swap the textarea instantly.
+  let _preambleFormat = "pdf"; // "pdf" | "markdown"
+  let _preambleCompressed = false; // editing the AI-compressed brief's message?
+  const _preambleDrafts = { pdf: "", markdown: "", pdfC: "", markdownC: "" };
+  const preambleDraftKey = (fmt, c) => (fmt === "markdown" ? "markdown" : "pdf") + (c ? "C" : "");
+  const preambleKeyFor = (fmt, c) =>
+    c
+      ? fmt === "markdown" ? "resumePreambleCompressedMd" : "resumePreambleCompressed"
+      : fmt === "markdown" ? "resumePreambleMd" : "resumePreamble";
+  const preambleDefaultFor = (fmt, c) => {
+    const S = Continuum.settings;
+    if (c) return (fmt === "markdown" ? S.DEFAULT_RESUME_PREAMBLE_COMPRESSED_MD : S.DEFAULT_RESUME_PREAMBLE_COMPRESSED) || "";
+    return (fmt === "markdown" ? S.DEFAULT_RESUME_PREAMBLE_MD : S.DEFAULT_RESUME_PREAMBLE) || "";
+  };
   let _pendingMainStatus = null; // { text, ok } shown under Capture when settings closes
   let _settingsReturnTo = "main"; // where the Back arrow returns after Settings ("main" | "detail")
   let _apiKeyBaseline = ""; // last-known key value, so a no-op change doesn't show "API key saved"
@@ -303,6 +312,9 @@
     for (const turn of session.turns || []) {
       for (const att of turn.attachments || []) {
         if (!att.mediaId || (att.type !== "image" && att.type !== "file")) continue;
+        // Pasted text gets a synthetic text/plain blob, but it's message content,
+        // not a file — never give it an archive path (else it lands in files/).
+        if (att.isPasted) continue;
         const kind = att.type === "image" ? "images" : "files";
         let base = safeName(att.name) || (att.type === "image" ? "image" : "file");
         let path = kind + "/" + base;
@@ -356,8 +368,8 @@
     const cs = session.compressionStats;
     if (cs && cs.compressed) {
       lines.push(
-        "_Compressed with AI · " + cs.beforeTokens + "→" + cs.afterTokens + " tokens (−" + cs.pct + "%) · " +
-          cs.verbatimKept + " messages kept verbatim, " + cs.summarized + " summarized · code preserved exactly_"
+        "_Compressed with AI · structured handoff brief · " + cs.beforeTokens + "→" + cs.afterTokens +
+          " tokens (−" + cs.pct + "%) · condensed " + cs.summarized + " messages · referenced code preserved exactly_"
       );
     } else {
       lines.push("_Verbatim · full conversation, nothing summarized_");
@@ -370,41 +382,35 @@
       const turn = turnList[ti];
       lines.push("");
       if (turn.role === "summary") {
-        // Synthetic turn from the LLM compressor: the condensed middle. The
-        // messages before/after this block are the verbatim start and recent end.
-        const n = turn.omittedCount || 0;
-        lines.push("## Compressed " + n + " message" + (n === 1 ? "" : "s"));
+        // Synthetic turn from the LLM compressor: the WHOLE conversation condensed
+        // into the structured handoff brief (its own 7 ## headings live in the
+        // text, kept as real sections by cleanHandoffMarkdown's whitelist).
         for (const block of turn.content || []) {
           if (block.type === "text" && block.text) lines.push(block.text);
         }
-        // Images from the summarized middle, carried onto the summary turn by the
-        // compressor (the LLM only condenses text). Appended here — not in-flow —
-        // so the resume PDF still embeds them at this ![](images/…) reference.
+        // Every image/file from the conversation, carried onto the summary turn by
+        // the compressor (the brief replaced all turns). Each gets the one-line
+        // context the model wrote (att._context). The ![](images/…) ref is what the
+        // resume PDF embeds inline; in Markdown it's a name-only reference.
         const sumImgs = (turn.attachments || []).filter((a) => a.type === "image");
         if (sumImgs.length) {
           lines.push("");
-          lines.push("### Images from condensed messages");
+          lines.push("## Images");
           for (const att of sumImgs) {
             lines.push("");
-            // Filename caption so each image is identifiable. The summary prose sees
-            // the same filenames (stripImageRefs leaves "[image: name]" hints), so a
-            // reader can match a mention to the picture. The ![](…) ref below it is
-            // what the resume PDF embeds — its alt text isn't drawn, hence the caption.
-            lines.push("_[Image: " + att.name + "]_");
+            const ctx = att._context ? " — " + att._context : "";
+            lines.push("_[Image: " + att.name + ctx + "]_");
             if (att._path) lines.push("![" + att.name + "](" + att._path + ")");
           }
         }
-        // Files from the summarized middle, carried onto the summary turn by the
-        // compressor. Listed by name/path (not re-inlined — their contents were
-        // already part of what the LLM summarized). In PDF mode the bytes also ride
-        // along as attachments (if "Attach files" is on); in Markdown they're refs.
-        const sumFiles = (turn.attachments || []).filter((a) => a.type === "file");
+        const sumFiles = (turn.attachments || []).filter((a) => a.type === "file" && !a.isPasted);
         if (sumFiles.length) {
           lines.push("");
-          lines.push("### Files from condensed messages");
+          lines.push("## Files");
           for (const att of sumFiles) {
             lines.push("");
-            lines.push(att._path ? "[file: " + att.name + " → " + att._path + "]" : "[file: " + att.name + "]");
+            const ctx = att._context ? " — " + att._context : "";
+            lines.push(att._path ? "[file: " + att.name + ctx + " → " + att._path + "]" : "[file: " + att.name + ctx + "]");
           }
         }
         continue;
@@ -417,9 +423,18 @@
       for (const att of turn.attachments || []) {
         lines.push("");
         if (att.type === "image") {
-          lines.push(att._path ? "![" + att.name + "](" + att._path + ")" : "[image: " + att.name + "]");
+          // No _path = bytes weren't captured. For uploads this happens when the
+          // original was added before the extension was capturing it (its remote
+          // URL is locked afterward), so say so briefly instead of a bare name.
+          lines.push(att._path ? "![" + att.name + "](" + att._path + ")" : "[image: " + att.name + " — not saved (original upload no longer downloadable)]");
         } else if (att.type === "file") {
-          if (att.text != null) {
+          if (att.isPasted && att.text != null) {
+            // Pasted text the user dropped into their message — it's message content,
+            // NOT a file. Inline it (no "File:" label, and never a files/ entry).
+            lines.push("```" + fenceLang(att.name));
+            lines.push(att.text);
+            lines.push("```");
+          } else if (att.text != null) {
             lines.push("**File: " + att.name + "**");
             lines.push("```" + fenceLang(att.name));
             lines.push(att.text);
@@ -458,7 +473,16 @@
   // Builds the ZIP entry map: transcript.md + every byte-backed attachment.
   async function buildZipEntries(session, opts) {
     const enc = new TextEncoder();
-    const entries = { "transcript.md": enc.encode(buildHandoff(session, opts)) };
+    // Firefox: a content script's TextEncoder.encode() returns a Uint8Array from
+    // a different JS realm than the one fflate captured, so fflate's file-vs-dir
+    // check (`val instanceof Uint8Array`) fails and it writes the bytes as a
+    // *directory* — a folder "transcript.md" with one empty sub-folder per byte
+    // (the "0 files / thousands of folders" zip). Re-wrapping with our own
+    // Uint8Array forces a same-realm typed array fflate recognizes as a file.
+    // (Binary attachments already use `new Uint8Array(...)` below, so they were
+    // unaffected — this only bit the text entries.)
+    const u8 = (s) => new Uint8Array(enc.encode(s));
+    const entries = { "transcript.md": u8(buildHandoff(session, opts)) };
     const media = session.media || {};
     // Diagnostic: how much byte-backed content actually made it into this session?
     let attTotal = 0, withMediaId = 0, withBlob = 0, added = 0, textFallback = 0;
@@ -479,9 +503,11 @@
         }
         // No blob but we have the file's inlined text → still save it under files/
         // so a text upload always lands in the archive even if its blob is missing.
-        if (att.type === "file" && typeof att.text === "string" && att.text) {
+        // EXCEPT pasted content (isPasted): that's inline message text, not a file,
+        // so it must not become a files/attachment entry.
+        if (att.type === "file" && !att.isPasted && typeof att.text === "string" && att.text) {
           const p = att._path || "files/" + (safeName(att.name) || "file");
-          entries[p] = enc.encode(att.text);
+          entries[p] = u8(att.text);
           textFallback++;
         }
       }
@@ -558,7 +584,10 @@
           lines.push("[Image: " + (att.name || "image") + "]");
         } else if (att.type === "file") {
           lines.push("");
-          if (att.text != null) {
+          if (att.isPasted && att.text != null) {
+            // Pasted text → message content, not a file. Inline it without a label.
+            lines.push(att.text);
+          } else if (att.text != null) {
             lines.push("[File: " + (att.name || "file") + "]");
             lines.push(att.text);
           } else if (att.generated) {
@@ -640,6 +669,13 @@
       '      <div class="cn-label" data-saved-label>Saved sessions</div>',
       '      <button class="cn-btn-link" data-select-toggle hidden>Select</button>',
       "    </div>",
+      // Filter the saved list — shown once there's anything to search. The clear (×)
+      // appears only while there's text in the field.
+      '    <div class="cn-search" data-search-row hidden>',
+      '      <span class="cn-search-icon">' + svg("search", 15) + "</span>",
+      '      <input class="cn-search-input" data-search type="search" placeholder="Search saved chats" aria-label="Search saved chats" autocomplete="off" spellcheck="false" />',
+      '      <button class="cn-search-clear" data-search-clear type="button" aria-label="Clear search" hidden>' + svg("close", 14) + "</button>",
+      "    </div>",
       '    <div class="cn-select-bar" data-select-bar hidden>',
       '      <button class="cn-btn-ghost cn-btn-small" data-select-all>Select all</button>',
       '      <button class="cn-btn-danger cn-btn-small" data-delete-selected disabled>Delete (0)</button>',
@@ -697,11 +733,11 @@
       "      </div>",
       '      <div class="cn-hint cn-format-hint"><strong>PDF</strong> embeds images and references files — heavier, but the model can <em>see</em> the images. <strong>MD</strong> references images and files by name only — much lighter (fewer tokens), text-only.</div>',
       "    </div>",
-      // Compress with AI: keep the first/last N messages verbatim, summarize the
-      // middle (needs an Anthropic API key in Settings).
+      // Compress with AI: condense the whole chat into a structured handoff brief
+      // (needs an API key in Settings). Works with either format.
       '    <label class="cn-compress" data-compress-row>',
       '      <input type="checkbox" data-compress-toggle />',
-      '      <span class="cn-compress-text" data-compress-label>Compress with AI (summarize the middle)</span>',
+      '      <span class="cn-compress-text" data-compress-label>Compress with AI (structured handoff brief)</span>',
       "    </label>",
       // Only shown when the chat has files — lets you choose whether the uploaded
       // documents ride along to the new chat (the images are always in the PDF).
@@ -746,19 +782,21 @@
       "  </div>",
       '  <div class="cn-divider"></div>',
       '  <div class="cn-section">',
-      '    <label class="cn-label" for="cn-resume-preamble">Resume message</label>',
-      '    <div class="cn-hint">Auto-typed into the new chat on Resume. PDF and Markdown each have their own message — pick which to edit below.</div>',
-      '    <div class="cn-radio-group" role="radiogroup" aria-label="Resume message format">',
-      '      <label class="cn-radio"><input type="radio" name="cn-preamble-fmt" value="pdf" data-preamble-fmt checked /><span>PDF</span></label>',
-      '      <label class="cn-radio"><input type="radio" name="cn-preamble-fmt" value="markdown" data-preamble-fmt /><span>Markdown</span></label>',
-      "    </div>",
+      '    <label class="cn-label" for="cn-preamble-pick">Resume message</label>',
+      '    <div class="cn-hint">Auto-typed into the new chat when you resume. Each format keeps its own message, so pick which one to edit.</div>',
+      '    <select class="cn-input" id="cn-preamble-pick" data-preamble-pick>',
+      '      <option value="pdf">PDF</option>',
+      '      <option value="markdown">Markdown</option>',
+      '      <option value="pdf-c">PDF (AI brief)</option>',
+      '      <option value="markdown-c">Markdown (AI brief)</option>',
+      "    </select>",
       '    <textarea class="cn-textarea" id="cn-resume-preamble" data-resume-preamble rows="6" maxlength="4000" spellcheck="true"></textarea>',
       '    <button class="cn-btn-ghost cn-btn-small" data-resume-reset>Reset to default</button>',
       "  </div>",
       '  <div class="cn-divider"></div>',
       '  <div class="cn-section">',
       '    <label class="cn-label" for="cn-provider">AI compression</label>',
-      '    <div class="cn-hint">Used only when you tick "Compress with AI" on a chat. Pick a provider and paste its API key — stored locally in this browser and sent only to that provider to summarize the middle of long chats.</div>',
+      '    <div class="cn-hint">Used only when you tick "Compress with AI" on a chat. Pick a provider and paste its API key — stored locally in this browser and sent only to that provider to condense the whole chat into a structured handoff brief.</div>',
       '    <select class="cn-input" id="cn-provider" data-compress-provider>',
       '      <option value="anthropic">Claude (Anthropic)</option>',
       '      <option value="openai">ChatGPT (OpenAI)</option>',
@@ -768,9 +806,19 @@
       '      <option value="deepseek">DeepSeek</option>',
       "    </select>",
       '    <input class="cn-input" id="cn-api-key" data-api-key type="password" autocomplete="off" spellcheck="false" placeholder="API key" readonly />',
-      '    <label class="cn-field-label" for="cn-keep-count">Keep verbatim at each end</label>',
-      '    <div class="cn-hint">Messages kept word-for-word at the start AND end. Everything between them is summarized — so a HIGHER number keeps more of the chat intact and compresses less. Only the middle beyond these is sent to the model.</div>',
-      '    <input class="cn-input cn-input-narrow" id="cn-keep-count" data-keep-count type="number" min="1" max="100" step="1" />',
+      '    <div class="cn-brief-sections">',
+      '      <div class="cn-brief-sections-label">The handoff brief is organized as</div>',
+      '      <div class="cn-chips">',
+      '        <span class="cn-chip">Completed work</span>',
+      '        <span class="cn-chip">Current state</span>',
+      '        <span class="cn-chip">In progress</span>',
+      '        <span class="cn-chip">Next steps</span>',
+      '        <span class="cn-chip">Constraints</span>',
+      '        <span class="cn-chip">Critical context</span>',
+      '        <span class="cn-chip">Discarded attempts</span>',
+      "      </div>",
+      '      <div class="cn-hint">Compresses the whole conversation into a structured brief while keeping full context. All your key details are kept (decisions, instructions, code, files, and images) and everything else is summarized. Any section with nothing to report is skipped.</div>',
+      "    </div>",
       "  </div>",
       '  <div class="cn-divider"></div>',
       '  <button class="cn-btn-danger" data-factory-reset>' + svg("trash") + "<span>Factory reset</span></button>",
@@ -800,7 +848,7 @@
       "  </div>",
       "</div>",
 
-      '<div class="cn-toast" data-toast></div>',
+      '<div class="cn-toast-anchor"><div class="cn-toast" data-toast></div></div>',
     ].join(""));
 
     root.appendChild(backdropEl);
@@ -858,6 +906,27 @@
       if (subEl) subEl.textContent = "This can't be undone.";
       openDialog();
     });
+    // Saved-list search: debounced filter as you type, plus a clear (×) button.
+    const searchEl = panelEl.querySelector("[data-search]");
+    if (searchEl) {
+      let searchTimer = null;
+      searchEl.addEventListener("input", (e) => {
+        _savedQuery = e.target.value;
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => refreshSavedList(), 140);
+      });
+    }
+    const searchClearBtn = panelEl.querySelector("[data-search-clear]");
+    if (searchClearBtn) {
+      searchClearBtn.addEventListener("click", () => {
+        _savedQuery = "";
+        if (searchEl) {
+          searchEl.value = "";
+          searchEl.focus();
+        }
+        refreshSavedList();
+      });
+    }
     $("[data-select-toggle]").addEventListener("click", () => (_selectMode ? exitSelectMode() : enterSelectMode()));
     $("[data-select-all]").addEventListener("click", selectAllVisible);
     $("[data-delete-selected]").addEventListener("click", () => {
@@ -896,30 +965,37 @@
     // run before an async setSetting resolves. We clear the queue only if the
     // save actually fails.
     const preambleEl = panelEl.querySelector("[data-resume-preamble]");
+    // Swap the textarea to the draft for the currently-selected (format, compressed).
+    const syncPreambleTextarea = () => {
+      if (preambleEl) preambleEl.value = _preambleDrafts[preambleDraftKey(_preambleFormat, _preambleCompressed)] || "";
+    };
     if (preambleEl) {
-      // Keep the active format's draft synced as the user types, so flipping the
-      // PDF/Markdown toggle shows the right (possibly unsaved) text immediately.
+      // Keep the active draft synced as the user types, so flipping format / the
+      // Compress-with-AI toggle shows the right (possibly unsaved) text immediately.
       preambleEl.addEventListener("input", (e) => {
-        _preambleDrafts[_preambleFormat] = e.target.value;
+        _preambleDrafts[preambleDraftKey(_preambleFormat, _preambleCompressed)] = e.target.value;
       });
       preambleEl.addEventListener("change", (e) => {
-        _preambleDrafts[_preambleFormat] = e.target.value;
+        _preambleDrafts[preambleDraftKey(_preambleFormat, _preambleCompressed)] = e.target.value;
         _pendingMainStatus = { text: "Resume message saved", ok: true };
-        Continuum.settings.setSetting(preambleKeyFor(_preambleFormat), e.target.value).catch((err) => {
+        Continuum.settings.setSetting(preambleKeyFor(_preambleFormat, _preambleCompressed), e.target.value).catch((err) => {
           console.warn("[Continuum] resume message set failed:", err);
           _pendingMainStatus = null;
           showToast("Couldn't save message — see console", false);
         });
       });
     }
-    // PDF/Markdown toggle: swap the textarea to the selected format's draft.
-    panelEl.querySelectorAll("[data-preamble-fmt]").forEach((r) => {
-      r.addEventListener("change", (e) => {
-        if (!e.target.checked) return;
-        _preambleFormat = e.target.value === "markdown" ? "markdown" : "pdf";
-        if (preambleEl) preambleEl.value = _preambleDrafts[_preambleFormat] || "";
+    // One dropdown picks which of the four messages to edit (format × verbatim/
+    // AI-brief). Value encodes both: "<format>" or "<format>-c" (compressed).
+    const preamblePickEl = panelEl.querySelector("[data-preamble-pick]");
+    if (preamblePickEl) {
+      preamblePickEl.addEventListener("change", (e) => {
+        const v = e.target.value;
+        _preambleCompressed = /-c$/.test(v);
+        _preambleFormat = /^markdown/.test(v) ? "markdown" : "pdf";
+        syncPreambleTextarea();
       });
-    });
+    }
     const autosendToggle = panelEl.querySelector("[data-autosend-toggle]");
     if (autosendToggle) {
       autosendToggle.addEventListener("change", (e) => {
@@ -934,11 +1010,11 @@
     const preambleReset = panelEl.querySelector("[data-resume-reset]");
     if (preambleReset) {
       preambleReset.addEventListener("click", () => {
-        const def = preambleDefaultFor(_preambleFormat);
+        const def = preambleDefaultFor(_preambleFormat, _preambleCompressed);
         if (preambleEl) preambleEl.value = def;
-        _preambleDrafts[_preambleFormat] = def;
+        _preambleDrafts[preambleDraftKey(_preambleFormat, _preambleCompressed)] = def;
         Continuum.settings
-          .setSetting(preambleKeyFor(_preambleFormat), def)
+          .setSetting(preambleKeyFor(_preambleFormat, _preambleCompressed), def)
           .then(() => showToast("Reset to default", true)) // immediate, as before
           .catch((err) => console.warn("[Continuum] resume message reset failed:", err));
       });
@@ -980,20 +1056,6 @@
           _pendingMainStatus = null;
           showToast("Couldn't save key — see console", false);
         });
-      });
-    }
-    const keepCountEl = panelEl.querySelector("[data-keep-count]");
-    if (keepCountEl) {
-      keepCountEl.addEventListener("change", (e) => {
-        Continuum.settings
-          .setSetting("compressKeepCount", e.target.value)
-          .then(() => {
-            // Reflect the clamped value back into the field.
-            Continuum.settings.getSettings().then((s) => {
-              keepCountEl.value = s.compressKeepCount;
-            });
-          })
-          .catch((err) => console.warn("[Continuum] compressKeepCount set failed:", err));
       });
     }
     // Initial theme application + subscribe to setting changes so the panel
@@ -1052,14 +1114,17 @@
     if (autosendToggle) autosendToggle.checked = !!s.autoSendOnResume;
     const preambleEl = panelEl.querySelector("[data-resume-preamble]");
     if (preambleEl) {
-      _preambleDrafts.pdf =
-        typeof s.resumePreamble === "string" ? s.resumePreamble : Continuum.settings.DEFAULT_RESUME_PREAMBLE || "";
-      _preambleDrafts.markdown =
-        typeof s.resumePreambleMd === "string" ? s.resumePreambleMd : Continuum.settings.DEFAULT_RESUME_PREAMBLE_MD || "";
-      // Open on the PDF message each time Settings is shown.
+      const D = Continuum.settings;
+      const draft = (val, def) => (typeof val === "string" ? val : def || "");
+      _preambleDrafts.pdf = draft(s.resumePreamble, D.DEFAULT_RESUME_PREAMBLE);
+      _preambleDrafts.markdown = draft(s.resumePreambleMd, D.DEFAULT_RESUME_PREAMBLE_MD);
+      _preambleDrafts.pdfC = draft(s.resumePreambleCompressed, D.DEFAULT_RESUME_PREAMBLE_COMPRESSED);
+      _preambleDrafts.markdownC = draft(s.resumePreambleCompressedMd, D.DEFAULT_RESUME_PREAMBLE_COMPRESSED_MD);
+      // Open on the PDF / verbatim message each time Settings is shown.
       _preambleFormat = "pdf";
-      const pdfRadio = panelEl.querySelector('[data-preamble-fmt][value="pdf"]');
-      if (pdfRadio) pdfRadio.checked = true;
+      _preambleCompressed = false;
+      const pick = panelEl.querySelector("[data-preamble-pick]");
+      if (pick) pick.value = "pdf";
       preambleEl.value = _preambleDrafts.pdf;
     }
     const provider = s.compressProvider || "anthropic";
@@ -1070,8 +1135,6 @@
       apiKeyEl.value = (s.compressApiKeys && s.compressApiKeys[provider]) || "";
       _apiKeyBaseline = apiKeyEl.value.trim(); // baseline so a no-op change won't flash "saved"
     }
-    const keepCountEl = panelEl.querySelector("[data-keep-count]");
-    if (keepCountEl) keepCountEl.value = s.compressKeepCount || 10;
     panelEl.querySelector("[data-view-main]").hidden = true;
     panelEl.querySelector("[data-view-detail]").hidden = true;
     panelEl.querySelector("[data-view-settings]").hidden = false;
@@ -1137,9 +1200,9 @@
     const resumeWrap = panelEl.querySelector("[data-resume-wrap]");
     if (resumeWrap) resumeWrap.classList.remove("cn-resume-open");
 
-    // "Compress with AI" — reset to OFF, and only show the toggle when the chat
-    // is long enough to actually have a middle to summarize (> keepCount*2
-    // messages). Too-short chats resume verbatim, so the option is hidden.
+    // "Compress with AI" — reset to OFF, and only show the toggle when the chat is
+    // long enough to be worth condensing into a brief. Too-short chats resume
+    // verbatim, so the option is hidden.
     compressEnabled = false;
     panelEl.querySelector("[data-compress-toggle]").checked = false;
     // Resume format resets to PDF (default) each time a session is opened.
@@ -1147,16 +1210,8 @@
     const pdfFmtRadio = panelEl.querySelector('[data-resume-fmt][value="pdf"]');
     if (pdfFmtRadio) pdfFmtRadio.checked = true;
     const compressRow = panelEl.querySelector("[data-compress-row]");
-    let keepCount = 10;
-    try {
-      if (Continuum.settings) {
-        const cs = await Continuum.settings.getSettings();
-        if (cs && cs.compressKeepCount) keepCount = cs.compressKeepCount;
-      }
-    } catch (e) {
-      /* keep default */
-    }
-    if (compressRow) compressRow.hidden = (session.turns || []).length <= keepCount * 2;
+    const minTurns = (Continuum.llmCompressor && Continuum.llmCompressor.MIN_TURNS) || 4;
+    if (compressRow) compressRow.hidden = (session.turns || []).length < minTurns;
 
     // Attach rows — both default OFF (opt-in). They're driven by the count of
     // ATTACHABLE media (bytes captured / mediaId), NOT the displayed chat-content
@@ -1352,30 +1407,58 @@
     if (!panelEl) return;
     const listEl = panelEl.querySelector("[data-list]");
     const labelEl = panelEl.querySelector("[data-saved-label]");
-    let sessions = [];
+    let allSessions = [];
     try {
-      sessions = await Continuum.storage.listSessions();
+      allSessions = await Continuum.storage.listSessions();
     } catch (err) {
       console.warn("[Continuum] listSessions failed:", err);
     }
-    labelEl.textContent = "Saved sessions (" + sessions.length + ")";
-    // Sync the multi-select controls to the current mode / availability.
+    const totalCount = allSessions.length;
+    // Drop any selected ids that no longer exist — based on the FULL list, so a
+    // search filter never silently deselects.
+    const liveIds = new Set(allSessions.map((s) => s.id));
+    for (const id of [..._selectedIds]) if (!liveIds.has(id)) _selectedIds.delete(id);
+
+    // Search filter — matches the chat TITLE only (not the AI/folder name, so
+    // typing "c" doesn't pull in every Claude chat). Empty = show all.
+    const q = String(_savedQuery || "").trim().toLowerCase();
+    const filtering = q.length > 0;
+    const sessions = filtering
+      ? allSessions.filter((s) => String(s.title || "").toLowerCase().indexOf(q) !== -1)
+      : allSessions;
+
+    labelEl.textContent = filtering
+      ? "Saved sessions (" + sessions.length + " of " + totalCount + ")"
+      : "Saved sessions (" + totalCount + ")";
+
+    // Search bar appears once there's anything to search; the clear (×) only while typing.
+    const searchRow = panelEl.querySelector("[data-search-row]");
+    if (searchRow) searchRow.hidden = totalCount === 0;
+    const searchClear = panelEl.querySelector("[data-search-clear]");
+    if (searchClear) searchClear.hidden = !filtering;
+
+    // Sync the multi-select controls to availability (the full list, not the filter).
     const selectToggle = panelEl.querySelector("[data-select-toggle]");
     const selectBar = panelEl.querySelector("[data-select-bar]");
     if (selectToggle) {
-      selectToggle.hidden = sessions.length === 0;
+      selectToggle.hidden = totalCount === 0;
       selectToggle.textContent = _selectMode ? "Cancel" : "Select";
     }
-    if (selectBar) selectBar.hidden = !_selectMode || sessions.length === 0;
-    // Drop any selected ids that no longer exist (e.g. after a delete).
-    const liveIds = new Set(sessions.map((s) => s.id));
-    for (const id of [..._selectedIds]) if (!liveIds.has(id)) _selectedIds.delete(id);
+    if (selectBar) selectBar.hidden = !_selectMode || totalCount === 0;
     updateSelectBar();
+
     listEl.innerHTML = "";
-    if (!sessions.length) {
+    if (!totalCount) {
       const li = document.createElement("li");
       li.className = "cn-empty";
       li.textContent = "No saved sessions yet.";
+      listEl.appendChild(li);
+      return;
+    }
+    if (!sessions.length) {
+      const li = document.createElement("li");
+      li.className = "cn-empty";
+      li.textContent = 'No chats match "' + String(_savedQuery).trim() + '".';
       listEl.appendChild(li);
       return;
     }
@@ -1419,9 +1502,10 @@
         logoHtml: providerLogo(provider, 16),
         onExport: () => exportFolder(provider),
         depth: 1,
-        // In select mode every folder is open (so you can reach any chat to tick it);
-        // otherwise only the just-captured provider's folder auto-expands.
-        collapsed: _selectMode ? false : provider !== activeProvider,
+        // Open every folder in select mode (reach any chat to tick it) and while
+        // searching (so matches are visible); otherwise only the just-captured
+        // provider's folder auto-expands.
+        collapsed: _selectMode || filtering ? false : provider !== activeProvider,
       });
       root.body.appendChild(sub.el);
       for (const s of metas) sub.body.appendChild(makeSessionRow(s));
