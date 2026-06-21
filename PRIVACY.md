@@ -1,6 +1,6 @@
 # Continuum — Privacy Policy
 
-_Last updated: June 2, 2026_
+_Last updated: June 21, 2026_
 
 Continuum is a browser extension that captures an AI chat session and lets you
 resume it in a new chat. **Continuum is built local-first: your conversations
@@ -27,9 +27,9 @@ This data never leaves your device except in the two cases below, both of which
    conversation into that site's chat box / as an attachment. The data goes to
    that AI provider because you asked to continue the conversation there.
 2. **AI compression (optional, off by default).** If you turn on "Compress with
-   AI," the middle portion of the chat is sent to the AI provider **you select**
+   AI," your conversation is sent to the AI provider **you select**
    (e.g. Anthropic, OpenAI, Google, Perplexity, Grok, or DeepSeek) using **your
-   own API key**, solely to generate a summary. It is sent directly to that
+   own API key**, solely to condense it into a summary. It is sent directly to that
    provider's API — never to Continuum.
 
 ## Your API keys
@@ -46,8 +46,8 @@ This data never leaves your device except in the two cases below, both of which
 - **Access to `*.googleusercontent.com`** — to fetch images shown in Gemini chats so they can be captured.
 - **Access to AI provider API hosts** (`api.anthropic.com`, `api.openai.com`,
   `generativelanguage.googleapis.com`, `api.perplexity.ai`, `api.x.ai`,
-  `api.deepseek.com`) — used **only** for the optional AI-compression feature,
-  with your key.
+  `api.deepseek.com`) — **optional permissions requested only when you turn on
+  AI compression**, used solely for that feature with your own key.
 
 ## Data retention & deletion
 Your data stays until **you** delete it. You can remove individual sessions, use
