@@ -72,26 +72,36 @@
     return document.scrollingElement || document.documentElement;
   }
 
-  // Long threads may lazy-render older entries — scroll to the top until the
-  // turn count stops growing. Harmless no-op when everything is already mounted.
+  // Long threads may lazy-render older entries — scroll to the top to mount them.
+  // Don't bail on turn-count alone: older entries can mount a beat slower than the
+  // poll window, so we also watch scrollHeight and the scroll position (new content
+  // prepended above pushes scrollTop off 0), require several steady reads, and nudge
+  // to the top twice per step. Harmless no-op when everything is already mounted.
   async function loadAllTurns(onProgress, maxMs) {
     const scroller = findScroller();
     if (!scroller) return;
     const startTop = scroller.scrollTop;
-    const deadline = Date.now() + (maxMs || 20000);
-    let last = -1;
+    const deadline = Date.now() + (maxMs || 30000);
+    let lastCount = -1;
+    let lastHeight = -1;
     let stable = 0;
     while (Date.now() < deadline) {
       scroller.scrollTop = 0;
       await sleep(500);
+      scroller.scrollTop = 0; // re-pull: a batch that mounted above pushed us down
+      await sleep(500);
       const n = turnCount();
+      const h = scroller.scrollHeight;
       if (typeof onProgress === "function") onProgress("Loading full history… (" + n + " messages)");
-      if (n === last) {
-        if (++stable >= 3) break;
-      } else {
+      // >32px ignores minor reflow jitter; a prepended entry is hundreds of px.
+      const growing = n !== lastCount || Math.abs(h - lastHeight) > 32 || scroller.scrollTop > 4;
+      if (growing) {
         stable = 0;
+      } else if (++stable >= 4) {
+        break;
       }
-      last = n;
+      lastCount = n;
+      lastHeight = h;
     }
     scroller.scrollTop = startTop;
     await sleep(200);
@@ -372,7 +382,7 @@
     progress("Waiting for the thread to load…");
     await waitForConversation(15000);
     progress("Loading full history…");
-    await loadAllTurns(progress, 20000);
+    await loadAllTurns(progress, 30000);
     progress("Reading the page…");
     const session = M.createSession({
       title: detectTitle(),

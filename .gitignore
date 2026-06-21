@@ -18,6 +18,8 @@ tests/_gate-samples/
 # Personal / internal — kept local, not published
 STATUS.md
 make_store_shots.ps1
+pack-xpi.js
+mcp/
 
 # Tooling / editor / OS
 .claude/

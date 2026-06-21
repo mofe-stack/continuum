@@ -46,8 +46,8 @@ run("empty / null → 0", () => {
   assert.strictEqual(estimateTokens(null), 0);
 });
 
-run("scales as chars / 4.35 (the calibrated divisor)", () => {
-  const e = estimateTokens("x".repeat(43500));
+run("scales as chars / 4.2 (the o200k-calibrated divisor)", () => {
+  const e = estimateTokens("x".repeat(42000));
   assert.ok(Math.abs(e - 10000) <= 1, "expected ~10000, got " + e);
 });
 

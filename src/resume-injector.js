@@ -144,23 +144,86 @@
   function progressToast(initial) {
     let card = null;
     let body = null;
+    let fill = null;
+    let timer = null;
+    let pct = 0;
+    // The provider API call has no granular progress events, so the bar follows a
+    // TIME curve: quick off the start, then a steadily-slowing but never-stalling
+    // crawl (so it doesn't park at one spot during the long API wait), snapping to
+    // 100% on done(). transform:scaleX (GPU-cheap); honors prefers-reduced-motion
+    // (no timer — it steps forward per phase instead).
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Elapsed-time → percent. Piecewise so motion stays perceptible the whole time:
+    // fast to ~36% in 3s, steady to ~71% by 10s, slow-but-moving to ~95% by 30s,
+    // then a faint crawl toward 99% (never hard-stops until done()).
+    const curve = (ms) => {
+      const s = ms / 1000;
+      if (s < 3) return 12 * s; // 0 → 36
+      if (s < 10) return 36 + 5 * (s - 3); // 36 → 71
+      if (s < 30) return 71 + 1.2 * (s - 10); // 71 → 95
+      return Math.min(99, 95 + 0.08 * (s - 30)); // 95 → 99 (still inching)
+    };
+    const apply = () => {
+      if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(100, pct)) / 100 + ")";
+    };
     try {
       const made = makeToastCard(initial, false);
       card = made.card;
       body = made.body;
+      const dark = isDarkTheme();
+      const accent = dark ? "#e5e7eb" : "#3730a3";
+      const track = document.createElement("div");
+      track.style.cssText =
+        "margin-top:9px;height:4px;border-radius:999px;overflow:hidden;" +
+        "background:" + (dark ? "rgba(255,255,255,.12)" : "#e5e7eb") + ";";
+      fill = document.createElement("div");
+      fill.style.cssText =
+        "height:100%;width:100%;border-radius:999px;background:" + accent + ";" +
+        "transform:scaleX(0);transform-origin:left;will-change:transform;" +
+        (reduce ? "" : "transition:transform .16s linear;");
+      track.appendChild(fill);
+      card.appendChild(track);
       document.body.appendChild(card);
-      requestAnimationFrame(() => (card.style.opacity = "1"));
+      requestAnimationFrame(() => {
+        card.style.opacity = "1";
+        apply();
+      });
+      if (reduce) {
+        pct = 14; // a visible starting amount; update() steps it forward per phase
+        apply();
+      } else {
+        const t0 = Date.now();
+        pct = 8; // small instant jump so it's visibly moving immediately
+        apply();
+        timer = setInterval(() => {
+          pct = Math.max(pct, curve(Date.now() - t0));
+          apply();
+        }, 100);
+      }
     } catch (e) {
       card = null;
     }
     return {
       update(msg) {
         if (body) body.textContent = msg;
+        if (reduce) {
+          pct = Math.min(96, pct + 22); // step the bar forward each phase
+          apply();
+        }
       },
       done() {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+        pct = 100;
+        apply();
         if (card) {
-          card.style.opacity = "0";
-          setTimeout(() => card.remove(), 300);
+          // Let 100% land before the card fades out.
+          setTimeout(() => {
+            card.style.opacity = "0";
+            setTimeout(() => card.remove(), 300);
+          }, 280);
         }
       },
     };
@@ -661,23 +724,34 @@
     // conversation-history.md (no embedded/attached images); PDF embeds images.
     // Each format has its OWN resume message (settings), so pick the matching one.
     const wantMarkdown = marker.format === "markdown";
+    const wantCompress = !!marker.compress;
     const settingsNs = Continuum.settings || {};
-    // Read the format-specific preamble + compression settings up front (cheap).
-    let preamble =
-      (wantMarkdown ? settingsNs.DEFAULT_RESUME_PREAMBLE_MD : settingsNs.DEFAULT_RESUME_PREAMBLE) || "";
+    // Four resume messages: {verbatim, compressed} × {PDF, Markdown}. Pick the one
+    // matching THIS resume; each is independently user-editable in Settings.
+    const defFor = (compress, md) =>
+      (compress
+        ? md
+          ? settingsNs.DEFAULT_RESUME_PREAMBLE_COMPRESSED_MD
+          : settingsNs.DEFAULT_RESUME_PREAMBLE_COMPRESSED
+        : md
+          ? settingsNs.DEFAULT_RESUME_PREAMBLE_MD
+          : settingsNs.DEFAULT_RESUME_PREAMBLE) || "";
+    const savedKeyFor = (compress, md) =>
+      compress
+        ? md ? "resumePreambleCompressedMd" : "resumePreambleCompressed"
+        : md ? "resumePreambleMd" : "resumePreamble";
+    let preamble = defFor(wantCompress, wantMarkdown);
     let autoSend = false;
     let provider = "anthropic";
     let apiKey = "";
-    let keepCount = 10;
     try {
       if (Continuum.settings) {
         const s = await Continuum.settings.getSettings();
-        const saved = s && (wantMarkdown ? s.resumePreambleMd : s.resumePreamble);
+        const saved = s && s[savedKeyFor(wantCompress, wantMarkdown)];
         if (typeof saved === "string") preamble = saved;
         if (s) autoSend = !!s.autoSendOnResume;
         if (s && s.compressProvider) provider = s.compressProvider;
         if (s && s.compressApiKeys && typeof s.compressApiKeys[provider] === "string") apiKey = s.compressApiKeys[provider];
-        if (s && s.compressKeepCount) keepCount = s.compressKeepCount;
       }
     } catch (e) {
       /* keep defaults */
@@ -707,9 +781,10 @@
       const est = Continuum.compressor && Continuum.compressor.estimateTokens;
       const buildHandoff = Continuum.handoff && Continuum.handoff.buildHandoff;
       const turnCount = (session.turns || []).length;
+      const minTurns = (Continuum.llmCompressor && Continuum.llmCompressor.MIN_TURNS) || 4;
       console.log(
         "[Continuum] resume: compression requested — provider:", provider, "| apiKey set:", !!apiKey,
-        "| keepCount:", keepCount, "| messages:", turnCount
+        "| messages:", turnCount
       );
       if (!apiKey) {
         // Compression was requested but there's no key — STOP rather than upload
@@ -722,7 +797,21 @@
       // (the model pays ~vision tokens to actually see it), while Markdown only
       // REFERENCES images (≈0 extra) — so the same chat is genuinely cheaper as
       // Markdown, and the readout should show that instead of an identical number.
-      const VISION_TOKENS_PER_IMAGE = 1400; // ~Claude's cost for a downscaled (~1024px) embedded image
+      // Per-image vision-token cost for an embedded (downscaled ~1024px) image,
+      // taken as the MEDIAN across the four supported providers' published formulas
+      // so the figure isn't tied to any one model. Claude's tile cost is the high
+      // outlier, so the median naturally weights it lower (per design).
+      const medianImageTokens = () => {
+        const w = 1024, h = 1024; // pdf-export caps the embedded long edge ~1024px
+        const claude = Math.round((w * h) / 750);                       // ~1398 (Anthropic tiles)
+        const oaiTiles = Math.ceil(w / 512) * Math.ceil(h / 512);       // 2×2 = 4 (512px tiles)
+        const openai = 85 + 170 * oaiTiles;                            // ~765
+        const gemini = 258 * Math.ceil(w / 768) * Math.ceil(h / 768);  // 258 × 2×2 = 1032
+        const perplexity = openai;                                      // OpenAI-shaped
+        const vals = [claude, openai, gemini, perplexity].sort((a, b) => a - b);
+        return Math.round((vals[1] + vals[2]) / 2);                     // median of 4 ≈ 900
+      };
+      const VISION_TOKENS_PER_IMAGE = medianImageTokens();
       const embeddedImageCount = (sess) => {
         let n = 0;
         for (const turn of (sess && sess.turns) || []) {
@@ -738,7 +827,6 @@
         const beforeTk = payloadTokens(session);
         try {
           const compressed = await Continuum.llmCompressor.compressSession(session, {
-            keepCount: keepCount,
             provider: provider,
             apiKey: apiKey,
             onProgress: (m) => prog.update(m),
@@ -747,33 +835,28 @@
             const afterTk = payloadTokens(compressed);
             session = compressed;
             const summaryTurn = (compressed.turns || []).find((t) => t.role === "summary");
-            const verbatimKept = (compressed.turns || []).length - (summaryTurn ? 1 : 0);
-            console.log(
-              "[Continuum] resume: kept " + verbatimKept + " messages verbatim + summarized " +
-                (summaryTurn ? summaryTurn.omittedCount : 0) + " middle messages"
-            );
+            const omitted = summaryTurn ? summaryTurn.omittedCount : 0;
             const fmt = (Continuum.compressor && Continuum.compressor.formatTokens) || String;
             const pct = beforeTk ? Math.round((1 - afterTk / beforeTk) * 100) : 0;
-            const omitted = summaryTurn ? summaryTurn.omittedCount : 0;
             // Attach the compression stats so buildHandoff renders them in the
-            // PDF/transcript header (compact token figures, kept/summarized counts).
+            // PDF/transcript header (compact token figures + how many messages the
+            // brief condensed).
             session.compressionStats = {
               compressed: true,
               beforeTokens: fmt(beforeTk),
               afterTokens: fmt(afterTk),
               pct: pct,
-              verbatimKept: verbatimKept,
               summarized: omitted,
             };
             compressionNote =
-              " · " + fmt(beforeTk) + "→" + fmt(afterTk) + " tokens (−" + pct + "%); kept " +
-              verbatimKept + " msgs verbatim, summarized " + omitted;
+              " · " + fmt(beforeTk) + "→" + fmt(afterTk) + " tokens (−" + pct + "%); handoff brief from " +
+              omitted + " messages";
             console.log("[Continuum] resume: compressed " + beforeTk + " → " + afterTk + " tokens (-" + pct + "%)");
           } else {
-            // Returned unchanged → too short (≤ keepCount*2 messages).
-            console.log("[Continuum] resume: chat too short to compress (need > " + keepCount * 2 + " messages) — verbatim.");
+            // Returned unchanged → too short to be worth compressing.
+            console.log("[Continuum] resume: chat too short to compress (need ≥ " + minTurns + " messages) — verbatim.");
             compressionNote = " · too short to compress";
-            toast("This chat is too short to compress (needs > " + keepCount * 2 + " messages) — sending it in full.", false);
+            toast("This chat is too short to compress (needs ≥ " + minTurns + " messages) — sending it in full.", false);
           }
         } catch (e) {
           // Compression was requested but failed (invalid/expired key, wrong

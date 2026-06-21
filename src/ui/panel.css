@@ -502,6 +502,78 @@
   padding: 4px 0;
 }
 
+/* ── Saved-list search (minimal: borderless filled field, icon + clear) ──── */
+.cn-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+.cn-search-icon {
+  position: absolute;
+  left: 9px;
+  display: flex;
+  color: var(--cn-ink-3);
+  pointer-events: none;
+}
+.cn-search-input {
+  /* Fill the row (flex child) — Firefox's native <input type=search> has an
+     intrinsic width and won't stretch without this, so it rendered narrow. */
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  /* Reset the browser's native <input type=search> widget styling — without this
+     Firefox draws its own bordered field with an inset shadow + native focus ring
+     instead of our filled one. */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+  padding: 7px 30px;
+  border: 1px solid transparent;
+  border-radius: var(--cn-radius);
+  background: var(--cn-hover);
+  color: var(--cn-ink);
+  font-family: var(--cn-sans);
+  font-size: 13px;
+  box-shadow: none;
+  outline: none;
+  transition: background var(--cn-t), border-color var(--cn-t);
+}
+.cn-search-input::placeholder {
+  color: var(--cn-ink-3);
+}
+.cn-search-input:focus {
+  background: var(--cn-paper);
+  border-color: var(--cn-line-strong);
+}
+/* hide the browser's native search "x" — we render our own */
+.cn-search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  display: none;
+}
+.cn-search-clear {
+  position: absolute;
+  right: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cn-ink-3);
+  cursor: pointer;
+  border-radius: 5px;
+  transition: color var(--cn-t), background var(--cn-t);
+}
+.cn-search-clear:hover {
+  color: var(--cn-ink);
+  background: var(--cn-paper);
+}
+
 /* ── Multi-select (bulk delete) ──────────────────────────────────────── */
 .cn-saved-head {
   display: flex;
@@ -659,6 +731,40 @@
   margin-bottom: 0;
 }
 
+/* ── Brief sections chips (settings → AI compression) ──────────────────────── */
+.cn-brief-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+.cn-brief-sections-label {
+  font-family: var(--cn-mono);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--cn-ink-3);
+}
+.cn-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.cn-chip {
+  padding: 3px 9px;
+  border: 1px solid var(--cn-line-strong);
+  border-radius: 999px;
+  background: var(--cn-hover);
+  font-family: var(--cn-mono);
+  font-size: 11px;
+  color: var(--cn-ink-2);
+  white-space: nowrap;
+}
+/* The "Compress-with-AI message" toggle in the Resume-message editor. */
+.cn-preamble-compress {
+  margin-top: 2px;
+}
+
 .cn-btn-danger {
   display: flex;
   align-items: center;
@@ -765,11 +871,21 @@
 }
 
 /* ── Toast ───────────────────────────────────────────────────────────── */
+/* Zero-height anchor pinned to the panel's visible bottom. Because it's sticky
+   inside the scrolling panel, the toast it holds stays put at the bottom and
+   never drifts up over the content while you scroll. Takes no layout space. */
+.cn-toast-anchor {
+  position: sticky;
+  bottom: 0;
+  height: 0;
+  z-index: 20;
+  pointer-events: none;
+}
 .cn-toast {
   position: absolute;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
+  left: 0;
+  right: 0;
+  bottom: 16px;
   padding: 10px 14px;
   border-radius: var(--cn-radius);
   font-family: var(--cn-mono);

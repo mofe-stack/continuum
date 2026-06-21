@@ -77,11 +77,17 @@
   //   _italic_ / *italic*                    → text  (so _[Image: x]_ → [Image: x])
   //   `code`                                 → code  (drop backticks, keep the word)
   // Fenced ``` lines and image refs ![](…) pass through unchanged.
+  // The compressed handoff brief's own section headings — keep these as real ##
+  // sections (re-leveled to ##) instead of stripping their hashes.
+  const BRIEF_HEADINGS = /^(Completed work|Current state|In progress|Next steps|Constraints|Critical context|Discarded attempts|Images|Files)\s*$/i;
   function stripMarkdownLine(line) {
     let s = String(line == null ? "" : line);
     const speaker = s.match(/^\s{0,3}#{1,6}\s+(User|Assistant)\s*$/i);
     if (speaker) return (/^user$/i.test(speaker[1]) ? "# " : "## ") + speaker[1];
     if (/^\s{0,3}#{1,6}\s+Compressed \d/i.test(s)) return s.replace(/^\s{0,3}#{1,6}\s+/, "## ");
+    // Continuum handoff-brief heading? Re-level to ## and keep it as a section.
+    const headingMatch = s.match(/^\s{0,3}#{1,6}\s+(.+?)\s*$/);
+    if (headingMatch && BRIEF_HEADINGS.test(headingMatch[1])) return "## " + headingMatch[1].trim();
     s = s.replace(/^\s{0,3}#{1,6}\s+/, "");
     // Continuum's own whole-line italic markers: _[Image: …]_, _[File: …]_,
     // _Captured from …_, _Verbatim …_. Peel the outer _…_ (inner may hold underscores).
@@ -92,8 +98,26 @@
     s = s.replace(/`([^`\n]+)`/g, "$1");
     return s;
   }
-  // Apply the per-line stripper across a whole handoff transcript.
-  const cleanHandoffMarkdown = (text) => String(text == null ? "" : text).split("\n").map(stripMarkdownLine).join("\n");
+  // Apply the per-line stripper across a whole handoff transcript — but NEVER
+  // inside a fenced code block. A ``` / ~~~ line toggles "code mode"; the fence
+  // delimiters and every line between them pass through byte-for-byte, so code
+  // keeps its `#` comments, `**`/`*` (exponents, pointers, globs), backticks, and
+  // indentation exactly. (Without this, the resume PDF/.md silently corrupted code
+  // even though the compressor preserved it verbatim.)
+  const cleanHandoffMarkdown = (text) => {
+    const lines = String(text == null ? "" : text).split("\n");
+    let inFence = false;
+    const out = [];
+    for (const line of lines) {
+      if (/^\s*(```|~~~)/.test(line)) {
+        inFence = !inFence;
+        out.push(line); // the fence delimiter itself is left as-is
+        continue;
+      }
+      out.push(inFence ? line : stripMarkdownLine(line));
+    }
+    return out.join("\n");
+  };
 
   // Decode an image blob, downscale to MAX_IMG_DIM, and JPEG-encode via canvas.
   // (jsPDF also doesn't reliably accept WEBP, which the AI sites serve a lot of —

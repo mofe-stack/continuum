@@ -90,24 +90,42 @@
 
   // Scroll the history to the TOP repeatedly so every lazily-rendered turn mounts
   // (Gemini keeps them mounted once loaded — confirmed: scrolling up grows the
-  // count and doesn't drop the bottom). Stops when the turn count stops growing.
+  // count and doesn't drop the bottom).
+  //
+  // Why this isn't just "stop when the turn count stops growing": on a long chat,
+  // older turns mount a beat slower, so a count that watched only the turn tags
+  // went steady for a few polls mid-load and bailed early — capturing e.g. 20 of
+  // 26 messages. We now treat the history as "still loading" if ANY of three
+  // signals move: the turn count, the scroll height, or the scroll position
+  // (Gemini prepends older turns ABOVE, which shoves scrollTop back off 0). Only
+  // when all three hold steady across several polls do we conclude we've reached
+  // the top. Each step nudges to the top twice with a settle between, since a lazy
+  // batch often lands just after the first scroll.
   async function loadAllTurns(onProgress, maxMs) {
     const scroller = findScroller();
     if (!scroller) return;
-    const deadline = Date.now() + (maxMs || 30000);
-    let last = -1;
+    const deadline = Date.now() + (maxMs || 45000);
+    let lastCount = -1;
+    let lastHeight = -1;
     let stable = 0;
     while (Date.now() < deadline) {
       scroller.scrollTop = 0; // request older turns above
-      await sleep(600);
+      await sleep(500);
+      scroller.scrollTop = 0; // re-pull: a batch that mounted above pushed us down
+      await sleep(500);
       const n = turnCount();
+      const h = scroller.scrollHeight;
       if (typeof onProgress === "function") onProgress("Loading full history… (" + n + " messages)");
-      if (n === last) {
-        if (++stable >= 3) break; // count held steady 3× → reached the top
-      } else {
+      // >32px height delta ignores minor image/reflow jitter; a prepended turn is
+      // hundreds of px. scrollTop>4 means content was still mounting above us.
+      const growing = n !== lastCount || Math.abs(h - lastHeight) > 32 || scroller.scrollTop > 4;
+      if (growing) {
         stable = 0;
+      } else if (++stable >= 4) {
+        break; // count, height, AND scroll position all steady → top reached
       }
-      last = n;
+      lastCount = n;
+      lastHeight = h;
     }
     await sleep(300); // let the final batch settle
   }
@@ -425,7 +443,7 @@
     // history first so EVERY turn (and its images/files) is captured, not just the
     // part that happened to be visible.
     progress("Loading full history…");
-    await loadAllTurns(progress, 30000);
+    await loadAllTurns(progress, 45000);
     progress("Reading the page…");
     const session = M.createSession({ title: detectTitle(), startedAt: await detectStartedAt(), sourceProvider: "gemini" });
     session.captureMethod = "dom";

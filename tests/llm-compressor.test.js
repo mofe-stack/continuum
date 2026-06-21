@@ -2,8 +2,10 @@
 //
 // Run with:  node tests/llm-compressor.test.js
 //
-// Covers the PURE pieces of the LLM compressor (turn slicing + compressed-session
-// assembly). The network call (summarizeMiddle) is not exercised here.
+// Covers the PURE pieces of the LLM compressor: attachment collection, compressed-
+// session assembly (whole-conversation → one summary turn), the attachment-context
+// trailer parser, and the code-protect/restore guarantee. The network call
+// (summarize) is not exercised here.
 
 "use strict";
 
@@ -13,7 +15,16 @@ const path = require("path");
 global.window = {};
 require(path.resolve(__dirname, "..", "src", "core", "llm-compressor.js"));
 
-const { sliceTurns, assembleCompressed, collectMiddleImages, collectMiddleFiles, protectImportant, restoreImportant, stripImageRefs } = global.window.Continuum.llmCompressor;
+const {
+  collectAllAttachments,
+  assembleCompressed,
+  buildAttachmentManifest,
+  parseAttachmentContext,
+  protectImportant,
+  restoreImportant,
+  stripImageRefs,
+  MIN_TURNS,
+} = global.window.Continuum.llmCompressor;
 
 let passed = 0;
 let failed = 0;
@@ -29,110 +40,108 @@ function run(label, fn) {
   }
 }
 
-const mk = (n) => Array.from({ length: n }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: [{ type: "text", text: "m" + i }] }));
+const imgAtt = (id, name) => ({ type: "image", mediaId: id, name: name || id + ".png" });
+const fileAtt = (id, name) => ({ type: "file", mediaId: id, name: name || id + ".pdf" });
 
-console.log("sliceTurns:");
+console.log("collectAllAttachments:");
 
-run("short chat (<= keepCount*2) → all top, empty middle", () => {
-  const r = sliceTurns(mk(10), 8); // 10 <= 16
-  assert.strictEqual(r.middle.length, 0, "no middle");
-  assert.strictEqual(r.top.length, 10, "everything kept");
-  assert.strictEqual(r.bottom.length, 0);
+run("gathers every image + file across all turns, deduped by mediaId", () => {
+  const turns = [
+    { attachments: [imgAtt("a"), fileAtt("f1")] },
+    { attachments: [imgAtt("a"), imgAtt("b")] }, // a is a dupe
+    { content: [{ type: "text", text: "no atts" }] },
+    { attachments: [fileAtt("f1"), fileAtt("f2")] }, // f1 dupe
+  ];
+  const out = collectAllAttachments(turns);
+  assert.deepStrictEqual(out.map((x) => x.mediaId), ["a", "f1", "b", "f2"], "first-seen order, deduped");
 });
 
-run("long chat → first N top, last N bottom, rest middle", () => {
-  const r = sliceTurns(mk(30), 8);
-  assert.strictEqual(r.top.length, 8, "top N");
-  assert.strictEqual(r.bottom.length, 8, "bottom N");
-  assert.strictEqual(r.middle.length, 14, "middle = 30 - 16");
-  assert.strictEqual(r.top[0].content[0].text, "m0", "top starts at first");
-  assert.strictEqual(r.bottom[7].content[0].text, "m29", "bottom ends at last");
-  assert.strictEqual(r.middle[0].content[0].text, "m8", "middle starts after top");
+run("dedupes mediaId-less attachments by type+name", () => {
+  const turns = [
+    { attachments: [{ type: "image", name: "x.png" }, { type: "image", name: "x.png" }] },
+  ];
+  assert.strictEqual(collectAllAttachments(turns).length, 1, "same type+name collapses");
 });
 
-run("exactly keepCount*2 → no middle (boundary)", () => {
-  const r = sliceTurns(mk(16), 8);
-  assert.strictEqual(r.middle.length, 0, "16 == 8*2 → nothing to summarize");
+run("ignores non image/file blocks and bad input", () => {
+  assert.deepStrictEqual(collectAllAttachments(null), []);
+  assert.deepStrictEqual(collectAllAttachments([{ attachments: [{ type: "other" }] }]), []);
 });
 
-run("keepCount is floored to >= 1; bad input tolerated", () => {
-  assert.doesNotThrow(() => sliceTurns(null, 8));
-  assert.deepStrictEqual(sliceTurns(null, 8), { top: [], middle: [], bottom: [] });
+run("skips pasted-content 'files' (isPasted) — they're transcript text, not files", () => {
+  const turns = [
+    { attachments: [{ type: "file", name: "attachment", isPasted: true }, fileAtt("real", "data.json")] },
+  ];
+  assert.deepStrictEqual(collectAllAttachments(turns).map((x) => x.name), ["data.json"], "only the real file");
 });
 
-console.log("\nassembleCompressed:");
+console.log("\nassembleCompressed (whole convo → one summary turn):");
 
-run("builds top + summary turn + bottom", () => {
-  const session = { id: "x", media: { a: 1 }, stats: { messages: 30 }, turns: mk(30) };
-  const { top, bottom } = sliceTurns(session.turns, 8);
-  const out = assembleCompressed(session, top, bottom, "CONDENSED", 14);
-  assert.strictEqual(out.turns.length, 8 + 1 + 8, "8 + summary + 8");
-  const summary = out.turns[8];
+run("collapses the whole session into a single summary turn", () => {
+  const turns = Array.from({ length: 30 }, (_, i) => ({ role: i % 2 ? "assistant" : "user" }));
+  const session = { id: "x", media: { a: 1 }, stats: { messages: 30 }, turns: turns };
+  const atts = [imgAtt("m1"), fileAtt("f1")];
+  const out = assembleCompressed(session, "BRIEF", 30, atts);
+  assert.strictEqual(out.turns.length, 1, "exactly one turn");
+  const summary = out.turns[0];
   assert.strictEqual(summary.role, "summary");
-  assert.strictEqual(summary.omittedCount, 14);
-  assert.strictEqual(summary.content[0].text, "CONDENSED");
+  assert.strictEqual(summary.omittedCount, 30, "omittedCount = all source turns");
+  assert.strictEqual(summary.content[0].text, "BRIEF");
+  assert.deepStrictEqual(summary.attachments.map((a) => a.mediaId), ["m1", "f1"], "all attachments carried");
   assert.strictEqual(out.id, "x", "id preserved");
   assert.strictEqual(out.media, session.media, "media map shared");
   assert.notStrictEqual(out, session, "returns a clone, not the original");
   assert.strictEqual(session.turns.length, 30, "original session untouched");
 });
 
-console.log("\nmiddle images carried onto the summary turn:");
-
-const imgAtt = (id, name) => ({ type: "image", mediaId: id, name: name || id + ".png" });
-
-run("collectMiddleImages gathers middle images, deduped by mediaId", () => {
-  const middle = [
-    { attachments: [imgAtt("a"), imgAtt("b")] },
-    { attachments: [imgAtt("a")] }, // dupe of a
-    { content: [{ type: "text", text: "no atts" }] },
-  ];
-  const imgs = collectMiddleImages(middle, [], []);
-  assert.deepStrictEqual(imgs.map((x) => x.mediaId), ["a", "b"], "a,b once each");
+run("no attachments → empty attachments array", () => {
+  const out = assembleCompressed({ id: "x", media: {}, turns: [] }, "BRIEF", 0, []);
+  assert.deepStrictEqual(out.turns[0].attachments, []);
 });
 
-run("collectMiddleImages skips images already in verbatim top/bottom", () => {
-  const top = [{ attachments: [imgAtt("a")] }];
-  const bottom = [{ attachments: [imgAtt("z")] }];
-  const middle = [{ attachments: [imgAtt("a"), imgAtt("b"), imgAtt("z")] }];
-  const imgs = collectMiddleImages(middle, top, bottom);
-  assert.deepStrictEqual(imgs.map((x) => x.mediaId), ["b"], "only the middle-only image");
+run("MIN_TURNS is exported and sane", () => {
+  assert.ok(typeof MIN_TURNS === "number" && MIN_TURNS >= 2, "a small positive threshold");
 });
 
-run("collectMiddleImages ignores non-image / mediaId-less attachments", () => {
-  const middle = [{ attachments: [{ type: "file", mediaId: "f" }, { type: "image" }, imgAtt("ok")] }];
-  assert.deepStrictEqual(collectMiddleImages(middle, [], []).map((x) => x.mediaId), ["ok"]);
+console.log("\nbuildAttachmentManifest:");
+
+run("lists image + file names and asks for the machine trailer", () => {
+  const m = buildAttachmentManifest([imgAtt("a", "chart.png"), fileAtt("b", "data.json")]);
+  assert.ok(/Images: chart\.png/.test(m), "image name listed");
+  assert.ok(/Files: data\.json/.test(m), "file name listed");
+  assert.ok(/continuum-attachments/.test(m), "asks for the parseable trailer");
 });
 
-run("assembleCompressed carries middle images onto the summary turn", () => {
-  const session = { id: "x", media: {}, turns: mk(30) };
-  const { top, bottom } = sliceTurns(session.turns, 8);
-  const middle = [{ attachments: [imgAtt("m1"), imgAtt("m2")] }];
-  const out = assembleCompressed(session, top, bottom, "CONDENSED", 14, middle);
-  assert.deepStrictEqual(out.turns[8].attachments.map((a) => a.mediaId), ["m1", "m2"]);
+run("empty when there are no attachments", () => {
+  assert.strictEqual(buildAttachmentManifest([]), "");
+  assert.strictEqual(buildAttachmentManifest(null), "");
 });
 
-const fileAtt = (id, name) => ({ type: "file", mediaId: id, name: name || id + ".pdf" });
+console.log("\nparseAttachmentContext (trailer → per-attachment context, stripped):");
 
-run("collectMiddleFiles gathers middle files, deduped + top/bottom excluded", () => {
-  const top = [{ attachments: [fileAtt("a")] }];
-  const middle = [{ attachments: [fileAtt("a"), fileAtt("b"), imgAtt("img")] }, { attachments: [fileAtt("b")] }];
-  assert.deepStrictEqual(collectMiddleFiles(middle, top, []).map((x) => x.mediaId), ["b"], "file-only, deduped, minus top");
+run("parses tab-separated context, strips the block, sets _context", () => {
+  const atts = [imgAtt("a", "chart.png"), fileAtt("b", "data.json")];
+  const raw =
+    "## Current state\n- stuff\n\n```continuum-attachments\nchart.png\tthe architecture sketch\ndata.json\tinput dataset\n```";
+  const { text, attachments } = parseAttachmentContext(raw, atts);
+  assert.ok(text.indexOf("continuum-attachments") === -1, "trailer removed from the visible brief");
+  assert.ok(/## Current state/.test(text), "brief body kept");
+  assert.strictEqual(attachments[0]._context, "the architecture sketch");
+  assert.strictEqual(attachments[1]._context, "input dataset");
 });
 
-run("assembleCompressed carries BOTH middle images and files onto the summary turn", () => {
-  const session = { id: "x", media: {}, turns: mk(30) };
-  const { top, bottom } = sliceTurns(session.turns, 8);
-  const middle = [{ attachments: [imgAtt("m1"), fileAtt("f1"), fileAtt("f2")] }];
-  const out = assembleCompressed(session, top, bottom, "CONDENSED", 14, middle);
-  assert.deepStrictEqual(out.turns[8].attachments.map((a) => a.mediaId), ["m1", "f1", "f2"], "images then files");
+run("matches names fuzzily (case / punctuation) and tolerates a ' - ' separator", () => {
+  const atts = [fileAtt("b", "My Report (1).pdf")];
+  const raw = "brief\n\n```continuum-attachments\n- my-report-1.pdf - the spec we followed\n```";
+  const { attachments } = parseAttachmentContext(raw, atts);
+  assert.strictEqual(attachments[0]._context, "the spec we followed");
 });
 
-run("assembleCompressed without middle → empty attachments (back-compat)", () => {
-  const session = { id: "x", media: {}, turns: mk(30) };
-  const { top, bottom } = sliceTurns(session.turns, 8);
-  const out = assembleCompressed(session, top, bottom, "CONDENSED", 14);
-  assert.deepStrictEqual(out.turns[8].attachments, []);
+run("no trailer → attachments unchanged, text unchanged", () => {
+  const atts = [imgAtt("a")];
+  const { text, attachments } = parseAttachmentContext("just a brief", atts);
+  assert.strictEqual(text, "just a brief");
+  assert.ok(!attachments[0]._context, "no context set");
 });
 
 console.log("\nstripImageRefs (image refs leave the LLM text):");
@@ -159,13 +168,22 @@ run("a fenced code block round-trips byte-for-byte through summarization", () =>
   assert.ok(restored.indexOf("CONTINUUM-KEEP") === -1, "no leftover markers");
 });
 
-run("code is NEVER lost even if the model drops the marker", () => {
-  const code = "```py\nprint('keep me')\n```";
-  const { blocks } = protectImportant("before\n\n" + code + "\n\nafter");
-  // Model returns a summary that forgot the marker entirely.
-  const restored = restoreImportant("A short summary with no marker.", blocks);
-  assert.ok(restored.indexOf(code) !== -1, "dropped code is appended, not lost");
-  assert.ok(/## Preserved content/.test(restored), "fallback heading present");
+run("kept markers restore in place; dropped markers are omitted (no dump)", () => {
+  const a = "```js\nconst A = 1;\n```";
+  const b = "```js\nconst B = 2;\n```";
+  const { blocks } = protectImportant(a + "\n\n" + b); // blocks[0]=a, blocks[1]=b
+  // Model keeps only the first marker (uses A in the brief) and drops the second.
+  const restored = restoreImportant("Current state: [[CONTINUUM-KEEP-0]] is set.", blocks);
+  assert.ok(restored.indexOf(a) !== -1, "kept marker → code restored in place, in context");
+  assert.ok(restored.indexOf(b) === -1, "dropped marker → that code is omitted from the brief");
+  assert.ok(restored.indexOf("## Preserved content") === -1, "no Preserved content dump (L3)");
+  assert.ok(restored.indexOf("CONTINUUM-KEEP") === -1, "no leftover markers either way");
+});
+
+run("dropped markers never resurrect code as a trailing dump", () => {
+  const { blocks } = protectImportant("```py\nprint('x')\n```\n\nrun `npm test`");
+  const restored = restoreImportant("A brief that references no code.", blocks);
+  assert.strictEqual(restored, "A brief that references no code.", "nothing appended for dropped code");
 });
 
 run("inline code spans are protected too", () => {
