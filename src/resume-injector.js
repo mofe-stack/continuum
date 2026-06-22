@@ -149,6 +149,7 @@
     let delayTimer = null;
     let cycleTimer = null;
     let cycleIdx = 0;
+    let marchOn = false;  // the activity-line march only runs during the compression wait
     // The long step (AI compression) sends ONE message ("Summarizing N messages…")
     // then goes silent for the whole API wait — a frozen label is what makes the
     // wait feel boring. So during any quiet stretch we ROTATE friendly, on-brand
@@ -157,8 +158,10 @@
     // own text — only the long silent wait cycles. A continuously moving bar runs
     // underneath. Honors prefers-reduced-motion.
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // Activity lines that loosely mirror what the handoff brief is doing — they read
-    // as progress and loop naturally if compression runs long.
+    // Activity lines that mirror what the handoff brief is doing, IN ORDER — so they
+    // read as a one-way march toward completion, not a loop. The rotation advances
+    // through them once and then HOLDS on the final "almost done" line (it never
+    // wraps back to the start) until compression actually finishes.
     const CYCLE = [
       "Reading through the whole conversation…",
       "Spotting the key decisions…",
@@ -167,6 +170,9 @@
       "Lining up the next steps…",
       "Holding on to the important context…",
       "Weaving it into a clean handoff brief…",
+      "Double-checking nothing's lost…",
+      "Polishing the final brief…",
+      "Almost done…",
     ];
     const setText = (msg) => {
       if (!body) return;
@@ -188,15 +194,27 @@
       if (cycleTimer) { clearInterval(cycleTimer); cycleTimer = null; }
     };
     const armCycle = () => {
-      // After a quiet beat with no new real phase, start rotating engaging lines.
+      // After a quiet beat with no new real phase, march through the activity lines
+      // at a steady cadence. It ADVANCES ONCE and holds on the final "almost done"
+      // line — it never wraps back to the start. Paced so the 10 lines span ~30s
+      // (initial 2400ms + 9 steps × 3000ms ≈ 29s) before holding. Only arms while
+      // marchOn (the compression wait) — so a quiet stretch in a LATER phase (e.g.
+      // the PDF build) never restarts the list from "Reading the whole conversation".
       stopCycle();
+      if (!marchOn) return;
       delayTimer = setTimeout(() => {
         cycleIdx = 0;
         setText(CYCLE[cycleIdx]);
         cycleTimer = setInterval(() => {
-          cycleIdx = (cycleIdx + 1) % CYCLE.length;
+          if (cycleIdx >= CYCLE.length - 1) {
+            // Reached the final "almost done" line — hold here, don't loop back.
+            clearInterval(cycleTimer);
+            cycleTimer = null;
+            return;
+          }
+          cycleIdx += 1;
           setText(CYCLE[cycleIdx]);
-        }, 3600);
+        }, 3000);
       }, 2400);
     };
     try {
@@ -229,15 +247,27 @@
         bar.style.width = "100%";
         bar.style.opacity = "0.55";
       }
-      armCycle(); // rotate if the very first message stalls
     } catch (e) {
       card = null;
     }
     return {
+      // Start the activity-line march — call right before the long, silent
+      // compression wait so the list paces alongside it.
+      beginMarch() {
+        marchOn = true;
+        armCycle();
+      },
+      // Stop the march — call as soon as compression returns. Later phases (the PDF
+      // build) then just show their own labels via update() without ever restarting
+      // the list.
+      endMarch() {
+        marchOn = false;
+        stopCycle();
+      },
       update(msg) {
         stopCycle(); // a real phase happened — show it immediately
         setText(msg);
-        armCycle(); // if it goes quiet again (the compression wait), resume rotating
+        armCycle(); // if it goes quiet again during the compression wait, resume the march
       },
       done() {
         stopCycle();
@@ -858,12 +888,14 @@
       };
       if (Continuum.llmCompressor && Continuum.llmCompressor.compressSession && buildHandoff) {
         const beforeTk = payloadTokens(session);
+        prog.beginMarch(); // pace the activity-line march alongside the silent compression wait
         try {
           const compressed = await Continuum.llmCompressor.compressSession(session, {
             provider: provider,
             apiKey: apiKey,
             onProgress: (m) => prog.update(m),
           });
+          prog.endMarch(); // compression returned — later phases show their own labels, no march
           if (compressed && compressed !== session) {
             const afterTk = payloadTokens(compressed);
             session = compressed;
