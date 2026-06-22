@@ -124,7 +124,15 @@
   // re-encoding to JPEG fixes that too.) Returns { dataUrl, format, w, h } or null.
   async function blobToImage(blob) {
     try {
-      const bmp = await createImageBitmap(blob);
+      // Realm-safe: a Firefox page-realm blob (just-captured in-memory session) can
+      // break createImageBitmap the same way it breaks arrayBuffer(). Read its bytes
+      // via the shared realm-safe reader and rebuild a clean content-script blob.
+      let src = blob;
+      if (Continuum.media && Continuum.media.readBlobBytes) {
+        const r = await Continuum.media.readBlobBytes(blob);
+        if (r && r.bytes) src = new Blob([r.bytes], { type: (blob && blob.type) || "image/png" });
+      }
+      const bmp = await createImageBitmap(src);
       let w = bmp.width;
       let h = bmp.height;
       const scale = Math.min(1, MAX_IMG_DIM / Math.max(w, h));
@@ -160,15 +168,28 @@
     // buildHandoff also runs assignArchivePaths(session), so att._path is set.
     const text = Continuum.handoff.buildHandoff(session, opts) || "";
 
-    // Map archive path (e.g. "images/foo.png") → image blob, so we can embed the
-    // right picture when its reference is reached in the text stream.
+    // Two lookups, so an image reference in the text stream finds its bytes whichever
+    // form it took: verbatim per-turn refs are "![alt](path)" → matched by PATH; the
+    // AI-compression summary refs are "[image: name — context]" (no path) → matched by
+    // NAME. Names aren't guaranteed unique, so the name map holds a per-name queue that
+    // we consume in transcript order.
+    const normName = (s) => String(s == null ? "" : s).replace(/\s+/g, " ").trim();
     const media = session.media || {};
     const imgByPath = new Map();
+    const imgByName = new Map();
     for (const turn of session.turns || []) {
       for (const att of turn.attachments || []) {
-        if (att.type === "image" && att._path && att.mediaId) {
+        if (att.type === "image" && att.mediaId) {
           const m = media[att.mediaId];
-          if (m && m.blob) imgByPath.set(att._path, { blob: m.blob, name: att.name });
+          if (m && m.blob) {
+            const info = { blob: m.blob, name: att.name };
+            if (att._path) imgByPath.set(att._path, info);
+            const nm = normName(att.name);
+            if (nm) {
+              if (!imgByName.has(nm)) imgByName.set(nm, []);
+              imgByName.get(nm).push(info);
+            }
+          }
         }
       }
     }
@@ -283,8 +304,11 @@
     }
 
     // Stream the transcript; flush accumulated text, then embed an image whenever
-    // a line is an image reference we have the bytes for.
-    const imgRefRe = /!\[[^\]]*\]\(([^)]+)\)/;
+    // a line is an image reference we have the bytes for. Two ref forms reach here:
+    //   • verbatim per-turn images:  ![alt](path)            → matched by PATH
+    //   • AI-compression summary:    [image: name — context] → matched by NAME
+    const mdImgRe = /!\[([^\]]*)\]\(([^)]+)\)/;
+    const briefImgRe = /^\[image:\s*(.+?)\s*\]\s*$/i;
     const lines = text.split("\n");
     let buf = [];
     const flush = async () => {
@@ -295,10 +319,33 @@
       }
     };
     for (const line of lines) {
-      const m = line.match(imgRefRe);
-      if (m && imgByPath.has(m[1])) {
+      let info = null;
+      let label = null;
+      const md = line.match(mdImgRe);
+      if (md && imgByPath.has(md[2])) {
+        info = imgByPath.get(md[2]);
+        label = md[1] || "";
+      } else {
+        const br = line.match(briefImgRe);
+        if (br) {
+          label = br[1].trim();
+          // The name is the part before the " — context" separator (or the whole label
+          // when there's no context). Consume the per-name queue in order so duplicate
+          // names still resolve to the right picture; a non-embeddable ref (e.g. the
+          // "not saved" note) finds no entry and falls through to plain text.
+          const sep = label.indexOf(" — ");
+          const nm = normName(sep === -1 ? label : label.slice(0, sep));
+          const q = imgByName.get(nm);
+          if (q && q.length) info = q.shift();
+        }
+      }
+      if (info) {
         await flush();
-        await embedImage(imgByPath.get(m[1]));
+        // When the ref carries a model description ("name — context"), render it as a
+        // caption ABOVE the embedded picture so it isn't lost in the PDF. Plain
+        // name-only refs (verbatim exports) have no " — " and get no caption — unchanged.
+        if (label && label.indexOf(" — ") !== -1) await writeText("[Image: " + label + "]");
+        await embedImage(info);
       } else {
         buf.push(line);
       }

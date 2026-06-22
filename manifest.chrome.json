@@ -64,6 +64,12 @@
       "run_at": "document_start",
       "world": "MAIN",
       "js": ["src/inject/gemini-upload-interceptor.js"]
+    },
+    {
+      "matches": ["https://claude.ai/*", "https://chatgpt.com/*", "https://chat.openai.com/*", "https://gemini.google.com/*", "https://www.perplexity.ai/*", "https://perplexity.ai/*"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "js": ["src/inject/media-reader.js"]
     }
   ],
   "web_accessible_resources": [

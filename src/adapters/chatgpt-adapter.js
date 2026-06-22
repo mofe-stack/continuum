@@ -58,6 +58,22 @@
   }
 
   async function fetchBlob(url, _retried) {
+    // Firefox: a content-script fetch().blob() returns a PAGE-REALM blob we can't
+    // read. Get clean bytes another way: page-local blob:/data: URLs are read in the
+    // page realm (only it owns them); http(s) URLs go through the background worker
+    // (host_permissions + cookies), with a page-realm read as same-origin fallback.
+    if (url && !_retried && Continuum.media && Continuum.media.isGecko) {
+      if (/^(blob:|data:)/i.test(url)) {
+        const viaPage = await Continuum.media.fetchViaPage(url);
+        if (viaPage) return viaPage;
+      } else {
+        const viaWorker = await Continuum.media.fetchViaWorker(url);
+        if (viaWorker) return viaWorker;
+        const viaPage = await Continuum.media.fetchViaPage(url);
+        if (viaPage) return viaPage;
+      }
+      // all Firefox paths missed → fall through to the direct fetch (keeps 429 retry)
+    }
     try {
       const res = await fetch(url, { credentials: "include" });
       if (res.status === 429 && !_retried) {
@@ -66,7 +82,11 @@
         return fetchBlob(url, true);
       }
       if (!res.ok) throw new Error("HTTP " + res.status);
-      return await res.blob();
+      const b = await res.blob();
+      // Firefox: page-realm content-script blob dies before save — clean it now.
+      return Continuum.media && Continuum.media.isGecko && Continuum.media.toCleanBlob
+        ? await Continuum.media.toCleanBlob(b)
+        : b;
     } catch (e) {
       console.warn("[Continuum] chatgpt blob fetch failed:", url, e && e.message);
       return null;
