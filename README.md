@@ -18,7 +18,7 @@ Or run it unpacked — see [Running it locally](#running-it-locally) below.
 - **Capture a chat.** Click the Continuum button on a supported AI site and it grabs the whole conversation — messages, and any images or files that came with it.
 - **Resume somewhere else.** Open a new chat on a supported site and Continuum drops the captured history back in, so the model picks up where you left off instead of starting cold.
 - **Save and export.** Captured sessions are kept locally and can be exported to Markdown or PDF.
-- **Optional AI compression.** For very long chats, you can have the middle of the conversation summarized down using your own API key, so the handoff fits. This is off by default.
+- **Optional AI compression.** For very long chats, you can condense the handoff with your own API key to save tokens. The whole conversation is turned into a structured brief with seven sections: completed work, current state, in progress, next steps, constraints, critical context, and discarded attempts. All the key details including code, images, files, decisions, and instructions are carried through. It's off by default and only runs when you resume.
 
 ## Supported sites
 
@@ -53,7 +53,7 @@ Every site captures the full conversation text. What comes through for **attachm
 
 **Notes:**
 
-- Gemini images — both the ones it generates in answers and the ones you upload — are saved in full (images you added beforeinstalling it come through by name only, since Gemini locks the original upload afterward). Uploaded *files* (PDFs, docs) still come through by name only: their cards expose no real download link (the "Open" is a JS handler), so the bytes can't be pulled out.
+- Gemini images — both the ones it generates in answers and the ones you upload — are saved in full (images you added before installing it come through by name only, since Gemini locks the original upload afterward). Uploaded *files* (PDFs, docs) still come through by name only: their cards expose no real download link (the "Open" is a JS handler), so the bytes can't be pulled out.
 - Perplexity renders your uploads as plain filename chips with no downloadable URL behind them, so uploaded images and files come through by name only. Images that appear inside answers are saved. The transcript keeps the answer's full formatting (headings, lists, code, tables); the little citation number chips and the Sources/Images side panels are left out — they're web results, not the conversation.
 - Perplexity only generates downloadable files via Labs (a Pro feature), which we haven't been able to test; regular threads don't produce file artifacts, so there's nothing to capture there.
 - Claude captures your normal uploads (images, PDFs, docs, text) fine. The one exception is files that got routed to Claude's code/analysis tool — the ones that, when you click them, say they're too large and you have to download them. Those bytes live only in Claude's temporary sandbox and can't be pulled back out, so they're noted by name. Files Claude *generates* for you — the download cards — are also captured by name only: their Download button is a script handler with no link behind it, so the file itself can't be pulled out. Images Claude generates in answers are name only too — they render inside a sandboxed cross-origin frame whose pixels an extension can't read, but their title is saved.
