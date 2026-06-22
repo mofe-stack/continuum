@@ -175,10 +175,34 @@
   }
 
   async function fetchBlob(url) {
+    const b = await fetchBlobInner(url);
+    // Firefox: any page-realm content-script blob dies before save — convert every
+    // fetched blob to a clean content-script blob now (idempotent for clean ones).
+    return b && Continuum.media && Continuum.media.isGecko && Continuum.media.toCleanBlob
+      ? await Continuum.media.toCleanBlob(b)
+      : b;
+  }
+  async function fetchBlobInner(url) {
     if (!url) return null;
     // blob:/data: URLs are page-local — only the CONTENT SCRIPT can read them (the
     // worker can't), and they don't take a credentials option. Try them in-page.
     const isLocal = /^(blob:|data:)/i.test(url);
+    // Firefox: a content-script fetch().blob() returns a PAGE-REALM blob we can't
+    // read (and it "succeeds", shadowing the fallbacks below). Get clean bytes
+    // another way: page-local blob:/data: URLs are read in the page realm (only it
+    // owns them); http(s) URLs go through the background worker, then a page-realm
+    // read as same-origin fallback.
+    if (Continuum.media && Continuum.media.isGecko) {
+      if (isLocal) {
+        const viaPage = await Continuum.media.fetchViaPage(url);
+        if (viaPage) return viaPage;
+      } else {
+        const viaWorkerFF = await Continuum.media.fetchViaWorker(url);
+        if (viaWorkerFF) return viaWorkerFF;
+        const viaPageFF = await Continuum.media.fetchViaPage(url);
+        if (viaPageFF) return viaPageFF;
+      }
+    }
     try {
       const res = await fetch(url, isLocal ? {} : { credentials: "include" });
       if (res.ok) return await res.blob();

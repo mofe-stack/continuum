@@ -430,10 +430,31 @@
   // claude.ai inherits cookies, so files-API images work. Failures return null
   // so capture still succeeds (attachment metadata is kept either way).
   async function fetchBlob(url) {
+    // Firefox: a content-script fetch().blob() returns a PAGE-REALM blob we can't
+    // read. Get clean bytes another way: page-local blob:/data: URLs are read in the
+    // page realm (only it owns them); http(s) URLs go through the background worker
+    // (host_permissions + cookies), with a page-realm read as same-origin fallback.
+    if (url && Continuum.media && Continuum.media.isGecko) {
+      if (/^(blob:|data:)/i.test(url)) {
+        const viaPage = await Continuum.media.fetchViaPage(url);
+        if (viaPage) return viaPage;
+      } else {
+        const viaWorker = await Continuum.media.fetchViaWorker(url);
+        if (viaWorker) return viaWorker;
+        const viaPage = await Continuum.media.fetchViaPage(url);
+        if (viaPage) return viaPage;
+      }
+      // all Firefox paths missed → fall through to the direct fetch (last resort)
+    }
     try {
       const res = await fetch(url, { credentials: "include" });
       if (!res.ok) throw new Error("HTTP " + res.status);
-      return await res.blob();
+      const b = await res.blob();
+      // Firefox: this content-script blob is PAGE-REALM and dies before save — convert
+      // it to a clean content-script blob NOW, while it's still readable.
+      return Continuum.media && Continuum.media.isGecko && Continuum.media.toCleanBlob
+        ? await Continuum.media.toCleanBlob(b)
+        : b;
     } catch (err) {
       console.warn("[Continuum] image fetch failed:", url, err);
       return null;

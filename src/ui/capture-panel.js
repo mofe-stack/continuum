@@ -398,9 +398,16 @@
           lines.push("## Images");
           for (const att of sumImgs) {
             lines.push("");
-            const ctx = att._context ? " — " + att._context : "";
-            lines.push("_[Image: " + att.name + ctx + "]_");
-            if (att._path) lines.push("![" + att.name + "](" + att._path + ")");
+            // ONE clean caption line per image: "[image: name — context]". No Markdown
+            // ! / () wrapper and no "→ path" tail — the archive path was just noise in the
+            // .md (the picture is attached/embedded separately and the name already names
+            // it). The resume PDF re-matches this line to the image BY NAME to embed it and
+            // render the context as a caption (see pdf-export). Whitespace is collapsed so a
+            // multi-line description can't split the single-line ref.
+            const oneLine = (s) => String(s == null ? "" : s).replace(/\s+/g, " ").trim();
+            const ctx = att._context ? " — " + oneLine(att._context) : "";
+            const label = oneLine(att.name || "image") + ctx;
+            lines.push(att._path ? "[image: " + label + "]" : "[image: " + label + " — not saved (original upload no longer downloadable)]");
           }
         }
         const sumFiles = (turn.attachments || []).filter((a) => a.type === "file" && !a.isPasted);
@@ -423,10 +430,12 @@
       for (const att of turn.attachments || []) {
         lines.push("");
         if (att.type === "image") {
-          // No _path = bytes weren't captured. For uploads this happens when the
-          // original was added before the extension was capturing it (its remote
-          // URL is locked afterward), so say so briefly instead of a bare name.
-          lines.push(att._path ? "![" + att.name + "](" + att._path + ")" : "[image: " + att.name + " — not saved (original upload no longer downloadable)]");
+          // Clean caption ref "[image: name]" (NOT Markdown ![](path)) — same form as the
+          // AI-compression summary, so verbatim and compressed exports read alike and the
+          // resume PDF embeds it by name (see pdf-export). No _path = bytes weren't
+          // captured (e.g. an upload added before the extension was capturing it, whose
+          // remote URL is locked afterward), so say so briefly instead of a bare name.
+          lines.push(att._path ? "[image: " + att.name + "]" : "[image: " + att.name + " — not saved (original upload no longer downloadable)]");
         } else if (att.type === "file") {
           if (att.isPasted && att.text != null) {
             // Pasted text the user dropped into their message — it's message content,
@@ -493,12 +502,17 @@
         if (att.mediaId) withMediaId++;
         if (m && m.blob) withBlob++;
         if (m && m.blob && att._path) {
-          try {
-            entries[att._path] = new Uint8Array(await m.blob.arrayBuffer());
+          // Realm-safe read — a bare `new Uint8Array(await m.blob.arrayBuffer())`
+          // throws on Firefox page-realm blobs (the just-captured in-memory session),
+          // which silently dropped every image/file from the ZIP.
+          const r =
+            Continuum.media && Continuum.media.readBlobBytes
+              ? await Continuum.media.readBlobBytes(m.blob)
+              : null;
+          if (r && r.bytes) {
+            entries[att._path] = r.bytes;
             added++;
             continue;
-          } catch (e) {
-            /* fall through to the text fallback below */
           }
         }
         // No blob but we have the file's inlined text → still save it under files/
