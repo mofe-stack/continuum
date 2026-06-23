@@ -232,6 +232,13 @@
   // Persists a full normalized session (including its media blobs).
   async function saveSession(session) {
     await ensureLegacyCleanup();
+    // Provider-agnostic: drop images/files the AI echoed back from the user's upload
+    // (captured on both turns) before persisting, then re-stat so the saved counts and
+    // the index metadata match what's actually kept. Idempotent on re-save.
+    if (Continuum.model && Continuum.model.dedupeAttachments) {
+      Continuum.model.dedupeAttachments(session);
+      Continuum.model.recomputeStats(session);
+    }
     const stored = await toStored(session);
     const idxItems = await sget([INDEX_KEY]);
     const index = Array.isArray(idxItems[INDEX_KEY]) ? idxItems[INDEX_KEY] : [];

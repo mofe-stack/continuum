@@ -102,8 +102,65 @@
     return !!att && att.type === "file" && att.text == null && hasBytes(att, media);
   }
 
+  // Collapse duplicate attachments. Provider-agnostic; runs once on the whole session at
+  // save time. The duplicate identity key (per type) is name + byte-size, so only
+  // genuinely identical bytes count as a duplicate — two distinct files/images that share
+  // a generic name (Claude's per-page extractions like several "1.png"/"preview-1.jpg")
+  // are kept.
+  //
+  // The two attachment kinds need different policies:
+  //   • IMAGES — collapse EVERY duplicate to a single copy. The same picture re-shown
+  //     across turns (a user upload the AI echoes, or images Claude extracts from a zip
+  //     and re-views over a long agentic chat) should appear once, not many times.
+  //   • FILES — ROLE-AWARE: drop a duplicate only when the FIRST occurrence was on a
+  //     USER turn (your upload, echoed by the AI). Files that ORIGINATE from the
+  //     assistant — a generated .docx it re-presents across turns — are KEPT each time,
+  //     so their chip shows on every turn (deduping those wrongly stripped the chips).
+  //
+  // Pasted text is never touched. Orphaned media blobs left by removed copies are pruned.
+  function dedupeAttachments(session) {
+    if (!session || !Array.isArray(session.turns)) return session;
+    const media = session.media || {};
+    const seenRole = new Map(); // key -> role of the FIRST turn it appeared on
+    const keyFor = (att) => {
+      const name = att.name || "";
+      const m = att.mediaId ? media[att.mediaId] : null;
+      const size = m && m.blob ? m.blob.size : "";
+      if (!name && size === "") return null; // too little to match on — never dedup
+      // Always include byte-size: two DIFFERENT files/images can share a name (Claude
+      // names per-page extractions generically, e.g. several "preview-1.jpg"/"1.png").
+      // Keying on name alone collapsed those distinct images into one and dropped the
+      // rest. Same name AND same size = genuinely the same bytes → the real duplicate.
+      return att.type + "|" + name.toLowerCase() + "|" + size;
+    };
+    for (const turn of session.turns) {
+      if (!Array.isArray(turn.attachments)) continue;
+      turn.attachments = turn.attachments.filter((att) => {
+        if (!att || att.isPasted || (att.type !== "image" && att.type !== "file")) return true;
+        const key = keyFor(att);
+        if (key == null) return true;
+        if (seenRole.has(key)) {
+          // IMAGES: collapse every duplicate to one copy — the SAME picture re-shown
+          // across turns (a user upload echoed, or images Claude extracts from a zip and
+          // re-views over a long agentic chat) should appear once, not repeatedly.
+          if (att.type === "image") return false;
+          // FILES: keep the assistant's re-presented files (so a generated .docx shows
+          // its chip on every turn it appears); only drop an echo of a file YOU uploaded.
+          return seenRole.get(key) !== "user";
+        }
+        seenRole.set(key, turn.role);
+        return true;
+      });
+    }
+    // Prune media blobs no longer referenced by any surviving attachment.
+    const used = new Set();
+    for (const turn of session.turns) for (const att of turn.attachments || []) if (att.mediaId) used.add(att.mediaId);
+    for (const id of Object.keys(media)) if (!used.has(id)) delete media[id];
+    return session;
+  }
+
   Continuum.model = {
-    uuid, createSession, addMedia, recomputeStats,
+    uuid, createSession, addMedia, recomputeStats, dedupeAttachments,
     attachableImage, attachableFile,
   };
 })();

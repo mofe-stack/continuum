@@ -170,8 +170,11 @@
       if (/\bsr-only\b/i.test(cls)) return ""; // screen-reader-only labels
       // Extended-thinking body: claude.ai renders it in a collapsible whose wrapper
       // uses a `grid-template-rows` transition. Skip it so the reasoning never lands
-      // in the transcript (the API path strips it separately; see stripLeadingThinking).
-      if (cls.indexOf("grid-template-rows") !== -1) return "";
+      // in the transcript (the API path strips it separately; see stripThinking).
+      // claude.ai has moved this between a CLASS and an inline STYLE, so check both —
+      // if only one is checked and they switch, every thinking block leaks.
+      const style = typeof node.getAttribute === "function" ? node.getAttribute("style") || "" : "";
+      if (cls.indexOf("grid-template-rows") !== -1 || style.indexOf("grid-template-rows") !== -1) return "";
       const tid = node.getAttribute("data-testid") || "";
       if (/-button$/i.test(tid)) return "";
 
@@ -328,12 +331,30 @@
   // [{ el, name }]. Skips anything already captured as an upload (excludeNames).
   const GEN_HAS_EXT_RE = /\.[a-z0-9]{1,8}$/i;
   const GEN_TYPE_RE = /[·•]\s*([a-z0-9]{2,5})\b/i; // the card's "Image · SVG" type badge
+  // A generated download card whose filename is an image (e.g. "Sailboat.png") is an
+  // IMAGE, not a file — count and chip it as one.
+  const GEN_IMG_EXT_RE = /\.(png|jpe?g|gif|webp|svg|heic|heif|bmp|avif|tiff?)$/i;
+  const genKind = (name) => (GEN_IMG_EXT_RE.test(String(name || "")) ? "image" : "file");
   function collectGeneratedFiles(excludeNames) {
-    const seen = new Set();
+    // Dedup per (name + TURN), not per name: Claude re-presents the same generated file
+    // (e.g. "report.docx") across several turns, and each presentation should keep its
+    // own chip. Keying on name alone collapsed them to one, so only the first turn got a
+    // chip. We still collapse the same card duplicated WITHIN one turn (overlapping
+    // selectors / hidden layout copies) by tracking the turn element per name.
+    const turnOf = (el) =>
+      (el.closest && (el.closest("[data-is-streaming]") || el.closest(".font-claude-response"))) || el;
+    const seen = new Map(); // name -> Set<turn element already emitted>
     const out = [];
     const add = (el, name) => {
-      if (!name || seen.has(name) || (excludeNames && excludeNames.has(name))) return;
-      seen.add(name);
+      if (!name || (excludeNames && excludeNames.has(name))) return;
+      const turn = turnOf(el);
+      let turns = seen.get(name);
+      if (!turns) {
+        turns = new Set();
+        seen.set(name, turns);
+      }
+      if (turns.has(turn)) return; // same file already emitted for this turn
+      turns.add(turn);
       out.push({ el, name });
     };
     // (a) Legacy / generic: an explicit download anchor with a real filename.
@@ -587,10 +608,11 @@
     const { turns } = collectTurns();
     const files = collectFiles();
     const generated = collectGeneratedFiles(new Set(files.map((f) => f.name)));
+    const genImgs = generated.filter((g) => genKind(g.name) === "image").length;
     return {
       messages: turns.length,
-      images: collectImages().length + collectGeneratedImages().length,
-      files: files.length + generated.length,
+      images: collectImages().length + collectGeneratedImages().length + genImgs,
+      files: files.length + (generated.length - genImgs),
     };
   }
 
@@ -687,10 +709,11 @@
       rec.attachments.push(att);
     }
 
-    // Generated download cards — names only.
+    // Generated download cards — names only. An image-named card (Sailboat.png) is
+    // captured as an image, not a file.
     for (const g of collectGeneratedFiles(fileNames)) {
       const rec = recordFor(g.el);
-      if (rec) rec.attachments.push({ type: "file", mediaId: null, name: g.name, generated: true });
+      if (rec) rec.attachments.push({ type: genKind(g.name), mediaId: null, name: g.name, generated: true });
     }
 
     // Generated images (cross-origin iframe previews) — names only.
@@ -988,11 +1011,19 @@
   function apiMessageAttachments(msg) {
     const out = [];
     const seen = new Set();
+    // Images that ride on an ASSISTANT message are ones Claude pulled in with its tools
+    // (extracting/viewing the pages of an uploaded zip/PDF — they arrive as file_kind
+    // "image" with tool-run timestamps). They're tool-process artifacts (and redundant
+    // with the uploaded file itself), not content the user attached or asked to keep, so
+    // we drop them. Real image uploads live on USER messages; assistant FILES (e.g. a
+    // generated .docx) are NOT images and still come through.
+    const isAssistant = mapSender(msg.sender || msg.role) === "assistant";
     const lists = [msg.files, msg.attachments, msg.files_v2].filter(Array.isArray);
     for (const list of lists) {
       for (const f of list) {
         if (!f || typeof f !== "object") continue;
         const a = classifyApiAttachment(f);
+        if (isAssistant && a.isImg) continue; // tool-extracted/viewed image → skip
         // (Previously .zip uploads were hard-skipped as "unservable code-sandbox
         // blobs"; that also dropped ordinary user-uploaded zips. We now keep them —
         // if a URL resolves, the bytes are fetched; if not, it degrades to a
@@ -1090,14 +1121,19 @@
     } catch (e) {
       return "";
     }
-    clone.querySelectorAll('[class*="grid-template-rows"]').forEach((g) => {
-      // Remove the whole thinking block (summary + collapsible + "Done"), keeping its
-      // sibling answer row. Fallback to just the collapsible body if the wrapper class
-      // ever changes — that can only UNDER-strip (leak a summary line), never drop an
-      // answer.
-      const block = g.closest('[class*="row-start-1"]') || g;
-      if (block && block.parentElement) block.remove();
-    });
+    // Claude lays each answer out as a 2-row grid: row-start-1 = an extended-thinking OR
+    // agentic tool-use block (a header like "Thought for …" / "Viewed 4 files, ran a
+    // command" + a `transition-[grid-template-rows]` collapsible), row-start-2 = the
+    // actual answer. Remove that step row by EITHER signal so a class/style rename can't
+    // leak it: (1) the collapsible's `grid-template-rows` (a class `transition-[grid-…]`
+    // AND/OR an inline style), and (2) the `role="status"` live-region announcement that
+    // labels every thinking/tool step. Both climb to the row-start-1 wrapper and drop it.
+    const dropStepRow = (el) => {
+      const row = el.closest('[class*="row-start-1"], [style*="row-start-1"]') || el;
+      if (row && row.parentElement) row.remove();
+    };
+    clone.querySelectorAll('[class*="grid-template-rows"], [style*="grid-template-rows"]').forEach(dropStepRow);
+    clone.querySelectorAll('[role="status"]').forEach(dropStepRow);
     return extractText(clone);
   }
 
@@ -1108,19 +1144,31 @@
   function collectDomAnswers() {
     const out = [];
     const seen = new Set();
-    document.querySelectorAll("[data-is-streaming]").forEach((turn) => {
-      // Top-level reply containers only (skip nested streaming sub-blocks).
+    // Collect from the answer-prose container (.font-claude-response) — it's the most
+    // stable Claude hook (also used by domAnswerText). The turn wrapper [data-is-
+    // streaming] has been RENAMED by claude.ai before, and if it stops matching, EVERY
+    // assistant turn falls back to the raw API text and all the extended-thinking
+    // leaks — so we prefer the prose container and keep the wrapper only as a fallback.
+    let nodes = document.querySelectorAll(".font-claude-response");
+    let sel = ".font-claude-response";
+    if (!nodes.length) {
+      nodes = document.querySelectorAll("[data-is-streaming]");
+      sel = "[data-is-streaming]";
+    }
+    nodes.forEach((turn) => {
+      // Top-level reply containers only (skip nested sub-blocks of the same kind).
       let p = turn.parentElement;
       while (p) {
-        if (p.matches && p.matches("[data-is-streaming]")) return;
+        if (p.matches && p.matches(sel)) return;
         p = p.parentElement;
       }
       const text = domAnswerText(turn);
       if (!text || text.length < 8) return;
-      const anchor = normForMatch(text).slice(0, 60);
+      const norm = normForMatch(text);
+      const anchor = norm.slice(0, 60);
       if (anchor.length >= 16 && !seen.has(anchor)) {
         seen.add(anchor);
-        out.push({ anchor: anchor, text: text });
+        out.push({ anchor: anchor, text: text, norm: norm });
       }
     });
     return out;
@@ -1136,7 +1184,21 @@
     if (!domAnswers.length) return text;
     const apiNorm = normForMatch(text);
     for (const d of domAnswers) {
-      if (apiNorm.indexOf(d.anchor) !== -1) return d.text;
+      const n = d.norm || normForMatch(d.text);
+      if (!n) continue;
+      // Match on SEVERAL windows of the clean DOM answer, not just its start. The API
+      // text holds the SAME answer but the two can differ at the very beginning — the
+      // API prepends Claude's extended thinking ("The user is looking for…"), and the
+      // DOM answer can begin with web-results chrome ("[Results from the web]") that's
+      // absent from the API. Matching a start/middle/end slice finds the shared answer
+      // body in either case; on a hit we return the DOM answer, which the DOM strip has
+      // already cleaned of thinking.
+      const cands = [n.slice(0, 50)];
+      if (n.length > 120) cands.push(n.slice((n.length >> 1) - 25, (n.length >> 1) + 25));
+      if (n.length > 60) cands.push(n.slice(-50));
+      for (const c of cands) {
+        if (c.length >= 24 && apiNorm.indexOf(c) !== -1) return d.text;
+      }
     }
     return text;
   }
@@ -1267,7 +1329,7 @@
       const uploadNames = new Set();
       for (const t of turns) for (const a of t.attachments) if (a.name) uploadNames.add(a.name);
       const extras = collectGeneratedFiles(uploadNames)
-        .map((g) => ({ el: g.el, type: "file", name: g.name }))
+        .map((g) => ({ el: g.el, type: genKind(g.name), name: g.name }))
         .concat(collectGeneratedImages().map((g) => ({ el: g.el, type: "image", name: g.name })));
       if (extras.length) {
         const domTurns = collectTurns().turns;
@@ -1343,8 +1405,10 @@
       try {
         const uploadNames = new Set();
         for (const r of parsed.records) for (const a of r.atts) if (a.name) uploadNames.add(a.name);
-        files += collectGeneratedFiles(uploadNames).length;
-        images += collectGeneratedImages().length;
+        const gen = collectGeneratedFiles(uploadNames);
+        const genImgs = gen.filter((g) => genKind(g.name) === "image").length;
+        files += gen.length - genImgs;
+        images += collectGeneratedImages().length + genImgs;
       } catch (e) {
         /* best-effort — DOM scan failure shouldn't break the preview */
       }
@@ -1578,22 +1642,31 @@
       blocks: Array.isArray(m.content) ? m.content.map((b) => deep(b, 2)) : null,
     });
     const assistants = raw.filter((m) => /assist|^ai$|claude/.test(String(m.sender || m.role || "").toLowerCase()));
-    // Interesting messages first, then fill from the front, deduped, cap 6.
-    const ordered = [...assistants.filter(interesting), ...assistants];
+    // IMAGE-bearing messages first (the question: how do tool-extracted images differ
+    // from a generated one?), then other interesting ones, then fill, deduped, cap 12.
+    const hasImg = (m) =>
+      ["files", "attachments", "files_v2"].some(
+        (k) =>
+          Array.isArray(m[k]) &&
+          m[k].some((f) => f && /image|\.png|\.jpe?g|\.webp|\.gif|\.bmp/i.test(JSON.stringify(f).slice(0, 400)))
+      );
+    const ordered = [...assistants.filter(hasImg), ...assistants.filter(interesting), ...assistants];
     const seen = new Set();
     const samples = [];
     for (const m of ordered) {
       if (seen.has(m)) continue;
       seen.add(m);
       samples.push(toSample(m));
-      if (samples.length >= 6) break;
+      if (samples.length >= 12) break;
     }
-    const report = { topLevelKeys: Object.keys(data), assistantSamples: samples };
+    const report = { topLevelKeys: Object.keys(data), imageBearingCount: assistants.filter(hasImg).length, assistantSamples: samples };
+    const text = JSON.stringify(report, null, 2);
     try {
-      console.log("[Continuum] message-shape probe:\n" + JSON.stringify(report, null, 2));
+      localStorage.setItem("continuum_probe_out", text);
     } catch (e) {
-      console.log("[Continuum] message-shape probe:", report);
+      /* fall back to console only */
     }
+    console.log("[Continuum] message-shape probe (" + text.length + " chars). Copy the FULL report with:\n  copy(localStorage.continuum_probe_out)\n\n" + text);
     return report;
   }
 
@@ -1750,41 +1823,128 @@
   // answers they'd be stripped from (before/after preview + chars removed). Run via
   // the continuum_probe_think localStorage flag. Confirms the strip is matching.
   async function probeThinking() {
-    const domAnswers = collectDomAnswers();
-    const report = {
-      domAnswers: domAnswers.length,
-      samples: domAnswers.slice(0, 3).map((a) => a.text.slice(0, 60) + "…"),
-      assistantTurnsStripped: 0,
-      matched: [],
+    const lines = [];
+    let capped = false;
+    const log = (s) => {
+      if (lines.length < 2000) lines.push(s);
+      else capped = true;
     };
+    const snip = (el) => (el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 55);
+    const attrs = (el) => {
+      const get = (n) => (el.getAttribute ? el.getAttribute(n) || "" : "");
+      const cls = typeof el.className === "string" ? el.className : "";
+      const parts = [];
+      if (cls.trim()) parts.push("class=" + cls.trim().slice(0, 100));
+      if (get("style")) parts.push("style=" + get("style").slice(0, 100));
+      if (get("data-testid")) parts.push("testid=" + get("data-testid"));
+      if (el.hasAttribute && el.hasAttribute("aria-expanded")) parts.push("aria-expanded=" + get("aria-expanded"));
+      if (get("aria-controls")) parts.push("aria-controls=" + get("aria-controls"));
+      if (get("role")) parts.push("role=" + get("role"));
+      return parts.join(" | ");
+    };
+    const outline = (el, depth, maxDepth) => {
+      if (!el || el.nodeType !== 1) return;
+      const tag = el.tagName;
+      if (tag === "SVG" || tag === "PATH" || tag === "svg" || tag === "path") return;
+      log("  ".repeat(depth) + "<" + tag.toLowerCase() + "> " + attrs(el) + "  »" + snip(el));
+      if (depth < maxDepth) {
+        let n = 0;
+        for (const c of el.children) {
+          if (++n > 25) {
+            log("  ".repeat(depth + 1) + "…(+" + (el.children.length - 25) + " more)");
+            break;
+          }
+          outline(c, depth + 1, maxDepth);
+        }
+      }
+    };
+
+    let turns = document.querySelectorAll(".font-claude-response");
+    let sel = ".font-claude-response";
+    if (!turns.length) {
+      turns = document.querySelectorAll("[data-is-streaming]");
+      sel = "[data-is-streaming]";
+    }
+    log("=== Claude thinking probe ===");
+    log("turn selector: " + sel + " | matches: " + turns.length);
+    log("grid-template-rows matches (class|style): " + document.querySelectorAll('[class*="grid-template-rows"], [style*="grid-template-rows"]').length);
+    log("row-start-1 matches (class|style): " + document.querySelectorAll('[class*="row-start-1"], [style*="row-start-1"]').length);
+    log("[data-testid*=think]: " + document.querySelectorAll('[data-testid*="think" i]').length + " | [class*=think]: " + document.querySelectorAll('[class*="think" i]').length);
+    log("buttons[aria-expanded]: " + document.querySelectorAll('button[aria-expanded], [role="button"][aria-expanded]').length);
+
+    // Flag any turn whose saved text still carries Claude's extended-thinking OR its
+    // agentic tool-use narration ("Let me extract…", "I found … on page 4", "Ran a
+    // command, viewed a file", "Presented N files", etc.) — that's what's leaking.
+    const full = (s) => String(s == null ? "" : s).replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+    const flat = (s) => String(s == null ? "" : s).replace(/\s+/g, " ").trim();
+    const head = (s, n) => flat(s).slice(0, n || 120);
+    const MARK = /thought for|\blet me\b|i'?ll (help|create|extract|check|search|look|analyz|use|find|render|make|convert|run|start|put|build)|i found|i have what i need|here'?s what i found|ran a command|ran \d+ command|viewed a file|edited a file|presented \d+ file|render(ing|ed)? (the|first|all|page)|check (what|page|the|page \d)|convert .* to|make images|i'?m (going|sketch|creating|render)/i;
+
+    const domAnswers = collectDomAnswers();
+    log("\ncollectDomAnswers count: " + domAnswers.length);
+
     let data = null;
     try {
       data = await fetchConversationData();
     } catch (e) {
-      /* report DOM-only if the API read fails */
+      log("API fetch failed: " + (e && e.message));
     }
     const parsed = data ? activeRecordsFromData(data) : null;
-    if (parsed) {
-      for (const r of parsed.records) {
-        if (r.role !== "assistant") continue;
-        const stripped = stripThinking(r.text, domAnswers);
-        if (stripped !== r.text) {
-          report.matched.push({
-            apiChars: r.text.length,
-            domAnswerChars: stripped.length,
-            wasThinking: r.text.slice(0, 70),
-            nowStartsWith: stripped.slice(0, 70),
-          });
-        }
-      }
-      report.assistantTurnsStripped = report.matched.length;
-    }
+    const apiAsst = parsed ? parsed.records.filter((r) => r.role === "assistant") : [];
+    log("API assistant records: " + apiAsst.length + (parsed ? "" : " (none — captureFast would fall back to DOM)"));
+
+    const attSummary = (atts) =>
+      !atts || !atts.length
+        ? "(none)"
+        : atts
+            .map((a) => (a.isImg ? "img" : "file") + ":" + (a.name || "?") + (a.generated ? "(gen)" : "") + (a.url ? "" : a.text != null ? "(text)" : "(nobytes)"))
+            .join(", ");
+
+    log("\n=== API turns (what captureFast saves, after stripThinking) ===");
+    const leakingApi = [];
+    apiAsst.forEach((r, i) => {
+      const kept = stripThinking(r.text, domAnswers);
+      const leak = MARK.test(head(kept, 400));
+      if (leak) leakingApi.push({ i: i, r: r, kept: kept });
+      log("[API #" + i + "] matched=" + (kept !== r.text) + " leak=" + leak + " atts=[" + attSummary(r.atts) + "]");
+      log("           text :: " + head(kept));
+    });
+
+    log("\n=== DOM turns (what the de-thinked DOM answer holds) ===");
+    const leakingDom = [];
+    Array.from(turns).forEach((t, i) => {
+      const dom = domAnswerText(t);
+      const leak = MARK.test(head(dom, 400));
+      if (leak) leakingDom.push({ i: i, t: t, dom: dom, ex: extractText(t) });
+      log("[DOM #" + i + "] leak=" + leak + " :: " + head(dom));
+    });
+
+    // Full detail for the first leaking turns: shows WHERE the narration lives (inline
+    // answer text we keep, vs a collapsible row we should be stripping).
+    leakingDom.slice(0, 2).forEach(({ i, t, dom, ex }) => {
+      log("\n========== LEAKING DOM turn #" + i + " ==========");
+      log("-- domAnswerText (full) --\n" + full(dom).slice(0, 1100));
+      log("-- extractText (full) --\n" + full(ex).slice(0, 600));
+      log("-- outline (depth 9) --");
+      outline(t, 0, 9);
+    });
+    leakingApi.slice(0, 2).forEach(({ i, r, kept }) => {
+      log("\n========== LEAKING API turn #" + i + " ==========");
+      log("-- apiText (full) --\n" + full(r.text).slice(0, 1300));
+      log("-- kept after stripThinking (full) --\n" + full(kept).slice(0, 1300));
+    });
+
+    const text = lines.join("\n") + (capped ? "\n…(truncated)" : "");
+    // Stash the FULL report in localStorage (shared with the page console, unlike a
+    // content-script var) so it survives console truncation: the user copies it with
+    // `copy(localStorage.continuum_probe_out)`.
     try {
-      console.log("[Continuum] thinking probe:\n" + JSON.stringify(report, null, 2));
+      localStorage.setItem("continuum_probe_out", text);
     } catch (e) {
-      console.log("[Continuum] thinking probe:", report);
+      /* quota/availability — fall back to the console dump */
     }
-    return report;
+    console.log("[Continuum] thinking probe (" + text.length + " chars). To copy the FULL report, run:\n  copy(localStorage.continuum_probe_out)\n\n" + text);
+    return text;
   }
 
   Continuum.claudeAdapter = {

@@ -638,24 +638,36 @@
   // "limit" (an explicit upload-limit notice), or "missing" (no chip, no notice — the
   // silent rejection). Returns fast on success; waits out the window only on failure.
   async function chatgptAttachOutcome(editor, names) {
-    let limitNotice = null;
-    for (let i = 0; i < 12; i++) {
+    // ~10s window: a cold FIRST resume uploading a multi-MB conversation-history.pdf
+    // can take well over the old 3.6s before its chip mounts. Success returns
+    // immediately, so only genuine failures ever wait this out.
+    let lastNotice = null;
+    let noticeStreak = 0;
+    for (let i = 0; i < 33; i++) {
       const live = findComposer() || editor;
       // A mounted chip is ground truth — check it FIRST so a successful upload
       // always wins over a notice ChatGPT may have flashed transiently.
       if (chatgptAttachmentPresent(live, names)) return { status: "ok" };
-      // Remember a limit notice but DON'T bail on it yet: on the first attempt
-      // ChatGPT can show the allowance line for a beat while the upload is still
-      // validating, then mount the chip. Only a notice that's still standing
-      // after the chip has had time to appear is a real rejection.
+      // The bug: on the first attempt ChatGPT flashes the upload-limit line for a
+      // beat WHILE the (slow) upload is still validating, then mounts the chip. The
+      // old code latched onto that single flash and reported a false limit. Only a
+      // notice that PERSISTS across several consecutive ticks — never a transient
+      // flash that clears once the chip appears — is a real rejection.
       const notice = findUploadLimitNotice(live);
-      if (notice) limitNotice = notice;
+      if (notice) {
+        lastNotice = notice;
+        noticeStreak++;
+        if (noticeStreak >= 8) return { status: "limit", notice: lastNotice }; // ~2.4s standing
+      } else {
+        noticeStreak = 0;
+      }
       await sleep(300);
     }
-    // Window elapsed with no chip. One last check (it may have mounted on the
-    // final tick) before concluding it was a genuine limit vs a silent miss.
-    if (chatgptAttachmentPresent(findComposer() || editor, names)) return { status: "ok" };
-    if (limitNotice) return { status: "limit", notice: limitNotice };
+    // Window elapsed with no chip. One last ground-truth check (it may have mounted
+    // on the final tick) before concluding it was a genuine limit vs a silent miss.
+    const live = findComposer() || editor;
+    if (chatgptAttachmentPresent(live, names)) return { status: "ok" };
+    if (findUploadLimitNotice(live)) return { status: "limit", notice: lastNotice || findUploadLimitNotice(live) };
     return { status: "missing" };
   }
 
