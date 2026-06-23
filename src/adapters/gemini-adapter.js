@@ -348,8 +348,20 @@
       out.push({ kind: "image", name: alt || "image.png", url: url, isUpload: isUpload });
     }
     for (const card of findFileCards(el)) {
-      // A card that's purely an image preview we already captured → skip.
-      if (card.querySelector("img") && !HAS_EXT_RE.test((card.textContent || "").trim()) && !card.querySelector("button, a, [role='button']")) {
+      // If the card is really an IMAGE artifact (it holds a content <img> — e.g. a
+      // Gemini-GENERATED image, which Gemini renders inside a card with download/
+      // action buttons), capture it as an IMAGE, not a file: it should embed and be
+      // counted as an image, not named as a file. Dedupe against the <img> loop above
+      // by src so we don't capture the same picture twice.
+      const cardImg = Array.from(card.querySelectorAll("img")).find(
+        (im) => isContentImage(im) && !im.closest(SOURCE_ANCESTORS)
+      );
+      if (cardImg) {
+        const iurl = cardImg.currentSrc || cardImg.src;
+        if (seenImg.has(iurl)) continue; // already captured as an image above
+        seenImg.add(iurl);
+        const cap = pickFileName(card) || (cardImg.getAttribute("alt") || "").trim();
+        out.push({ kind: "image", name: cap || "image.png", url: iurl, isUpload: false });
         continue;
       }
       const name = pickFileName(card);
@@ -385,6 +397,39 @@
   // nodes), and a DETACHED clone reports textContent-style output (paragraphs mashed
   // together). So we clone, strip the unwanted subtrees, mount the clone OFF-SCREEN
   // to get correct innerText, then remove it. Falls back to the live read on error.
+  // Gemini renders code in <code-block> / <pre> elements with a language badge
+  // header ("JSON", "python", …) above the code. Plain innerText flattens all that
+  // into ordinary lines — the language badge becomes a stray text line and the code
+  // loses its fencing, so the export shows raw lines instead of a code block (unlike
+  // the other providers, whose code already arrives fenced). Rewrite each code block
+  // in the offscreen clone to a Markdown fence (```lang … ```) so the shared handoff/
+  // PDF renderer formats it as code, matching the other adapters.
+  function fenceCodeBlocks(root) {
+    root.querySelectorAll("code-block, pre").forEach((blk) => {
+      if (!blk.isConnected) return; // a <pre> already swallowed by its <code-block>
+      if (blk.tagName.toLowerCase() === "pre" && blk.closest("code-block")) return;
+      const codeEl =
+        blk.querySelector("code") ||
+        (blk.tagName.toLowerCase() === "pre" ? blk : blk.querySelector("pre")) ||
+        blk;
+      const codeText = (codeEl.innerText || codeEl.textContent || "").replace(/\s+$/g, "");
+      if (!codeText) return;
+      let lang = "";
+      const codeClass = (blk.querySelector("code") || {}).className || "";
+      const lm = codeClass.match(/language-([a-z0-9+#-]+)/i);
+      if (lm) lang = lm[1].toLowerCase();
+      if (!lang) {
+        // The visible language badge in the block's header decoration.
+        const cand = blk.querySelector("[class*='decoration'], [class*='header'], [class*='lang'], [class*='title']");
+        const ht = cand ? (cand.textContent || "").trim().split(/\s+/)[0] : "";
+        if (TYPE_RE.test(ht)) lang = ht.toLowerCase();
+      }
+      const pre = document.createElement("pre");
+      pre.textContent = "\n```" + lang + "\n" + codeText + "\n```\n";
+      blk.replaceWith(pre);
+    });
+  }
+
   function extractText(el) {
     if (!el) return "";
     let clone = null;
@@ -397,6 +442,7 @@
       clone.style.top = "0";
       clone.style.width = "800px";
       document.body.appendChild(clone);
+      fenceCodeBlocks(clone); // turn Gemini code blocks into ``` fences (needs layout)
       return cleanText(clone);
     } catch (e) {
       return cleanText(el);
