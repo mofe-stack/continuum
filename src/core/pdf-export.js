@@ -140,9 +140,20 @@
     s = s.replace(/`([^`\n]+)`/g, "$1");
     return s;
   }
+  // The 7 brief sections (without Images/Files) — matched to NUMBER them and group
+  // the attachment headings under one "## Attachments" in the compressed
+  // conversation-history.md, mirroring the PDF's document layout.
+  const BRIEF_SECTION_ONLY = /^(Completed work|Current state|In progress|Next steps|Constraints|Critical context|Discarded attempts)$/i;
   const cleanHandoffMarkdown = (text) => {
-    const lines = String(text == null ? "" : text).split("\n");
+    const raw = String(text == null ? "" : text);
+    // Compressed handoffs carry a "_Compressed with AI …_" meta line near the top.
+    // Only then do we apply the brief's document styling (numbered sections +
+    // Attachments grouping); a verbatim transcript is left to the line cleaner.
+    const compressed = /^_Compressed with AI\b/m.test(raw);
+    const lines = raw.split("\n");
     let inFence = false;
+    let sectionNum = 0;
+    let attachmentsEmitted = false;
     const out = [];
     for (const line of lines) {
       if (/^\s*(```|~~~)/.test(line)) {
@@ -150,7 +161,31 @@
         out.push(line); // the fence delimiter itself is left as-is
         continue;
       }
-      out.push(inFence ? line : stripMarkdownLine(line));
+      if (inFence) {
+        out.push(line);
+        continue;
+      }
+      if (compressed) {
+        const h = line.match(/^\s{0,3}#{1,6}\s+(.+?)\s*$/);
+        if (h) {
+          const title = h[1].trim();
+          if (BRIEF_SECTION_ONLY.test(title)) {
+            sectionNum += 1;
+            out.push("## " + (sectionNum < 10 ? "0" : "") + sectionNum + " · " + title);
+            continue;
+          }
+          if (/^(images|files)$/i.test(title)) {
+            if (!attachmentsEmitted) {
+              out.push("## Attachments");
+              out.push("");
+              attachmentsEmitted = true;
+            }
+            out.push("### " + title.charAt(0).toUpperCase() + title.slice(1).toLowerCase());
+            continue;
+          }
+        }
+      }
+      out.push(stripMarkdownLine(line));
     }
     return out.join("\n");
   };
@@ -276,6 +311,11 @@
 
     // buildHandoff also runs assignArchivePaths(session), so att._path is set.
     const text = Continuum.handoff.buildHandoff(session, opts) || "";
+
+    // AI-compression handoffs are ONE synthetic brief (7 ## sections + an
+    // Images/Files appendix), not a chat exchange. When compressed, render it as a
+    // structured DOCUMENT instead of a single avatar-headed chat message.
+    const isCompressed = !!(session && session.compressionStats && session.compressionStats.compressed);
 
     // Two lookups, so an image reference in the text stream finds its bytes whichever
     // form it took: verbatim per-turn refs are "![alt](path)" → matched by PATH; the
@@ -798,6 +838,125 @@
       doc.text(brand.name, MARGIN + D + 6, cursor.y + D * 0.5 + 3.2);
       cursor.y += D + 5;
     };
+
+    // ── AI-compression "handoff brief" document layout ─────────────────────
+    // Rendering the brief through the chat path slapped the source AI's avatar on it
+    // like a single message and left the 7 sections as plain bold lines. Instead we
+    // render it as a DOCUMENT: a "Handoff brief" header, numbered section headers
+    // with a hairline rule, and an "Attachments" appendix for images/files. The
+    // code/image/file BODIES still go through the shared renderers (renderCode/
+    // renderImage/renderChip), so reproduced code keeps the exact same monospaced
+    // band as the verbatim PDF.
+    const BRIEF_SECTION_RE = /^(completed work|current state|in progress|next steps|constraints|critical context|discarded attempts)$/i;
+    const isAttachmentHeading = (t) => /^(images|files)$/i.test(String(t == null ? "" : t).trim());
+    // setCharSpace persists document-wide, so every small-caps label brackets its
+    // draw with set→0 so the spacing never leaks into following text.
+    const withCharSpace = (sp, fn) => {
+      if (doc.setCharSpace) doc.setCharSpace(sp);
+      fn();
+      if (doc.setCharSpace) doc.setCharSpace(0);
+    };
+    function renderBriefHeader() {
+      if (cursor.y + 20 > pageH - MARGIN) {
+        doc.addPage();
+        cursor.y = MARGIN;
+      }
+      const baseline = cursor.y + 8;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor.apply(doc, brand.color);
+      doc.text("Handoff brief", MARGIN, baseline);
+      const w = doc.getTextWidth("Handoff brief");
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor.apply(doc, COL.muted);
+      doc.text("· from " + brand.name, MARGIN + w + 5, baseline);
+      cursor.y += 16;
+    }
+    function renderBriefSection(num, title) {
+      cursor.y += 9;
+      if (cursor.y + 18 > pageH - MARGIN) {
+        doc.addPage();
+        cursor.y = MARGIN;
+      }
+      const nn = (num < 10 ? "0" : "") + num;
+      const baseline = cursor.y + 7;
+      const numW = 17;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor.apply(doc, brand.color);
+      doc.text(nn, MARGIN, baseline);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor.apply(doc, COL.text);
+      withCharSpace(0.6, () => doc.text(String(title).toUpperCase(), MARGIN + numW, baseline));
+      cursor.y += 11;
+      doc.setDrawColor.apply(doc, COL.border);
+      doc.setLineWidth(0.6);
+      doc.line(MARGIN + numW, cursor.y, MARGIN + numW + 26, cursor.y);
+      cursor.y += 7;
+    }
+    let briefAttachmentsStarted = false;
+    function renderAttachmentsDivider() {
+      cursor.y += 12;
+      if (cursor.y + 20 > pageH - MARGIN) {
+        doc.addPage();
+        cursor.y = MARGIN;
+      }
+      doc.setDrawColor.apply(doc, COL.border);
+      doc.setLineWidth(1);
+      doc.line(MARGIN, cursor.y, pageW - MARGIN, cursor.y);
+      cursor.y += 12;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor.apply(doc, COL.muted);
+      withCharSpace(1.2, () => doc.text("ATTACHMENTS", MARGIN, cursor.y));
+      cursor.y += 10;
+    }
+    function renderAppendixSubLabel(title) {
+      cursor.y += 7;
+      if (cursor.y + 12 > pageH - MARGIN) {
+        doc.addPage();
+        cursor.y = MARGIN;
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor.apply(doc, brand.color);
+      doc.text(String(title), MARGIN, cursor.y + 6);
+      cursor.y += 12;
+    }
+    function renderBriefDocument(turn) {
+      renderBriefHeader();
+      const cfg = { x: MARGIN, maxW: contentW, color: COL.text, atomic: false, draw: true };
+      let sectionNum = 0;
+      let prevBlank = true;
+      for (const blk of turn.blocks) {
+        if (blk.b === "blank") {
+          if (!prevBlank) cursor.y += BODY * 0.5;
+          prevBlank = true;
+          continue;
+        }
+        prevBlank = false;
+        if (blk.b === "h") {
+          if (BRIEF_SECTION_RE.test(String(blk.text).trim())) {
+            renderBriefSection(++sectionNum, blk.text.trim());
+            continue;
+          }
+          if (isAttachmentHeading(blk.text)) {
+            if (!briefAttachmentsStarted) {
+              renderAttachmentsDivider();
+              briefAttachmentsStarted = true;
+            }
+            renderAppendixSubLabel(blk.text.trim());
+            continue;
+          }
+          renderHeading(blk, cfg, cursor, { maxLineW: 0 });
+          continue;
+        }
+        renderBlocks([blk], cfg, cursor, { maxLineW: 0 });
+      }
+    }
+
     const renderUserTurn = (t) => {
       const innerMaxW = Math.min(contentW * 0.72, contentW - 40);
       const mCur = { y: 0 };
@@ -843,7 +1002,10 @@
         doc.line(MARGIN, cursor.y, pageW - MARGIN, cursor.y);
         cursor.y += 9;
       } else if (item.t === "turn") {
-        if (item.role === "user") {
+        if (isCompressed && item.role === "assistant") {
+          // The whole compressed transcript is one synthetic assistant turn = the brief.
+          renderBriefDocument(item);
+        } else if (item.role === "user") {
           renderUserTurn(item);
         } else {
           drawAssistantHeader();

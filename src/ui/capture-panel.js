@@ -30,6 +30,7 @@
     code: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
     chevron: '<polyline points="6 9 12 15 18 9"/>',
     search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+    star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
     gear:
       '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
   };
@@ -113,6 +114,25 @@
       '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" role="img" aria-label="' +
       providerName(provider) + '" style="color:var(' + mark.color + ')" fill="currentColor">' +
       mark.svg + "</svg>"
+    );
+  }
+
+  // Brand marks (Simple Icons) for the "coming soon" integration teasers in Settings.
+  // Obsidian keeps its purple; Notion follows the panel's ink so it adapts to dark.
+  function obsidianLogo(size) {
+    const s = size || 16;
+    return (
+      '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" role="img" aria-label="Obsidian" fill="#7c3aed">' +
+      '<path d="M19.355 18.538a68.967 68.959 0 0 0 1.858-2.954.81.81 0 0 0-.062-.9c-.516-.685-1.504-2.075-2.042-3.362-.553-1.321-.636-3.375-.64-4.377a1.707 1.707 0 0 0-.358-1.05l-3.198-4.064a3.744 3.744 0 0 1-.076.543c-.106.503-.307 1.004-.536 1.5-.134.29-.29.6-.446.914l-.31.626c-.516 1.068-.997 2.227-1.132 3.59-.124 1.26.046 2.73.815 4.481.128.011.257.025.386.044a6.363 6.363 0 0 1 3.326 1.505c.916.79 1.744 1.922 2.415 3.5zM8.199 22.569c.073.012.146.02.22.02.78.024 2.095.092 3.16.29.87.16 2.593.64 4.01 1.055 1.083.316 2.198-.548 2.355-1.664.114-.814.33-1.735.725-2.58l-.01.005c-.67-1.87-1.522-3.078-2.416-3.849a5.295 5.295 0 0 0-2.778-1.257c-1.54-.216-2.952.19-3.84.45.532 2.218.368 4.829-1.425 7.531zM5.533 9.938c-.023.1-.056.197-.098.29L2.82 16.059a1.602 1.602 0 0 0 .313 1.772l4.116 4.24c2.103-3.101 1.796-6.02.836-8.3-.728-1.73-1.832-3.081-2.55-3.831zM9.32 14.01c.615-.183 1.606-.465 2.745-.534-.683-1.725-.848-3.233-.716-4.577.154-1.552.7-2.847 1.235-3.95.113-.235.223-.454.328-.664.149-.297.288-.577.419-.86.217-.47.379-.885.46-1.27.08-.38.08-.72-.014-1.043-.095-.325-.297-.675-.68-1.06a1.6 1.6 0 0 0-1.475.36l-4.95 4.452a1.602 1.602 0 0 0-.513.952l-.427 2.83c.672.59 2.328 2.316 3.335 4.711.09.21.175.43.253.653z"/>' +
+      "</svg>"
+    );
+  }
+  function notionLogo(size) {
+    const s = size || 16;
+    return (
+      '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" role="img" aria-label="Notion" fill="currentColor">' +
+      '<path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.981-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.167V6.354c0-.606-.233-.933-.748-.887l-15.177.887c-.56.047-.747.327-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952L12.21 19.99s0 .84-1.168.84l-3.222.186c-.093-.187 0-.654.327-.747l.84-.233V9.854L7.822 9.76c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.139c-.093-.514.28-.887.747-.933zM1.936 1.035l13.31-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.7.513.934.653.934 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.047-1.448-.093-1.962-.747l-3.129-4.06c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.216-1.632z"/>' +
+      "</svg>"
     );
   }
 
@@ -662,6 +682,9 @@
       '  <button class="cn-iconbtn cn-back" data-back aria-label="Back" hidden>' + svg("back", 20) + "</button>",
       '  <span class="cn-mark" data-mark>' + logoMark(16) + "</span>",
       '  <span class="cn-title">Continuum</span>',
+      // Rate/review CTA — hollow star + "Review", opens the store's reviews page.
+      '  <button class="cn-review" data-review aria-label="Rate Continuum" title="Rate Continuum">' +
+        svg("star", 15) + "<span>Review</span></button>",
       '  <button class="cn-iconbtn" data-settings aria-label="Settings">' + svg("gear", 20) + "</button>",
       '  <button class="cn-iconbtn" data-close aria-label="Close">' + svg("close", 20) + "</button>",
       "</div>",
@@ -765,13 +788,33 @@
       '      <span class="cn-compress-text" data-addimages-label>Attach images to the new chat</span>',
       "    </label>",
       '    <button class="cn-btn-ghost" data-copy>' + svg("copy") + "<span>Copy chat history</span></button>",
-      '    <button class="cn-btn-ghost" data-savefile>' + svg("download") + "<span>Save as file</span></button>",
+      // Download the exact resume handoff in the selected format (PDF/MD), named —
+      // before resuming. Label tracks the format radio above.
+      '    <button class="cn-btn-ghost" data-download-resume>' + svg("download") + '<span data-download-resume-label>Download PDF</span></button>',
+      '    <button class="cn-btn-ghost" data-savefile>' + svg("download") + "<span>Save as file (.zip)</span></button>",
       "  </div>",
       '  <button class="cn-btn-danger" data-delete>' + svg("trash") + "<span>Delete session</span></button>",
       "</div>",
 
       // ── Settings view ──
       '<div data-view-settings hidden>',
+      // Sync & integrations — placeholders for now. Quiet, non-interactive teaser
+      // rows (brand mark + name + "Soon" pill) so the destinations are visible but
+      // clearly not yet live.
+      '  <div class="cn-section">',
+      '    <div class="cn-label">Sync &amp; integrations</div>',
+      '    <div class="cn-soon" aria-disabled="true">',
+      '      <span class="cn-soon-logo">' + obsidianLogo(18) + "</span>",
+      '      <span class="cn-soon-name">Obsidian sync</span>',
+      '      <span class="cn-soon-badge">Soon</span>',
+      "    </div>",
+      '    <div class="cn-soon" aria-disabled="true">',
+      '      <span class="cn-soon-logo">' + notionLogo(18) + "</span>",
+      '      <span class="cn-soon-name">Notion sync</span>',
+      '      <span class="cn-soon-badge">Soon</span>',
+      "    </div>",
+      "  </div>",
+      '  <div class="cn-divider"></div>',
       '  <div class="cn-section">',
       '    <div class="cn-label">Theme</div>',
       '    <label class="cn-toggle-row">',
@@ -834,6 +877,7 @@
       '      <div class="cn-hint">Compresses the whole conversation into a structured brief while keeping full context. All your key details are kept (decisions, instructions, code, files, and images) and everything else is summarized. Empty sections just say None.</div>',
       "    </div>",
       "  </div>",
+
       '  <div class="cn-divider"></div>',
       '  <button class="cn-btn-danger" data-factory-reset>' + svg("trash") + "<span>Factory reset</span></button>",
       "</div>",
@@ -846,6 +890,22 @@
       '    <div class="cn-dialog-row">',
       '      <button class="cn-dialog-cancel" data-dlg-cancel>Cancel</button>',
       '      <button class="cn-dialog-confirm" data-dlg-confirm>Delete</button>',
+      "    </div>",
+      "  </div>",
+      "</div>",
+
+      // ── File-name dialog (shared by "Save as file" and "Download resume file") ──
+      '<div class="cn-dialog-backdrop" data-savefile-dialog>',
+      '  <div class="cn-dialog" role="dialog" aria-modal="true" aria-labelledby="cn-savefile-title">',
+      '    <div class="cn-dialog-title" id="cn-savefile-title" data-savefile-title>Save chat as file</div>',
+      '    <label class="cn-dialog-label" for="cn-savefile-name">File name</label>',
+      '    <div class="cn-savefile-field">',
+      '      <input class="cn-savefile-name" id="cn-savefile-name" type="text" data-savefile-name spellcheck="false" autocomplete="off" aria-label="File name" />',
+      '      <span class="cn-savefile-ext" data-savefile-ext>.zip</span>',
+      "    </div>",
+      '    <div class="cn-dialog-row">',
+      '      <button class="cn-dialog-cancel" data-savefile-cancel>Cancel</button>',
+      '      <button class="cn-dialog-confirm cn-dialog-go" data-savefile-confirm>Save</button>',
       "    </div>",
       "  </div>",
       "</div>",
@@ -880,6 +940,7 @@
     $("[data-close]").addEventListener("click", close);
     backdropEl.addEventListener("click", close);
     $("[data-back]").addEventListener("click", onBack);
+    $("[data-review]").addEventListener("click", onReview);
     $("[data-settings]").addEventListener("click", onSettingsClick);
     $("[data-capture]").addEventListener("click", onCapture);
     $("[data-addfiles-toggle]").addEventListener("change", (e) => {
@@ -898,6 +959,7 @@
         // The images row is Markdown-only; the files row is shared — re-evaluate
         // both rows' visibility + labels for the newly-selected format.
         updateAttachRows();
+        updateDownloadLabel(); // "Download PDF" / "Download MD" tracks the format
       });
     });
     // Resume button toggles the inline AI picker; each enabled target row runs
@@ -950,6 +1012,24 @@
     $("[data-dlg-confirm]").addEventListener("click", onConfirmDelete);
     $("[data-dialog]").addEventListener("click", (e) => {
       if (e.target === e.currentTarget) closeDialog();
+    });
+
+    // Download the selected-format resume file (named), before resuming.
+    $("[data-download-resume]").addEventListener("click", onDownloadResume);
+    // File-name dialog (shared) — Save (primary), Cancel, backdrop, and keys.
+    $("[data-savefile-cancel]").addEventListener("click", closeNameDialog);
+    $("[data-savefile-confirm]").addEventListener("click", onNameConfirm);
+    $("[data-savefile-dialog]").addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) closeNameDialog();
+    });
+    $("[data-savefile-name]").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onNameConfirm();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        closeNameDialog();
+      }
     });
 
     // Factory reset (Settings → bottom) — same confirm pattern as delete.
@@ -1157,6 +1237,15 @@
     panelEl.scrollTop = 0;
   }
 
+  // Opens the extension's store reviews page in a new tab — the right store for the
+  // current browser (Chrome Web Store vs Firefox Add-ons).
+  function onReview() {
+    const url = /firefox/i.test(navigator.userAgent)
+      ? "https://addons.mozilla.org/en-US/firefox/addon/continuum/reviews/"
+      : "https://chromewebstore.google.com/detail/continuum-capture-save-re/nnohcpdjcfhkpmplgpcabpfipnokinbi/reviews";
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
   function onSettingsClick() {
     const settingsView = panelEl.querySelector("[data-view-settings]");
     // Already in Settings → do nothing (leave via the back arrow). Clicking the
@@ -1223,6 +1312,7 @@
     markdownEnabled = false;
     const pdfFmtRadio = panelEl.querySelector('[data-resume-fmt][value="pdf"]');
     if (pdfFmtRadio) pdfFmtRadio.checked = true;
+    updateDownloadLabel(); // reset the download button label to "Download PDF"
     const compressRow = panelEl.querySelector("[data-compress-row]");
     const minTurns = (Continuum.llmCompressor && Continuum.llmCompressor.MIN_TURNS) || 4;
     if (compressRow) compressRow.hidden = (session.turns || []).length < minTurns;
@@ -1698,14 +1788,14 @@
     panelEl.querySelector("[data-progress]").textContent = text || "";
   }
 
-  function showToast(text, ok) {
+  function showToast(text, ok, durationMs) {
     if (!panelEl) return;
     const toast = panelEl.querySelector("[data-toast]");
     toast.textContent = text;
     toast.className = "cn-toast show" + (ok ? " ok" : " err");
     setTimeout(() => {
       toast.className = "cn-toast";
-    }, 2600);
+    }, durationMs || 2600);
   }
 
   // Inline confirmation shown directly under the Capture button (used for
@@ -1913,8 +2003,77 @@
     showToast(ok ? "Chat history copied" : "Copy failed — see console", ok);
   }
 
-  async function onSaveFile() {
+  // The default base name (no extension) for a session's saved file.
+  function defaultSaveName(session) {
+    const safe = ((session && session.title) || "session").replace(/[^\w.-]+/g, "-").slice(0, 60);
+    return "continuum-" + safe;
+  }
+  // Clean a user-typed name into a safe base (no extension): drop a typed extension,
+  // allow letters/digits/space/().-_, collapse runs, cap length; fall back to default.
+  function sanitizeSaveName(raw, session) {
+    const base = String(raw == null ? "" : raw)
+      .replace(/\.(zip|pdf|md|markdown)$/i, "")
+      .replace(/[^\w.\- ()]+/g, "-")
+      .replace(/\s+/g, " ")
+      .replace(/-{2,}/g, "-")
+      .trim()
+      .slice(0, 80)
+      .replace(/^[.\-]+|[.\-]+$/g, "")
+      .trim();
+    return base || defaultSaveName(session);
+  }
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  // ── Shared file-name dialog ──
+  // Both "Save as file" (.zip) and "Download resume file" (.pdf/.md) open the same
+  // small modal to name the download first. `onConfirm(name)` does the actual build.
+  let _nameDialogOnConfirm = null;
+  function openNameDialog(opts) {
+    _nameDialogOnConfirm = opts.onConfirm || null;
+    panelEl.querySelector("[data-savefile-title]").textContent = opts.title || "Save as file";
+    panelEl.querySelector("[data-savefile-ext]").textContent = "." + opts.ext;
+    const input = panelEl.querySelector("[data-savefile-name]");
+    if (input) input.value = opts.defaultName || "";
+    lockPanelForDialog();
+    panelEl.querySelector("[data-savefile-dialog]").classList.add("open");
+    if (input) {
+      input.focus();
+      input.select(); // select-all so the user can immediately retype
+    }
+  }
+  function closeNameDialog() {
+    _nameDialogOnConfirm = null;
+    panelEl.querySelector("[data-savefile-dialog]").classList.remove("open");
+    unlockPanelForDialog();
+  }
+  function onNameConfirm() {
+    const cb = _nameDialogOnConfirm;
+    const input = panelEl.querySelector("[data-savefile-name]");
+    const name = sanitizeSaveName(input && input.value, currentDetail);
+    closeNameDialog();
+    if (cb) cb(name);
+  }
+
+  // "Save as file" → name + download the .zip archive (transcript.md + attachments).
+  function onSaveFile() {
     if (!currentDetail) return;
+    openNameDialog({
+      title: "Save chat as file",
+      defaultName: defaultSaveName(currentDetail),
+      ext: "zip",
+      onConfirm: doZipSave,
+    });
+  }
+  async function doZipSave(name) {
+    const session = currentDetail;
+    if (!session) return;
     const ff = self.fflate || (typeof fflate !== "undefined" ? fflate : null);
     if (!ff) {
       showToast("Zip library missing — see console", false);
@@ -1923,25 +2082,101 @@
     }
     try {
       // The .zip carries the full verbatim conversation as transcript.md plus
-      // its attachments. Compression only matters for the Resume paste; the
-      // saved archive is the readable record. (PDF rendering — deferred.)
-      const entries = await buildZipEntries(currentDetail);
+      // its attachments — the readable record.
+      const entries = await buildZipEntries(session);
       // fflate level 9 = max DEFLATE compression (same as 7-Zip "Ultra" on the
       // zip format). Bigger win on text, near-zero on PNG/JPG/PDF since those
       // are already compressed inside themselves — but harmless to ask for.
       const zipped = ff.zipSync(entries, { level: 9 });
-      const safe = (currentDetail.title || "session").replace(/[^\w.-]+/g, "-").slice(0, 60);
-      const blob = new Blob([zipped], { type: "application/zip" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "continuum-" + safe + ".zip";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      downloadBlob(new Blob([zipped], { type: "application/zip" }), name + ".zip");
       showToast("Saved .zip to downloads", true);
     } catch (err) {
       console.error("[Continuum] save failed:", err);
       showToast("Save failed — see console", false);
+    }
+  }
+
+  // "Download resume file" → name + download the EXACT handoff that gets attached on
+  // resume, in the selected format (PDF/MD) and honoring "Compress with AI".
+  function downloadFmtLabel() {
+    return markdownEnabled ? "MD" : "PDF";
+  }
+  function updateDownloadLabel() {
+    const el = panelEl && panelEl.querySelector("[data-download-resume-label]");
+    if (el) el.textContent = "Download " + downloadFmtLabel();
+  }
+  function onDownloadResume() {
+    if (!currentDetail) return;
+    const fmt = markdownEnabled ? "md" : "pdf";
+    openNameDialog({
+      title: "Download resume file",
+      defaultName: defaultSaveName(currentDetail),
+      ext: fmt,
+      onConfirm: (name) => doDownloadResume(name, fmt),
+    });
+  }
+  // Runs the same AI compression the resume uses (only when the toggle is on).
+  // Returns the (possibly compressed) session, or null if compression was requested
+  // but couldn't run — caller aborts so we never hand over the wrong file silently.
+  async function compressForDownload(session) {
+    if (!(Continuum.llmCompressor && Continuum.llmCompressor.compressSession)) {
+      showToast("AI compression unavailable — see console", false);
+      return null;
+    }
+    let provider = "anthropic";
+    let apiKey = "";
+    try {
+      const s = await Continuum.settings.getSettings();
+      if (s && s.compressProvider) provider = s.compressProvider;
+      if (s && s.compressApiKeys && typeof s.compressApiKeys[provider] === "string") apiKey = s.compressApiKeys[provider];
+    } catch (e) {
+      /* fall through to the no-key guard */
+    }
+    if (!apiKey) {
+      showToast("Add an API key in Settings to compress", false);
+      return null;
+    }
+    try {
+      showToast("Compressing with AI…", true);
+      const compressed = await Continuum.llmCompressor.compressSession(session, { provider: provider, apiKey: apiKey, onProgress: function () {} });
+      return compressed || session;
+    } catch (e) {
+      const reason = Continuum.llmCompressor.friendlyError ? Continuum.llmCompressor.friendlyError(e) : "compression failed";
+      console.error("[Continuum] download: compression failed:", e);
+      showToast("Compression failed — " + reason, false);
+      return null;
+    }
+  }
+  async function doDownloadResume(name, fmt) {
+    let session = currentDetail;
+    if (!session) return;
+    try {
+      if (compressEnabled) {
+        const c = await compressForDownload(session);
+        if (!c) return; // requested but couldn't run — abort (toast already shown)
+        session = c;
+      }
+      if (fmt === "md") {
+        const raw = buildHandoff(session);
+        const md =
+          Continuum.pdfExport && Continuum.pdfExport.cleanHandoffMarkdown
+            ? Continuum.pdfExport.cleanHandoffMarkdown(raw)
+            : raw;
+        downloadBlob(new Blob([md], { type: "text/markdown" }), name + ".md");
+        showToast("Saved .md to downloads", true);
+      } else {
+        if (!(Continuum.pdfExport && Continuum.pdfExport.buildResumePdf)) {
+          showToast("PDF export unavailable — see console", false);
+          return;
+        }
+        showToast("Building PDF…", true);
+        const blob = await Continuum.pdfExport.buildResumePdf(session, { onProgress: function () {} });
+        downloadBlob(blob, name + ".pdf");
+        showToast("Saved .pdf to downloads", true);
+      }
+    } catch (err) {
+      console.error("[Continuum] download resume file failed:", err);
+      showToast("Download failed — see console", false);
     }
   }
 

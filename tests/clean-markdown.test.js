@@ -70,5 +70,42 @@ run("an unterminated fence still protects its remaining lines", () => {
   assert.strictEqual(clean(input), "intro bold\n```\n# kept even if fence never closes");
 });
 
+run("verbatim transcript: brief headings unchanged (no compressed meta line)", () => {
+  // Without the "_Compressed with AI_" meta line, the 7-section styling must NOT
+  // kick in — a verbatim chat that happens to contain "## Current state" stays put.
+  assert.strictEqual(clean("## Current state"), "## Current state");
+});
+
+run("compressed brief: numbers the 7 sections and groups attachments", () => {
+  const input = [
+    "# My chat",
+    "_Compressed with AI · structured handoff brief · 18k→5k tokens (−72%)_",
+    "",
+    "---",
+    "",
+    "## Completed work",
+    "Did **the** thing.",
+    "## Current state",
+    "```js",
+    "const x = 1; // # stays",
+    "```",
+    "## Images",
+    "",
+    "[image: a.png — context]",
+    "## Files",
+    "",
+    "[file: b.docx — spec]",
+  ].join("\n");
+  const out = clean(input);
+  assert.ok(out.includes("## 01 · Completed work"), "first section numbered 01");
+  assert.ok(out.includes("## 02 · Current state"), "second section numbered 02");
+  assert.ok(out.includes("## Attachments"), "attachments grouped under one heading");
+  assert.ok(out.includes("### Images"), "Images demoted to sub-heading");
+  assert.ok(out.includes("### Files"), "Files demoted to sub-heading");
+  assert.ok(!/^## Images$/m.test(out), "Images no longer a top-level section");
+  assert.ok(out.includes("const x = 1; // # stays"), "code inside the brief stays verbatim");
+  assert.ok(out.includes("Did the thing."), "prose still gets cosmetic markdown stripped");
+});
+
 console.log("\n" + passed + " passed, " + failed + " failed");
 process.exit(failed ? 1 : 0);
