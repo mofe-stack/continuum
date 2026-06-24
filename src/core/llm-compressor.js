@@ -133,11 +133,22 @@
   // brief; "code preserved exactly" therefore means *referenced* code.)
   function restoreImportant(summary, blocks) {
     let out = String(summary == null ? "" : summary);
-    for (let i = 0; i < blocks.length; i++) {
-      // split/join is a no-op when the marker is absent (a dropped block), so kept
-      // markers restore and dropped ones leave nothing behind.
-      out = out.split(KEEP_MARKER(i)).join(blocks[i]);
-    }
+    // Restore the markers the model kept, in place. Tolerant of stray internal
+    // whitespace the model occasionally injects ("[[CONTINUUM-KEEP-3 ]]"). A valid
+    // index reinserts the verbatim block; a dropped marker simply isn't present, and
+    // an out-of-range/invented index reinserts nothing — its real content still lives
+    // in the full ZIP capture, so a mangled or dropped marker never loses anything.
+    out = out.replace(/\[\[\s*CONTINUUM-KEEP-(\d+)\s*\]\]/g, function (m, n) {
+      const i = Number(n);
+      return i >= 0 && i < blocks.length ? blocks[i] : "";
+    });
+    // Belt-and-suspenders: scrub any residual sentinel the model mangled past the
+    // pattern above (a letter where a digit belongs, broken brackets). Left in, it
+    // would surface as literal "[[CONTINUUM-KEEP-…]]" garbage in the brief. The
+    // sentinel is private and never appears in real content, so this can't strip
+    // anything legitimate.
+    out = out.replace(/\[\[\s*CONTINUUM-KEEP[^\]]*\]\]/g, "");
+    out = out.replace(/CONTINUUM-KEEP[\w-]*/g, "");
     return out;
   }
 

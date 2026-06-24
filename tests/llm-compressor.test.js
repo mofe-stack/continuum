@@ -180,6 +180,19 @@ run("kept markers restore in place; dropped markers are omitted (no dump)", () =
   assert.ok(restored.indexOf("CONTINUUM-KEEP") === -1, "no leftover markers either way");
 });
 
+run("mangled/invented markers are scrubbed — never leak (no Obsidian phantom note)", () => {
+  const { blocks } = protectImportant("```js\nconst A = 1;\n```"); // blocks[0]
+  // The model adds a stray space (still restorable), invents an out-of-range index,
+  // and breaks one with a letter — none may survive as text or as a [[wikilink]].
+  const restored = restoreImportant(
+    "Kept: [[CONTINUUM-KEEP-0 ]]. Invented: [[CONTINUUM-KEEP-9]]. Broken: [[CONTINUUM-KEEP-N]].",
+    blocks
+  );
+  assert.ok(restored.indexOf("const A = 1") !== -1, "whitespace-mangled marker still restores its code");
+  assert.ok(restored.indexOf("CONTINUUM-KEEP") === -1, "no sentinel text leaks through");
+  assert.ok(restored.indexOf("[[") === -1, "no [[wikilink]] remnant for Obsidian to phantom-link");
+});
+
 run("dropped markers never resurrect code as a trailing dump", () => {
   const { blocks } = protectImportant("```py\nprint('x')\n```\n\nrun `npm test`");
   const restored = restoreImportant("A brief that references no code.", blocks);
