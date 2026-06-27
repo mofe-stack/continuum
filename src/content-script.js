@@ -42,6 +42,26 @@
     return /^\/chat\//.test(location.pathname);
   }
 
+  // A fresh, EMPTY new-chat tab (claude.ai/new, chatgpt.com/, gemini …/app,
+  // perplexity.ai/). There's nothing to capture here, but we still want the
+  // button so the user can open the panel and RESUME a saved chat into this very
+  // tab. The panel itself gates capture (shows a simple "this chat is empty" note)
+  // and offers in-place resume when the saved chat's AI matches this page's AI.
+  function isNewChatPage() {
+    const h = location.hostname;
+    const p = location.pathname;
+    // ChatGPT: the home composer is "/", and a custom-GPT landing is /g/<id> with
+    // no /c/ thread yet — both are "new chat" surfaces.
+    if (/(?:^|\.)(?:chatgpt\.com|chat\.openai\.com)$/i.test(h)) return p === "/" || /^\/g\/[^/]+\/?$/.test(p);
+    // Gemini: the new chat lives at /app (optionally /u/<n>/app); no conversation id.
+    if (/(?:^|\.)gemini\.google\.com$/i.test(h)) return p === "/" || /^(?:\/u\/\d+)?\/app\/?$/.test(p);
+    // Perplexity: the home composer is "/".
+    if (/(?:^|\.)perplexity\.ai$/i.test(h)) return p === "/";
+    // Claude: the home composer ("/") and the explicit new-chat route ("/new").
+    return p === "/" || /^\/new\/?$/.test(p);
+  }
+  Continuum.isNewChatPage = isNewChatPage;
+
   // Some sessions hold a real conversation in the DOM WITHOUT the URL ever
   // becoming a /c/<id> (or /chat/, /app/, /search/) page — most notably a
   // LOGGED-OUT ChatGPT session, which stays on chatgpt.com/ the whole time. The
@@ -63,7 +83,7 @@
 
   function sync() {
     if (!Continuum.ui || !Continuum.ui.button) return;
-    if (isConversationPage() || hasVisibleConversation()) Continuum.ui.button.mount();
+    if (isConversationPage() || hasVisibleConversation() || isNewChatPage()) Continuum.ui.button.mount();
     else Continuum.ui.button.unmount();
   }
 
@@ -173,7 +193,9 @@
         // a /c/<id> URL). Otherwise the next sync() tick unmounts the button and
         // closes the panel right after it opens (the "opens then immediately
         // closes" on a home page, which genuinely has nothing to capture).
-        if (!isConversationPage() && !hasVisibleConversation()) return;
+        // A new-chat page is allowed too — the panel opens there so the user can
+        // resume a saved chat into this tab (capture stays gated inside the panel).
+        if (!isConversationPage() && !hasVisibleConversation() && !isNewChatPage()) return;
         try {
           if (Continuum.ui && Continuum.ui.button && Continuum.ui.panel) {
             Continuum.ui.panel.toggle(Continuum.ui.button.ensureHost());

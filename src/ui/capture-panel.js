@@ -1353,6 +1353,44 @@
     return (Continuum.getActiveAdapter && Continuum.getActiveAdapter()) || Continuum.claudeAdapter;
   }
 
+  // True when the current page actually has message turns to capture. On a fresh,
+  // empty new-chat tab (claude.ai/new, chatgpt.com/, …) this is false — there's
+  // nothing to capture, so Capture is disabled and a simple note explains why. The
+  // adapter's peekSignal() is a cheap "<count>:<…>" string off one querySelectorAll.
+  function currentChatHasMessages() {
+    try {
+      const a = activeAdapter();
+      if (a && typeof a.peekSignal === "function") return parseInt(a.peekSignal(), 10) > 0;
+    } catch (e) {
+      /* best-effort */
+    }
+    return false;
+  }
+
+  // Disable Capture and show a simple red note on an empty new-chat tab; re-enable
+  // it the moment the chat has turns. Only acts on a state CHANGE so the live loop
+  // doesn't re-trigger the note's animation every tick (or fight an in-flight
+  // capture, during which the chat already has messages so the state can't flip).
+  let _captureGateEmpty = null; // null = unknown, true = empty, false = has messages
+  function updateCaptureGate() {
+    if (!panelEl) return;
+    const empty = !currentChatHasMessages();
+    if (empty === _captureGateEmpty) return;
+    _captureGateEmpty = empty;
+    const btn = panelEl.querySelector("[data-capture]"); // .cn-btn-primary:disabled dims it
+    if (btn) btn.disabled = empty;
+    const el = panelEl.querySelector("[data-capture-status]");
+    if (!el) return;
+    if (empty) {
+      // Kept deliberately short and plain (per request): there's no chat here yet.
+      el.textContent = "This chat is empty — there's nothing to capture yet. Pick a saved chat below to resume it in this tab.";
+      el.className = "cn-status err show"; // persistent (no auto-hide timer)
+      clearTimeout(_captureStatusTimer);
+    } else {
+      el.classList.remove("show");
+    }
+  }
+
   // ── Main-view rendering ──────────────────────────────────────────────
   // `force` bypasses the adapter's short-lived stats cache (and skips repainting
   // from the panel's own last-known cache) so a genuinely fresh API peek runs.
@@ -1363,6 +1401,7 @@
     if (!panelEl) return;
     refreshTitleAndStats(force);
     refreshStarted();
+    updateCaptureGate();
   }
 
   function refreshTitleAndStats(force) {
@@ -1485,10 +1524,14 @@
     }, () => {
       liveBusy = false;
     });
+    // Re-evaluate the empty-chat gate too: if the user sends the first message
+    // here, Capture should enable (and the "empty" note clear) without a reopen.
+    updateCaptureGate();
   }
 
   function startLiveRefresh() {
     stopLiveRefresh();
+    _captureGateEmpty = null; // re-evaluate the empty-chat gate fresh on each open
     liveSig = null; // force one fresh peek on the first tick after open
     liveBusy = false;
     liveLastForced = 0;
@@ -1819,6 +1862,12 @@
   // ── Actions ──────────────────────────────────────────────────────────
   async function onCapture() {
     const btn = panelEl.querySelector("[data-capture]");
+    // Guard: nothing to capture on an empty new-chat tab (the button is disabled
+    // there, but cover the keyboard/programmatic path too).
+    if (!currentChatHasMessages()) {
+      showCaptureStatus("This chat is empty — there's nothing to capture yet.", false);
+      return;
+    }
     btn.disabled = true;
     try {
       // Always Fast capture (reads the full active tree + files from the API).
@@ -1965,27 +2014,45 @@
         return;
       }
     }
-    // Clipboard copy is the fallback: if auto-fill in the new tab fails (e.g.
-    // the AI site changed its composer markup), the user can still paste.
+    // Clipboard copy is the fallback: if auto-fill fails (e.g. the AI site changed
+    // its composer markup), the user can still paste.
     const ok = await copyToClipboard(buildHandoff(currentDetail));
-    // Hand off to the new tab via a small marker; the resume-injector there reads
-    // it, loads this session from IndexedDB, and auto-fills the composer + files.
+    const marker = {
+      sessionId: currentDetail.id,
+      includeFiles: includeFilesEnabled,
+      includeImages: includeImagesEnabled,
+      compress: compressEnabled,
+      format: markdownEnabled ? "markdown" : "pdf",
+      target: target,
+      ts: Date.now(),
+    };
+
+    // Resume IN THIS TAB when the chat we're resuming targets the same AI this
+    // empty new-chat tab is already on — no second tab opened, the saved chat just
+    // fills into the composer right here. (If the chat already has turns, or the
+    // target AI differs, fall through to opening a fresh tab on that AI.)
+    const resumeHere =
+      currentProviderId() === target &&
+      !currentChatHasMessages() &&
+      Continuum.resumeInjector &&
+      typeof Continuum.resumeInjector.performResume === "function";
+    if (resumeHere) {
+      showToast(ok ? "Resuming in this chat…" : "Resuming (clipboard copy failed)", ok);
+      close(); // get the panel out of the way so the composer is visible as it fills
+      try {
+        await Continuum.resumeInjector.performResume(marker);
+      } catch (e) {
+        console.warn("[Continuum] in-place resume failed:", e);
+      }
+      return;
+    }
+
+    // Otherwise hand off to a fresh tab via a small marker; the resume-injector
+    // there reads it, loads this session from IndexedDB, and auto-fills the
+    // composer + files.
     try {
       await new Promise((resolve) => {
-        chrome.storage.local.set(
-          {
-            "continuum.pendingResume": {
-              sessionId: currentDetail.id,
-              includeFiles: includeFilesEnabled,
-              includeImages: includeImagesEnabled,
-              compress: compressEnabled,
-              format: markdownEnabled ? "markdown" : "pdf",
-              target: target,
-              ts: Date.now(),
-            },
-          },
-          () => resolve()
-        );
+        chrome.storage.local.set({ "continuum.pendingResume": marker }, () => resolve());
       });
     } catch (e) {
       console.warn("[Continuum] could not set pendingResume marker:", e);
