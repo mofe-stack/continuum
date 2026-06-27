@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Continuum: Capture, Save & Resume AI Chats",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Capture an AI chat session and resume it in a new chat on any supported platform — never lose context to message/length limits.",
   "icons": {
     "16": "icons/icon16.png",

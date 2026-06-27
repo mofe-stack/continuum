@@ -26,3 +26,11 @@ mcp/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Obsidian vault clutter — this repo folder doubles as an Obsidian vault locally.
+# None of this is part of the extension (builds bundle only src/ + icons/); keep
+# it out of git and out of the published builds.
+.obsidian/
+*.canvas
+images/
+20[0-9][0-9]-[0-9][0-9]-[0-9][0-9].md
