@@ -1108,6 +1108,13 @@
   border-color: #f6c9c9;
   color: var(--cn-danger);
 }
+/* Neutral/informational status — the Continuum gray (no red/green intent).
+   Used for the empty-chat note: it's guidance, not an error. */
+.cn-status.muted {
+  background: var(--cn-hover);
+  border-color: var(--cn-line-strong);
+  color: var(--cn-ink-2);
+}
 :host([data-theme="dark"]) .cn-status.ok {
   border-color: #1f5a45;
 }
