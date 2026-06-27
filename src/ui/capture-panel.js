@@ -1384,7 +1384,7 @@
     if (empty) {
       // Kept deliberately short and plain (per request): there's no chat here yet.
       el.textContent = "This chat is empty — there's nothing to capture yet. Pick a saved chat below to resume it here, or in a new tab on another AI.";
-      el.className = "cn-status err show"; // persistent (no auto-hide timer)
+      el.className = "cn-status muted show"; // neutral gray (guidance, not an error); persistent (no auto-hide)
       clearTimeout(_captureStatusTimer);
     } else {
       el.classList.remove("show");
