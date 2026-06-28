@@ -20,8 +20,27 @@
   "use strict";
   const Continuum = (window.Continuum = window.Continuum || {});
 
-  // Below this many turns there's nothing worth condensing — resume verbatim.
-  const MIN_TURNS = 4;
+  // A tiny floor so there's at least one real exchange to condense; the real
+  // "is it worth it" decision is the token threshold below (message count is a
+  // poor proxy — one long answer can be 2k tokens, a dozen one-liners aren't).
+  const MIN_TURNS = 2;
+
+  // Below this estimated token size there's nothing worth condensing — the brief
+  // has fixed structural overhead, so compressing a tiny chat saves little (and
+  // can even grow it). ~2,000 tokens ≈ ~8–12 typical messages, but elastic.
+  const MIN_COMPRESS_TOKENS = 2000;
+
+  // Whether a session is large enough that compressing it into a brief is worth
+  // offering. Used both for the UI gate (panel) and the internal guard in
+  // compressSession, so the offer and the actual compression never disagree.
+  function worthCompressing(session) {
+    const turns = (session && session.turns) || [];
+    if (turns.length < MIN_TURNS) return false;
+    const est = Continuum.compressor && Continuum.compressor.estimateTokens;
+    const buildHandoff = Continuum.handoff && Continuum.handoff.buildHandoff;
+    if (!est || !buildHandoff) return turns.length >= MIN_TURNS; // can't estimate → fall back to floor
+    return est(buildHandoff(session)) >= MIN_COMPRESS_TOKENS;
+  }
 
   const SYSTEM_PROMPT =
     "You are condensing a full conversation transcript into a structured HANDOFF BRIEF so a " +
@@ -33,8 +52,12 @@
     "information-dense bullet points rather than full prose. Never drop or blur a piece of context " +
     "to hit that number, and never invent anything not in the transcript; if something is " +
     "ambiguous, preserve it as-is rather than guessing. " +
-    // Output format — the 7 fixed headings, in order, ALWAYS present ("None" if empty).
-    "OUTPUT FORMAT — organize the brief under these exact headings, in this order, with tight, " +
+    // Output format — a TITLE line, then the 7 fixed headings, in order, ALWAYS present.
+    "OUTPUT FORMAT — begin with a single first line that is a short, specific TITLE naming the work " +
+    "or topic (about 4–8 words). Write ONLY the title text on that line: do NOT prefix it with " +
+    "'Handoff Brief:', 'Brief:', 'Title:' or any label, and do NOT use a Markdown heading mark (#). " +
+    "Follow the title with a blank line, then the brief. " +
+    "Organize the brief under these exact headings, in this order, with tight, " +
     "information-dense bullet points under each. ALWAYS include all 7 headings, in order, even if a " +
     "section has nothing to report — for an empty section, write a single line: None. " +
     // Global retrieval + verbatim rule.
@@ -303,7 +326,7 @@
     const o = opts || {};
     const onProgress = typeof o.onProgress === "function" ? o.onProgress : function () {};
     const turns = (session && session.turns) || [];
-    if (turns.length < MIN_TURNS) return session; // too short to compress
+    if (!worthCompressing(session)) return session; // too small to be worth compressing
     if (!o.apiKey) throw new Error("No API key");
 
     // Render the WHOLE conversation to transcript text (reuse buildHandoff for
@@ -357,6 +380,6 @@
   Continuum.llmCompressor = {
     compressSession, assembleCompressed, collectAllAttachments, buildAttachmentManifest,
     parseAttachmentContext, verifyKey, friendlyError, protectImportant, restoreImportant,
-    stripImageRefs, MIN_TURNS,
+    stripImageRefs, MIN_TURNS, MIN_COMPRESS_TOKENS, worthCompressing,
   };
 })();

@@ -345,7 +345,7 @@
 .cn-resume-target.disabled .cn-resume-logo {
   opacity: 0.5;
 }
-.cn-soon {
+.cn-resume-soon {
   margin-left: auto;
   font-family: var(--cn-mono);
   font-size: 10px;
@@ -830,6 +830,41 @@
   color: var(--cn-ink-2);
   line-height: 1.4;
 }
+/* "Too short to compress" — a small, static box matching the action rows (same
+   border/padding/radius as .cn-compress), faint mono text, not interactive. */
+.cn-tooshort {
+  padding: 8px 10px;
+  border: 1px solid var(--cn-line);
+  border-radius: var(--cn-radius);
+  font-family: var(--cn-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--cn-ink-3);
+}
+
+/* ── Settings: lifetime compression metric ───────────────────────────────── */
+.cn-metric {
+  font-family: var(--cn-mono);
+  margin-top: 2px;
+}
+.cn-metric-value {
+  font-size: 15px;
+  color: var(--cn-ink);
+  letter-spacing: -0.01em;
+}
+.cn-metric-pct {
+  color: var(--cn-ink-3); /* the (−Z%) reads as a quiet annotation, not a second figure */
+}
+.cn-metric-empty {
+  font-size: 13px;
+  color: var(--cn-ink-2);
+}
+.cn-metric-sub {
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--cn-ink-3);
+}
 
 /* Resume format selector (PDF / MD) in the detail view — the radio pills reuse
    .cn-radio-group/.cn-radio; this just stacks them above the pros/cons hint. */
@@ -987,9 +1022,16 @@
   background: var(--cn-ink);
   color: var(--cn-paper);
 }
+/* Match .cn-btn-primary's hover exactly: darken to pure ink in light mode (the old
+   var(--cn-ink-2) was LIGHTER than the base, so it lightened instead of darkening). */
 .cn-dialog-go:hover {
-  background: var(--cn-ink-2);
-  border-color: var(--cn-ink-2);
+  background: #000;
+  border-color: #000;
+}
+:host([data-theme="dark"]) .cn-dialog-go:hover {
+  background: var(--cn-accent-hover);
+  border-color: var(--cn-accent-hover);
+  color: var(--cn-paper);
 }
 .cn-dialog-go:disabled {
   opacity: 0.5;
@@ -1114,6 +1156,8 @@
   background: var(--cn-hover);
   border-color: var(--cn-line-strong);
   color: var(--cn-ink-2);
+  font-size: 11px;
+  line-height: 1.45;
 }
 :host([data-theme="dark"]) .cn-status.ok {
   border-color: #1f5a45;
@@ -1130,6 +1174,12 @@
   background: var(--cn-danger-tint);
   border-color: #f6c9c9;
   color: var(--cn-danger);
+}
+/* Neutral guidance (not an error) — gray but clearly legible. */
+.cn-toast.info {
+  background: var(--cn-hover);
+  border-color: var(--cn-line-strong);
+  color: var(--cn-ink-2);
 }
 
 /* ── Focus + motion ──────────────────────────────────────────────────── */

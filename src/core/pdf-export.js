@@ -125,10 +125,15 @@
   //   `code`                                 → code  (drop backticks, keep the word)
   // Fenced ``` lines and image refs ![](…) pass through unchanged.
   const BRIEF_HEADINGS = /^(Completed work|Current state|In progress|Next steps|Constraints|Critical context|Discarded attempts|Images|Files)\s*$/i;
+  // Speaker labels in the handoff transcript: "## User" and "## <AI name>", where
+  // the AI is the source provider (Claude/ChatGPT/Gemini/…). Older transcripts used
+  // the literal "## Assistant", still recognized so previously-saved sessions render.
+  const SPEAKER_LABEL = /^(User|Assistant|Claude|ChatGPT|Gemini|Perplexity|Grok|DeepSeek|Copilot)$/i;
+  const isUserLabel = (w) => /^user$/i.test(String(w == null ? "" : w).trim());
   function stripMarkdownLine(line) {
     let s = String(line == null ? "" : line);
-    const speaker = s.match(/^\s{0,3}#{1,6}\s+(User|Assistant)\s*$/i);
-    if (speaker) return (/^user$/i.test(speaker[1]) ? "# " : "## ") + speaker[1];
+    const speaker = s.match(/^\s{0,3}#{1,6}\s+(.+?)\s*$/);
+    if (speaker && SPEAKER_LABEL.test(speaker[1])) return (isUserLabel(speaker[1]) ? "# " : "## ") + speaker[1];
     if (/^\s{0,3}#{1,6}\s+Compressed \d/i.test(s)) return s.replace(/^\s{0,3}#{1,6}\s+/, "## ");
     const headingMatch = s.match(/^\s{0,3}#{1,6}\s+(.+?)\s*$/);
     if (headingMatch && BRIEF_HEADINGS.test(headingMatch[1])) return "## " + headingMatch[1].trim();
@@ -154,6 +159,8 @@
     let inFence = false;
     let sectionNum = 0;
     let attachmentsEmitted = false;
+    let afterHr = false; // past the "---" header rule → brief body begins
+    let briefTitleKept = false; // the one title heading above section 01
     const out = [];
     for (const line of lines) {
       if (/^\s*(```|~~~)/.test(line)) {
@@ -165,6 +172,11 @@
         out.push(line);
         continue;
       }
+      if (compressed && line.trim() === "---") {
+        afterHr = true;
+        out.push(line);
+        continue;
+      }
       if (compressed) {
         const h = line.match(/^\s{0,3}#{1,6}\s+(.+?)\s*$/);
         if (h) {
@@ -172,6 +184,13 @@
           if (BRIEF_SECTION_ONLY.test(title)) {
             sectionNum += 1;
             out.push("## " + (sectionNum < 10 ? "0" : "") + sectionNum + " · " + title);
+            continue;
+          }
+          // The brief's own title sits between the "---" rule and section 01 — keep
+          // it as a real "# Title" heading (the doc title above the rule is stripped).
+          if (afterHr && sectionNum === 0 && !attachmentsEmitted && !briefTitleKept) {
+            briefTitleKept = true;
+            out.push("# " + title);
             continue;
           }
           if (/^(images|files)$/i.test(title)) {
@@ -204,6 +223,8 @@
       .replace(/[–—―]/g, "-")
       .replace(/…/g, "...")
       .replace(/ /g, " ")
+      .replace(/−/g, "-") // MINUS SIGN → hyphen (else dropped below, breaking the line)
+      .replace(/→/g, "->") // RIGHTWARDS ARROW → ASCII, for "X->Y" token readouts
       .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, "")
       .replace(/[\uD800-\uDFFF]/g, "")
       .replace(/[^ -ÿ\n\t]/g, "");
@@ -646,6 +667,16 @@
         doc.text(shown, cfg.x + padX + icon + gap, cursor.y + h * 0.66);
       }
       cursor.y += h + 4;
+      // One-liner context under the chip (files in the brief's Attachments appendix) —
+      // same italic muted caption images get, so PDF matches the .md.
+      if (blk.caption) {
+        renderRuns(
+          [{ text: blk.caption, italic: true }],
+          { x: cfg.x, maxW: cfg.maxW, size: 8.5, lineH: 11, color: COL.muted, atomic: cfg.atomic, draw: cfg.draw },
+          cursor,
+          metrics
+        );
+      }
       if (metrics && chipW > metrics.maxLineW) metrics.maxLineW = chipW;
     }
     function renderBlocks(blocks, cfg, cursor, metrics) {
@@ -741,9 +772,9 @@
           }
           if (trimmed === "") continue;
         }
-        const sp = line.match(/^##\s+(User|Assistant)\s*$/);
-        if (sp) {
-          startTurn(sp[1].toLowerCase());
+        const sp = line.match(/^##\s+(.+?)\s*$/);
+        if (sp && SPEAKER_LABEL.test(sp[1])) {
+          startTurn(isUserLabel(sp[1]) ? "user" : "assistant");
           continue;
         }
         if (trimmed === "") {
@@ -765,7 +796,14 @@
           continue;
         }
         if ((m = trimmed.match(/^\[(?:generated file|file):\s*(.+?)\s*\]$/i))) {
-          turn.blocks.push({ b: "chip", kind: "file", label: m[1].replace(/\s*→\s*\S+$/, "").trim().split(" — ")[0].trim() });
+          // "[file: name — context → path]" → chip(name) + caption(context). Drop the
+          // "→ path" tail (handles → or its ASCII-folded "->"), then split name/context
+          // on " — " so the PDF shows the one-liner under the chip (it used to drop it).
+          const inner = m[1].replace(/\s*(?:→|->)\s*\S+$/, "").trim();
+          const sep = inner.indexOf(" — ");
+          const label = (sep === -1 ? inner : inner.slice(0, sep)).trim();
+          const caption = sep === -1 ? null : inner.slice(sep + 3).trim();
+          turn.blocks.push({ b: "chip", kind: "file", label: label, caption: caption || null });
           continue;
         }
         if ((m = line.match(/^(#{1,6})\s+(.+)$/))) {
@@ -856,25 +894,22 @@
       fn();
       if (doc.setCharSpace) doc.setCharSpace(0);
     };
-    function renderBriefHeader() {
-      if (cursor.y + 20 > pageH - MARGIN) {
-        doc.addPage();
-        cursor.y = MARGIN;
-      }
-      const baseline = cursor.y + 8;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor.apply(doc, brand.color);
-      doc.text("Handoff brief", MARGIN, baseline);
-      const w = doc.getTextWidth("Handoff brief");
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8.5);
-      doc.setTextColor.apply(doc, COL.muted);
-      doc.text("· from " + brand.name, MARGIN + w + 5, baseline);
-      cursor.y += 16;
+    // The brief's title (no "Handoff brief · from X" label — just the title), drawn
+    // as the document heading above the numbered sections. Wraps if long.
+    function renderBriefTitle(text) {
+      cursor.y += 2;
+      renderRuns(
+        [{ text: stripUnencodable(text), bold: true }],
+        { x: MARGIN, maxW: contentW, size: 13, lineH: 16, color: COL.text, atomic: false, draw: true },
+        cursor,
+        { maxLineW: 0 }
+      );
+      cursor.y += 4;
     }
     function renderBriefSection(num, title) {
-      cursor.y += 9;
+      // Tighter gap above section 01 (it sits right under the title); normal spacing
+      // between later sections.
+      cursor.y += num === 1 ? 3 : 9;
       if (cursor.y + 18 > pageH - MARGIN) {
         doc.addPage();
         cursor.y = MARGIN;
@@ -926,10 +961,14 @@
       cursor.y += 12;
     }
     function renderBriefDocument(turn) {
-      renderBriefHeader();
       const cfg = { x: MARGIN, maxW: contentW, color: COL.text, atomic: false, draw: true };
+      // Cap appendix images to the same width the chat bubble uses for user uploads,
+      // so a verbatim image and the same image in the brief render at one size.
+      const imgMaxW = Math.min(contentW * 0.72, contentW - 40);
+      const imgCfg = { x: MARGIN, maxW: imgMaxW, color: COL.text, atomic: false, draw: true };
       let sectionNum = 0;
       let prevBlank = true;
+      let titleDone = false;
       for (const blk of turn.blocks) {
         if (blk.b === "blank") {
           if (!prevBlank) cursor.y += BODY * 0.5;
@@ -950,10 +989,17 @@
             renderAppendixSubLabel(blk.text.trim());
             continue;
           }
+          // The first non-section heading is the brief title (sits before section 01).
+          if (!titleDone && sectionNum === 0) {
+            renderBriefTitle(blk.text.trim());
+            titleDone = true;
+            prevBlank = true; // swallow the blank line between title and section 01
+            continue;
+          }
           renderHeading(blk, cfg, cursor, { maxLineW: 0 });
           continue;
         }
-        renderBlocks([blk], cfg, cursor, { maxLineW: 0 });
+        renderBlocks([blk], blk.b === "img" ? imgCfg : cfg, cursor, { maxLineW: 0 });
       }
     }
 
@@ -991,10 +1037,10 @@
     let turnsRendered = 0;
     for (const item of docModel) {
       if (item.t === "title") {
-        renderRuns([{ text: item.text, bold: true }], { x: MARGIN, maxW: contentW, size: 14, lineH: 17, color: COL.text, atomic: false, draw: true }, cursor, { maxLineW: 0 });
+        renderRuns([{ text: stripUnencodable(item.text), bold: true }], { x: MARGIN, maxW: contentW, size: 14, lineH: 17, color: COL.text, atomic: false, draw: true }, cursor, { maxLineW: 0 });
         cursor.y += 1;
       } else if (item.t === "meta") {
-        renderRuns([{ text: item.text }], { x: MARGIN, maxW: contentW, size: 8, lineH: 10.5, color: COL.muted, atomic: false, draw: true }, cursor, { maxLineW: 0 });
+        renderRuns([{ text: stripUnencodable(item.text) }], { x: MARGIN, maxW: contentW, size: 8, lineH: 10.5, color: COL.muted, atomic: false, draw: true }, cursor, { maxLineW: 0 });
       } else if (item.t === "hr") {
         cursor.y += 5;
         doc.setDrawColor.apply(doc, COL.border);

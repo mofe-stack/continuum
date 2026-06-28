@@ -41,6 +41,10 @@ run("keeps brief/speaker headings as ## sections", () => {
   assert.strictEqual(clean("## Current state"), "## Current state");
   assert.strictEqual(clean("## User"), "# User");
   assert.strictEqual(clean("## Assistant"), "## Assistant");
+  // The assistant label is now the actual source AI's name (Claude/ChatGPT/…) —
+  // it must survive as a "## " speaker heading, not get stripped to bare text.
+  assert.strictEqual(clean("## Claude"), "## Claude");
+  assert.strictEqual(clean("## ChatGPT"), "## ChatGPT");
 });
 
 run("leaves fenced code blocks byte-for-byte (the bug this guards)", () => {
@@ -105,6 +109,27 @@ run("compressed brief: numbers the 7 sections and groups attachments", () => {
   assert.ok(!/^## Images$/m.test(out), "Images no longer a top-level section");
   assert.ok(out.includes("const x = 1; // # stays"), "code inside the brief stays verbatim");
   assert.ok(out.includes("Did the thing."), "prose still gets cosmetic markdown stripped");
+});
+
+run("compressed brief: keeps the title heading above section 01", () => {
+  const input = [
+    "# My chat",
+    "_Compressed with AI · 18k -> 5k tokens (-72%)_",
+    "",
+    "---",
+    "",
+    "# AI Research Study on Error Correction",
+    "",
+    "## Completed work",
+    "Did the thing.",
+  ].join("\n");
+  const out = clean(input).split("\n");
+  // The doc title (above the rule) is stripped to bare text…
+  assert.ok(out.includes("My chat"), "doc title above the rule is bare text");
+  assert.ok(!out.includes("# My chat"), "doc title is not a heading");
+  // …but the brief's own title (below the rule, before section 01) stays a heading.
+  assert.ok(out.includes("# AI Research Study on Error Correction"), "brief title kept as a heading");
+  assert.ok(out.includes("## 01 · Completed work"), "section still numbered after the title");
 });
 
 console.log("\n" + passed + " passed, " + failed + " failed");

@@ -28,6 +28,7 @@
 
   const INDEX_KEY = "continuum.index";
   const sessionKey = (id) => "continuum.session." + id;
+  const COMPRESS_STATS_KEY = "continuum.compressStats"; // lifetime AI-compression savings
   const LEGACY_IDB_NAME = "continuum"; // the retired per-origin session store
 
   // ---- chrome.storage.local promise wrappers -------------------------------
@@ -278,6 +279,34 @@
     await sset({ [INDEX_KEY]: index.filter((m) => m.id !== id) });
   }
 
+  // ---- lifetime AI-compression savings -------------------------------------
+  // Raw token sums accumulated across every chat the user has compressed on
+  // resume: { before, after, chats }. Stored as plain integers (formatted for
+  // display by the panel). Only real compressions bump these — a too-short or
+  // failed compression must not call addCompressSaving.
+  async function getCompressStats() {
+    const items = await sget([COMPRESS_STATS_KEY]);
+    const s = items[COMPRESS_STATS_KEY];
+    return {
+      before: (s && s.before) || 0,
+      after: (s && s.after) || 0,
+      chats: (s && s.chats) || 0,
+    };
+  }
+
+  async function addCompressSaving(beforeTk, afterTk) {
+    const before = Math.max(0, Math.round(beforeTk || 0));
+    const after = Math.max(0, Math.round(afterTk || 0));
+    const cur = await getCompressStats();
+    await sset({
+      [COMPRESS_STATS_KEY]: {
+        before: cur.before + before,
+        after: cur.after + after,
+        chats: cur.chats + 1,
+      },
+    });
+  }
+
   // ---- realm-safe media fetch (Firefox page-realm blob fix) ----------------
   // On Firefox a content-script `fetch(url).blob()` (and XHR) hands back a
   // PAGE-REALM Blob the content script CANNOT read — arrayBuffer(), FileReader and
@@ -429,5 +458,8 @@
     toCleanBlob: toCleanBlob,
   };
 
-  Continuum.storage = { saveSession, listSessions, getSession, deleteSession };
+  Continuum.storage = {
+    saveSession, listSessions, getSession, deleteSession,
+    getCompressStats, addCompressSaving,
+  };
 })();

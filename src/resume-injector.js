@@ -856,7 +856,6 @@
       const est = Continuum.compressor && Continuum.compressor.estimateTokens;
       const buildHandoff = Continuum.handoff && Continuum.handoff.buildHandoff;
       const turnCount = (session.turns || []).length;
-      const minTurns = (Continuum.llmCompressor && Continuum.llmCompressor.MIN_TURNS) || 4;
       console.log(
         "[Continuum] resume: compression requested — provider:", provider, "| apiKey set:", !!apiKey,
         "| messages:", turnCount
@@ -868,36 +867,16 @@
         toast("Resume canceled — add a " + provider + " API key in Settings.", false);
         return;
       }
-      // Token estimate INCLUDING the per-format image cost. A PDF EMBEDS each image
-      // (the model pays ~vision tokens to actually see it), while Markdown only
-      // REFERENCES images (≈0 extra) — so the same chat is genuinely cheaper as
-      // Markdown, and the readout should show that instead of an identical number.
-      // Per-image vision-token cost for an embedded (downscaled ~1024px) image,
-      // taken as the MEDIAN across the four supported providers' published formulas
-      // so the figure isn't tied to any one model. Claude's tile cost is the high
-      // outlier, so the median naturally weights it lower (per design).
-      const medianImageTokens = () => {
-        const w = 1024, h = 1024; // pdf-export caps the embedded long edge ~1024px
-        const claude = Math.round((w * h) / 750);                       // ~1398 (Anthropic tiles)
-        const oaiTiles = Math.ceil(w / 512) * Math.ceil(h / 512);       // 2×2 = 4 (512px tiles)
-        const openai = 85 + 170 * oaiTiles;                            // ~765
-        const gemini = 258 * Math.ceil(w / 768) * Math.ceil(h / 768);  // 258 × 2×2 = 1032
-        const perplexity = openai;                                      // OpenAI-shaped
-        const vals = [claude, openai, gemini, perplexity].sort((a, b) => a - b);
-        return Math.round((vals[1] + vals[2]) / 2);                     // median of 4 ≈ 900
-      };
-      const VISION_TOKENS_PER_IMAGE = medianImageTokens();
-      const embeddedImageCount = (sess) => {
-        let n = 0;
-        for (const turn of (sess && sess.turns) || []) {
-          for (const att of turn.attachments || []) if (att.type === "image" && att.mediaId) n++;
-        }
-        return n;
-      };
-      const payloadTokens = (sess) => {
-        const textTk = est ? est(buildHandoff(sess)) : 0;
-        return textTk + (wantMarkdown ? 0 : embeddedImageCount(sess) * VISION_TOKENS_PER_IMAGE);
-      };
+      // Format-aware token estimate (text + per-format image cost). Shared with the
+      // panel's per-chat estimate via Continuum.compressor.payloadTokens so the
+      // resume readout and the pre-resume estimate always agree. A PDF embeds each
+      // image (vision tokens to actually see it); Markdown references them (≈0).
+      const payloadTokens = (sess) =>
+        Continuum.compressor && Continuum.compressor.payloadTokens
+          ? Continuum.compressor.payloadTokens(sess, { markdown: wantMarkdown })
+          : est
+          ? est(buildHandoff(sess))
+          : 0;
       if (Continuum.llmCompressor && Continuum.llmCompressor.compressSession && buildHandoff) {
         const beforeTk = payloadTokens(session);
         prog.beginMarch(); // pace the activity-line march alongside the silent compression wait
@@ -925,15 +904,22 @@
               pct: pct,
               summarized: omitted,
             };
+            // Accumulate the lifetime savings shown on the main panel. Only real
+            // compressions reach here (the too-short/failed paths don't), and it's
+            // fire-and-forget so a storage hiccup never blocks the resume.
+            if (Continuum.storage && Continuum.storage.addCompressSaving) {
+              Continuum.storage.addCompressSaving(beforeTk, afterTk).catch(() => {});
+            }
             compressionNote =
               " · " + fmt(beforeTk) + "→" + fmt(afterTk) + " tokens (−" + pct + "%); handoff brief from " +
               omitted + " messages";
             console.log("[Continuum] resume: compressed " + beforeTk + " → " + afterTk + " tokens (-" + pct + "%)");
           } else {
-            // Returned unchanged → too short to be worth compressing.
-            console.log("[Continuum] resume: chat too short to compress (need ≥ " + minTurns + " messages) — verbatim.");
+            // Returned unchanged → too small to be worth compressing (under the
+            // token threshold). Resume verbatim.
+            console.log("[Continuum] resume: chat too short to compress — verbatim.");
             compressionNote = " · too short to compress";
-            toast("This chat is too short to compress (needs ≥ " + minTurns + " messages) — sending it in full.", false);
+            toast("This chat is too short to compress — sending it in full.", false);
           }
         } catch (e) {
           // Compression was requested but failed (invalid/expired key, wrong

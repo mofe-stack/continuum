@@ -228,6 +228,29 @@
       if (imagesLabel && _detailImageCount > 0) imagesLabel.textContent = "Attach " + plural(_detailImageCount, "image") + " to the new chat";
     }
   }
+
+  // "Too short to compress" box, shown INSTEAD of the Compress toggle when the chat
+  // is below the gate. Just the size + reason — no projected-savings estimate (the
+  // real ratio can't be known without running the compression).
+  function updateChatEstimate() {
+    const box = panelEl && panelEl.querySelector("[data-tooshort]");
+    if (!box) return;
+    const session = currentDetail;
+    const C = Continuum.compressor;
+    const worth =
+      Continuum.llmCompressor && Continuum.llmCompressor.worthCompressing
+        ? Continuum.llmCompressor.worthCompressing(session)
+        : (session && (session.turns || []).length >= 2);
+    if (worth || !session || !C || !C.payloadTokens) {
+      box.hidden = true;
+      return;
+    }
+    const fmt = C.formatTokens || String;
+    const before = C.payloadTokens(session, { markdown: markdownEnabled });
+    const txt = box.querySelector("[data-tooshort-text]");
+    if (txt) txt.textContent = "≈ " + fmt(before) + " tokens · too short to compress";
+    box.hidden = false;
+  }
   // Settings → "Resume message": FOUR editable messages — {verbatim, compressed}
   // × {PDF, Markdown}. _preambleFormat + _preambleCompressed track which the
   // textarea is editing; _preambleDrafts holds each live (possibly unsaved) draft so
@@ -373,8 +396,31 @@
   // and order are preserved exactly. (The rule-based compression was removed;
   // compression is being rebuilt. `opts` is accepted for call-site
   // compatibility but is currently unused.)
+  // Pull a clean title off the top of the LLM brief. The compressor is asked to
+  // start with a bare title line; older/looser output may prefix it ("Handoff
+  // Brief: …") or use a heading mark — both are stripped. If the first real line is
+  // already a section heading (no title emitted), fall back to the chat title.
+  const BRIEF_TITLE_PREFIX = /^(?:handoff\s+brief|brief|title)\s*[:\-–—]\s*/i;
+  const BRIEF_ANY_SECTION = /^(completed work|current state|in progress|next steps|constraints|critical context|discarded attempts|images|files)$/i;
+  function splitBriefTitle(text, fallback) {
+    const all = String(text == null ? "" : text).split("\n");
+    let i = 0;
+    while (i < all.length && all[i].trim() === "") i++;
+    let title = "";
+    if (i < all.length) {
+      const bare = all[i].trim().replace(/^#{1,6}\s*/, "");
+      if (!BRIEF_ANY_SECTION.test(bare.replace(BRIEF_TITLE_PREFIX, "").trim()) && !BRIEF_ANY_SECTION.test(bare)) {
+        title = bare.replace(BRIEF_TITLE_PREFIX, "").trim();
+        all.splice(0, i + 1); // drop the leading blanks + the title line
+      }
+    }
+    title = (title || fallback || "Handoff brief").replace(BRIEF_TITLE_PREFIX, "").trim();
+    return { title: title || "Handoff brief", body: all.join("\n").replace(/^\n+/, "") };
+  }
+
   function buildHandoff(session, opts) {
     assignArchivePaths(session);
+    const aiName = providerName(session.sourceProvider);
     const lines = [];
     lines.push("# " + (session.title || "Untitled conversation"));
     const s = session.stats || {};
@@ -382,14 +428,17 @@
     if (s.artifacts) meta.push(plural(s.artifacts, "artifact"));
     if (session.startedAt) meta.push("started " + fmtDate(session.startedAt));
     // Name the ACTUAL source AI (was hardcoded "Claude" — wrong for ChatGPT etc.).
-    lines.push("_Captured from " + providerName(session.sourceProvider) + " · " + meta.join(" · ") + "_");
+    lines.push("_Captured from " + aiName + " · " + meta.join(" · ") + "_");
     // Compression status line. compressionStats is attached by the resume flow
     // when "Compress with AI" ran; absent → this handoff is fully verbatim.
     const cs = session.compressionStats;
     if (cs && cs.compressed) {
+      // ASCII only ("->", "-") — the PDF's Latin-1 font can't encode → / − and would
+      // garble the whole line (UTF-16 letter-spacing bug). Concise: the "handoff
+      // brief" label lives on the brief's own title below, so it's not repeated here.
       lines.push(
-        "_Compressed with AI · structured handoff brief · " + cs.beforeTokens + "→" + cs.afterTokens +
-          " tokens (−" + cs.pct + "%) · condensed " + cs.summarized + " messages · referenced code preserved exactly_"
+        "_Compressed with AI · " + cs.beforeTokens + " -> " + cs.afterTokens +
+          " tokens (-" + cs.pct + "%) · " + plural(cs.summarized, "message") + " condensed_"
       );
     } else {
       lines.push("_Verbatim · full conversation, nothing summarized_");
@@ -405,8 +454,18 @@
         // Synthetic turn from the LLM compressor: the WHOLE conversation condensed
         // into the structured handoff brief (its own 7 ## headings live in the
         // text, kept as real sections by cleanHandoffMarkdown's whitelist).
-        for (const block of turn.content || []) {
-          if (block.type === "text" && block.text) lines.push(block.text);
+        const briefText = (turn.content || [])
+          .filter((b) => b.type === "text" && b.text)
+          .map((b) => b.text)
+          .join("\n");
+        // Lift the brief's title onto a single "# Title" line (no "Handoff Brief:"
+        // prefix). MD keeps it as a heading above section 01; the PDF renders it as
+        // the brief's title in place of the old "Handoff brief · from X" header.
+        const brief = splitBriefTitle(briefText, session.title);
+        lines.push("# " + brief.title);
+        if (brief.body) {
+          lines.push("");
+          lines.push(brief.body);
         }
         // Every image/file from the conversation, carried onto the summary turn by
         // the compressor (the brief replaced all turns). Each gets the one-line
@@ -442,7 +501,7 @@
         }
         continue;
       }
-      lines.push("## " + (turn.role === "assistant" ? "Assistant" : "User"));
+      lines.push("## " + (turn.role === "assistant" ? aiName : "User"));
       for (const block of turn.content || []) {
         if (block.type !== "text" || !block.text) continue;
         lines.push(block.text);
@@ -602,8 +661,8 @@
     lines.push("");
 
     for (const turn of session.turns || []) {
-      // Speaker labels: "# User" (one #) and "## Assistant" (two #), per request.
-      lines.push(turn.role === "assistant" ? "## Assistant" : "# User");
+      // Speaker labels: "# User" (one #) and "## <AI name>" (two #), per request.
+      lines.push(turn.role === "assistant" ? "## " + aiName : "# User");
       lines.push("");
       const text = (turn.content || [])
         .filter((b) => b.type === "text" && b.text)
@@ -710,7 +769,7 @@
       // appears only while there's text in the field.
       '    <div class="cn-search" data-search-row hidden>',
       '      <span class="cn-search-icon">' + svg("search", 15) + "</span>",
-      '      <input class="cn-search-input" data-search type="search" placeholder="Search saved chats" aria-label="Search saved chats" autocomplete="off" spellcheck="false" />',
+      '      <input class="cn-search-input" data-search type="search" name="cn-search-q" placeholder="Search saved chats" aria-label="Search saved chats" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other" />',
       '      <button class="cn-search-clear" data-search-clear type="button" aria-label="Clear search" hidden>' + svg("close", 14) + "</button>",
       "    </div>",
       '    <div class="cn-select-bar" data-select-bar hidden>',
@@ -751,13 +810,13 @@
         "</span><span>Perplexity</span></button>",
       '        <button class="cn-resume-target disabled" data-resume-target="grok" disabled>' +
         '<span class="cn-resume-logo">' + providerLogo("grok", 18) +
-        '</span><span>Grok</span><span class="cn-soon">soon</span></button>',
+        '</span><span>Grok</span><span class="cn-resume-soon">soon</span></button>',
       '        <button class="cn-resume-target disabled" data-resume-target="deepseek" disabled>' +
         '<span class="cn-resume-logo">' + providerLogo("deepseek", 18) +
-        '</span><span>DeepSeek</span><span class="cn-soon">soon</span></button>',
+        '</span><span>DeepSeek</span><span class="cn-resume-soon">soon</span></button>',
       '        <button class="cn-resume-target disabled" data-resume-target="copilot" disabled>' +
         '<span class="cn-resume-logo">' + providerLogo("copilot", 18) +
-        '</span><span>Copilot</span><span class="cn-soon">soon</span></button>',
+        '</span><span>Copilot</span><span class="cn-resume-soon">soon</span></button>',
       "        </div>",
       "      </div>",
       "    </div>",
@@ -776,6 +835,9 @@
       '      <input type="checkbox" data-compress-toggle />',
       '      <span class="cn-compress-text" data-compress-label>Compress with AI (structured handoff brief)</span>',
       "    </label>",
+      // Shown INSTEAD of the toggle when the chat is too small to be worth
+      // compressing — a small static box matching the action rows.
+      '    <div class="cn-tooshort" data-tooshort hidden><span data-tooshort-text></span></div>',
       // Only shown when the chat has files — lets you choose whether the uploaded
       // documents ride along to the new chat (the images are always in the PDF).
       '    <label class="cn-compress" data-addfiles-row hidden>',
@@ -798,6 +860,13 @@
 
       // ── Settings view ──
       '<div data-view-settings hidden>',
+      // Lifetime AI-compression savings. Always present (shows a guiding zero-state
+      // before the first compression) so the figure is discoverable here.
+      '  <div class="cn-section">',
+      '    <div class="cn-label">Compression stats</div>',
+      '    <div class="cn-metric" data-compress-stats></div>',
+      "  </div>",
+      '  <div class="cn-divider"></div>',
       // Sync & integrations — placeholders for now. Quiet, non-interactive teaser
       // rows (brand mark + name + "Soon" pill) so the destinations are visible but
       // clearly not yet live.
@@ -835,7 +904,7 @@
       '        <span class="cn-switch-track"></span>',
       "      </span>",
       "    </label>",
-      '    <div class="cn-hint">When on, Continuum sends the message for you automatically — right after the attached chat history finishes uploading. When off, it fills in the message and attachment, then waits for you to review and press Send.</div>',
+      '    <div class="cn-hint">When on, Continuum sends automatically once the chat history and any additional attachments finish uploading. When off, it fills the message and attachments in and waits for you to review and press Send.</div>',
       "  </div>",
       '  <div class="cn-divider"></div>',
       '  <div class="cn-section">',
@@ -862,7 +931,7 @@
       '      <option value="grok">Grok (xAI)</option>',
       '      <option value="deepseek">DeepSeek</option>',
       "    </select>",
-      '    <input class="cn-input" id="cn-api-key" data-api-key type="password" autocomplete="off" spellcheck="false" placeholder="API key" readonly />',
+      '    <input class="cn-input" id="cn-api-key" data-api-key type="password" autocomplete="current-password" spellcheck="false" placeholder="API key" readonly />',
       '    <div class="cn-brief-sections">',
       '      <div class="cn-brief-sections-label">The handoff brief is organized as</div>',
       '      <div class="cn-chips">',
@@ -960,6 +1029,7 @@
         // both rows' visibility + labels for the newly-selected format.
         updateAttachRows();
         updateDownloadLabel(); // "Download PDF" / "Download MD" tracks the format
+        updateChatEstimate();  // token estimate differs by format (PDF embeds images)
       });
     });
     // Resume button toggles the inline AI picker; each enabled target row runs
@@ -1229,6 +1299,7 @@
       apiKeyEl.value = (s.compressApiKeys && s.compressApiKeys[provider]) || "";
       _apiKeyBaseline = apiKeyEl.value.trim(); // baseline so a no-op change won't flash "saved"
     }
+    renderCompressStats(); // lifetime savings (async; fills in once storage resolves)
     panelEl.querySelector("[data-view-main]").hidden = true;
     panelEl.querySelector("[data-view-detail]").hidden = true;
     panelEl.querySelector("[data-view-settings]").hidden = false;
@@ -1313,9 +1384,19 @@
     const pdfFmtRadio = panelEl.querySelector('[data-resume-fmt][value="pdf"]');
     if (pdfFmtRadio) pdfFmtRadio.checked = true;
     updateDownloadLabel(); // reset the download button label to "Download PDF"
+    // Token-based gate: only offer compression when the chat is big enough to be
+    // worth condensing into a brief (a tiny chat saves little). Same predicate the
+    // compressor uses internally, so the offer and the real compression agree.
     const compressRow = panelEl.querySelector("[data-compress-row]");
-    const minTurns = (Continuum.llmCompressor && Continuum.llmCompressor.MIN_TURNS) || 4;
-    if (compressRow) compressRow.hidden = (session.turns || []).length < minTurns;
+    const worth =
+      Continuum.llmCompressor && Continuum.llmCompressor.worthCompressing
+        ? Continuum.llmCompressor.worthCompressing(session)
+        : (session.turns || []).length >= 2;
+    if (compressRow) compressRow.hidden = !worth;
+
+    // Per-chat estimate caption under the toggle — recomputed on format change
+    // (PDF embeds images → more tokens; MD references them → fewer).
+    updateChatEstimate();
 
     // Attach rows — both default OFF (opt-in). They're driven by the count of
     // ATTACHABLE media (bytes captured / mediaId), NOT the displayed chat-content
@@ -1372,6 +1453,9 @@
   // doesn't re-trigger the note's animation every tick (or fight an in-flight
   // capture, during which the chat already has messages so the state can't flip).
   let _captureGateEmpty = null; // null = unknown, true = empty, false = has messages
+  // Kept deliberately short and plain (per request): there's no chat here yet.
+  const EMPTY_CHAT_NOTE =
+    "Empty chat — nothing to capture yet. Pick a saved session below to resume it here or on another AI.";
   function updateCaptureGate() {
     if (!panelEl) return;
     const empty = !currentChatHasMessages();
@@ -1382,9 +1466,10 @@
     const el = panelEl.querySelector("[data-capture-status]");
     if (!el) return;
     if (empty) {
-      // Kept deliberately short and plain (per request): there's no chat here yet.
-      el.textContent = "This chat is empty — there's nothing to capture yet. Pick a saved chat below to resume it here, or in a new tab on another AI.";
-      el.className = "cn-status muted show"; // neutral gray (guidance, not an error); persistent (no auto-hide)
+      el.textContent = EMPTY_CHAT_NOTE;
+      el.className = "cn-status muted"; // neutral gray (guidance, not an error); collapsed until reflow
+      void el.offsetHeight;             // reflow so re-showing always runs the open animation (matches the green/red pop-in)
+      el.classList.add("show");         // persistent (no auto-hide)
       clearTimeout(_captureStatusTimer);
     } else {
       el.classList.remove("show");
@@ -1402,6 +1487,34 @@
     refreshTitleAndStats(force);
     refreshStarted();
     updateCaptureGate();
+  }
+
+  // Lifetime AI-compression savings, rendered into the Settings view. Always shows
+  // (even at zero) so the figure is discoverable — a real metric line once you've
+  // compressed a chat, a guiding zero-state before then (per empty-state UX).
+  function renderCompressStats() {
+    const el = panelEl && panelEl.querySelector("[data-compress-stats]");
+    if (!el || !Continuum.storage || !Continuum.storage.getCompressStats) return;
+    Continuum.storage.getCompressStats().then((st) => {
+      if (!el.isConnected) return;
+      const fmt = (Continuum.compressor && Continuum.compressor.formatTokens) || String;
+      if (!st || !st.chats || !st.before) {
+        setHTML(
+          el,
+          '<div class="cn-metric-empty">No chats compressed yet</div>' +
+            '<div class="cn-metric-sub">Compress a chat on resume and your lifetime token savings show up here.</div>'
+        );
+        return;
+      }
+      const saved = Math.max(0, st.before - st.after);
+      const pct = st.before ? Math.round((saved / st.before) * 100) : 0;
+      setHTML(
+        el,
+        '<div class="cn-metric-value">' + fmt(st.before) + "&#8594;" + fmt(st.after) +
+          ' tokens <span class="cn-metric-pct">(&#8722;' + pct + "%)</span></div>" +
+          '<div class="cn-metric-sub">' + fmt(saved) + " tokens saved across " + plural(st.chats, "chat") + "</div>"
+      );
+    }).catch(() => {});
   }
 
   function refreshTitleAndStats(force) {
@@ -1835,7 +1948,8 @@
     if (!panelEl) return;
     const toast = panelEl.querySelector("[data-toast]");
     toast.textContent = text;
-    toast.className = "cn-toast show" + (ok ? " ok" : " err");
+    // ok: true → green, false → red, "info" → neutral gray (guidance, not an error).
+    toast.className = "cn-toast show " + (ok === true ? "ok" : ok === "info" ? "info" : "err");
     setTimeout(() => {
       toast.className = "cn-toast";
     }, durationMs || 2600);
@@ -1855,7 +1969,19 @@
     el.classList.add("show");
     clearTimeout(_captureStatusTimer);
     _captureStatusTimer = setTimeout(() => {
-      el.classList.remove("show"); // animates closed; text stays but collapses out of view
+      el.classList.remove("show"); // begin collapsing the transient message
+      _captureGateEmpty = null;
+      // The empty-chat note is this slot's resting state — transient messages
+      // ("Session saved" / "deleted" / "reset to defaults") borrow it. On an empty
+      // tab, swap to the note and reopen BEFORE the collapse finishes (no reflow,
+      // so the transition just reverses mid-flight) — the slot morphs straight from
+      // the green/red message into the note with no blank gap in between.
+      _captureStatusTimer = setTimeout(() => {
+        if (currentChatHasMessages()) return; // non-empty: leave it collapsed
+        el.textContent = EMPTY_CHAT_NOTE;
+        el.className = "cn-status muted show";
+        _captureGateEmpty = true;
+      }, 90);
     }, 2000);
   }
 
@@ -2000,7 +2126,9 @@
       // uncompressed chat when compression was requested.)
       const allowed = await ensureProviderHost(provider);
       if (!allowed) {
-        showToast("Allow access to " + providerName(provider) + " in the window that opened, then click Resume again.", false);
+        // Guidance, not an error → neutral gray, and held a little longer so it's
+        // readable while the user approves in the other window.
+        showToast("Allow access to " + providerName(provider) + " in the window that opened, then click Resume again.", "info", 5000);
         return;
       }
       // Confirm the key actually works (catches invalid/expired keys here).
