@@ -100,7 +100,7 @@
   /* Float as a content-height card. Capped to a compact height (and never past
      the viewport) so a long saved-sessions list scrolls inside the card via its
      single side scrollbar, instead of stretching the panel down the screen. */
-  max-height: min(640px, calc(100vh - 32px));
+  max-height: min(580px, calc(100vh - 32px));
   background: var(--cn-paper);
   color: var(--cn-ink);
   /* More vivid indigo than the base accent so the thin border reads as colour. */
@@ -236,7 +236,7 @@
   transition: background var(--cn-t), border-color var(--cn-t),
     opacity var(--cn-t);
 }
-.cn-btn-primary:hover {
+.cn-btn-primary:hover:not(:disabled) {
   background: #000;
   border-color: #000;
 }
@@ -1175,11 +1175,13 @@
   border-color: #f6c9c9;
   color: var(--cn-danger);
 }
-/* Neutral guidance (not an error) — gray but clearly legible. */
+/* Neutral guidance (not an error) — gray but clearly legible. The box border is
+   the boldest element (thicker + stronger ink); the text gets a lighter bump. */
 .cn-toast.info {
   background: var(--cn-hover);
-  border-color: var(--cn-line-strong);
+  border: 2px solid var(--cn-ink-3);
   color: var(--cn-ink-2);
+  font-weight: 500;
 }
 
 /* ── Focus + motion ──────────────────────────────────────────────────── */
@@ -1326,8 +1328,125 @@ label.cn-label {
   outline-offset: 2px;
   border-color: var(--cn-ink);
 }
+/* Dropdowns: strip the browser's native select chrome and draw our own chevron,
+   so the closed control looks identical in Chrome and Firefox (each browser
+   renders the native widget differently otherwise). The open option list stays
+   OS-native — that part isn't CSS-styleable in Chrome. */
+select.cn-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 34px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%231f2937' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+}
+select.cn-input::-ms-expand {
+  display: none;
+}
+:host([data-theme="dark"]) select.cn-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23e5e7eb' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
 .cn-input-narrow {
   width: 84px;
+}
+/* ── Custom dropdown ─────────────────────────────────────────────────────
+   Replaces the native <select> so the open option list is fully themeable
+   (Chrome can't CSS-style native <option> popups). The native <select> stays
+   in the DOM as the value source — hidden once upgraded — so all existing
+   change/value wiring keeps working. If the JS upgrade never runs, the native
+   select above (select.cn-input) remains as a styled fallback. */
+.cn-select-native.cn-select-native {
+  display: none;
+}
+.cn-select {
+  position: relative;
+  margin-top: 8px;
+}
+.cn-select-trigger {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--cn-line-strong);
+  border-radius: var(--cn-radius);
+  background: var(--cn-paper);
+  color: var(--cn-ink);
+  font-family: var(--cn-sans);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--cn-t), box-shadow var(--cn-t);
+}
+.cn-select-trigger:hover {
+  border-color: var(--cn-ink-3);
+}
+.cn-select.open .cn-select-trigger,
+.cn-select-trigger:focus-visible {
+  outline: 2px solid var(--cn-ink);
+  outline-offset: 2px;
+  border-color: var(--cn-ink);
+}
+.cn-select-value {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cn-select-trigger::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%231f2937' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+  transition: transform var(--cn-t);
+}
+.cn-select.open .cn-select-trigger::after {
+  transform: rotate(180deg);
+}
+:host([data-theme="dark"]) .cn-select-trigger::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23e5e7eb' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.cn-select-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--cn-paper);
+  border: 1px solid var(--cn-line-strong);
+  border-radius: var(--cn-radius);
+  box-shadow: 0 10px 28px rgba(20, 18, 14, 0.18);
+}
+:host([data-theme="dark"]) .cn-select-menu {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+}
+.cn-select-option {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--cn-ink);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cn-select-option.active {
+  background: var(--cn-hover);
+}
+.cn-select-option.selected {
+  background: var(--cn-hover);
+  font-weight: 600;
 }
 .cn-field-label {
   display: block;
@@ -1344,10 +1463,11 @@ label.cn-label {
 }
 
 /* ── Minimal scrollbars ──────────────────────────────────────────────────
-   Just a rounded thumb — no track, no up/down arrow buttons. Applied to EVERY
-   scrollable element inside the panel's shadow root (`:host *`), so it doesn't
-   matter which element actually scrolls. Scoped to the shadow root, so
-   the host page's own scrollbars are untouched. */
+   Just a rounded thumb — no track, no up/down arrow buttons. Always visible
+   when content overflows (so it's the cue that a view scrolls — important for
+   the long Settings view). Applied to EVERY scrollable element in the shadow
+   root (`:host *`); scoped to the shadow root so the host page's own scrollbars
+   are untouched. */
 :host {
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: var(--cn-line-strong) transparent;
@@ -1359,8 +1479,8 @@ label.cn-label {
 :host *::-webkit-scrollbar-track {
   background: transparent;
   /* Keep the thumb clear of the rounded top/bottom corners (and the × button)
-     when scrolled fully up or down. */
-  margin: 14px 0;
+     when scrolled fully up or down. Larger inset = a shorter thumb. */
+  margin: 50px 0;
 }
 :host *::-webkit-scrollbar-corner {
   background: transparent;
@@ -1473,7 +1593,7 @@ label.cn-label {
 /* The primary button hard-codes hover: #000 in light mode; that's wrong on a
    dark surface, so lift to the brightest ink instead so the button still
    reads as "more emphasized" on hover. */
-:host([data-theme="dark"]) .cn-btn-primary:hover {
+:host([data-theme="dark"]) .cn-btn-primary:hover:not(:disabled) {
   background: var(--cn-accent-hover);
   color: var(--cn-paper);
 }

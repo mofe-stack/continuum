@@ -728,6 +728,157 @@
     el.replaceChildren(...Array.from(doc.body.childNodes));
   }
 
+  // Replace a native <select> with a custom dropdown so the open option list is
+  // fully themeable (Chrome can't CSS-style native <option> popups). The native
+  // <select> stays in the DOM as the value source — hidden, but still carrying
+  // its data-* hooks and value — so all existing change/value wiring keeps
+  // working unchanged: choosing dispatches a real `change`, and `el.value = x`
+  // from elsewhere flows through an overridden setter that re-syncs the UI.
+  function upgradeSelect(sel) {
+    if (!sel || sel.dataset.cnUpgraded) return;
+    sel.dataset.cnUpgraded = "1";
+
+    const opts = Array.from(sel.options).map((o) => ({ value: o.value, label: o.textContent }));
+    const labelFor = (v) => {
+      const o = opts.find((x) => x.value === v);
+      return o ? o.label : "";
+    };
+
+    const wrap = document.createElement("div");
+    wrap.className = "cn-select";
+
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "cn-select-trigger";
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+    const valSpan = document.createElement("span");
+    valSpan.className = "cn-select-value";
+    trigger.appendChild(valSpan);
+
+    const menu = document.createElement("div");
+    menu.className = "cn-select-menu";
+    menu.setAttribute("role", "listbox");
+    menu.hidden = true;
+
+    let activeIdx = 0;
+    const optionEls = opts.map((o, i) => {
+      const el = document.createElement("div");
+      el.className = "cn-select-option";
+      el.setAttribute("role", "option");
+      el.dataset.value = o.value;
+      el.textContent = o.label;
+      el.addEventListener("click", () => {
+        choose(o.value);
+        closeMenu();
+        trigger.focus();
+      });
+      el.addEventListener("mousemove", () => setActive(i));
+      menu.appendChild(el);
+      return el;
+    });
+
+    function setActive(i) {
+      activeIdx = Math.max(0, Math.min(optionEls.length - 1, i));
+      optionEls.forEach((el, idx) => el.classList.toggle("active", idx === activeIdx));
+      const el = optionEls[activeIdx];
+      if (el) el.scrollIntoView({ block: "nearest" });
+    }
+    function refresh() {
+      const v = sel.value;
+      valSpan.textContent = labelFor(v);
+      optionEls.forEach((el) => {
+        const on = el.dataset.value === v;
+        el.classList.toggle("selected", on);
+        el.setAttribute("aria-selected", on ? "true" : "false");
+      });
+    }
+    // Use the prototype's native value setter so we can update the underlying
+    // <select> without re-entering our own overridden setter below.
+    const nativeDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value");
+    function choose(v) {
+      const changed = sel.value !== v;
+      nativeDesc.set.call(sel, v);
+      refresh();
+      if (changed) sel.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    // Intercept external programmatic `sel.value = x` (e.g. when Settings opens)
+    // so the custom UI re-syncs. Mirrors native behaviour: no `change` event.
+    Object.defineProperty(sel, "value", {
+      configurable: true,
+      get() {
+        return nativeDesc.get.call(sel);
+      },
+      set(v) {
+        nativeDesc.set.call(sel, v);
+        refresh();
+      },
+    });
+
+    function openMenu() {
+      if (!menu.hidden) return;
+      menu.hidden = false;
+      wrap.classList.add("open");
+      trigger.setAttribute("aria-expanded", "true");
+      const cur = optionEls.findIndex((el) => el.dataset.value === sel.value);
+      setActive(cur < 0 ? 0 : cur);
+      document.addEventListener("pointerdown", onDocDown, true);
+    }
+    function closeMenu() {
+      if (menu.hidden) return;
+      menu.hidden = true;
+      wrap.classList.remove("open");
+      trigger.setAttribute("aria-expanded", "false");
+      document.removeEventListener("pointerdown", onDocDown, true);
+    }
+    function onDocDown(e) {
+      const path = e.composedPath ? e.composedPath() : [];
+      if (!path.includes(wrap)) closeMenu();
+    }
+    trigger.addEventListener("click", () => {
+      if (menu.hidden) openMenu();
+      else closeMenu();
+    });
+    trigger.addEventListener("keydown", (e) => {
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          if (menu.hidden) openMenu();
+          else setActive(activeIdx + 1);
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          if (menu.hidden) openMenu();
+          else setActive(activeIdx - 1);
+          break;
+        case "Enter":
+        case " ":
+          e.preventDefault();
+          if (menu.hidden) openMenu();
+          else {
+            choose(optionEls[activeIdx].dataset.value);
+            closeMenu();
+          }
+          break;
+        case "Escape":
+          if (!menu.hidden) {
+            e.preventDefault();
+            closeMenu();
+          }
+          break;
+        case "Tab":
+          closeMenu();
+          break;
+      }
+    });
+
+    sel.classList.add("cn-select-native");
+    sel.parentNode.insertBefore(wrap, sel.nextSibling);
+    wrap.appendChild(trigger);
+    wrap.appendChild(menu);
+    refresh();
+  }
+
   // ── DOM construction ────────────────────────────────────────────────
   function build(root) {
     backdropEl = document.createElement("div");
@@ -1004,6 +1155,10 @@
     ["keydown", "keyup", "keypress", "input", "beforeinput"].forEach((type) => {
       panelEl.addEventListener(type, (e) => e.stopPropagation());
     });
+
+    // Upgrade native <select> menus to fully-themeable custom dropdowns before
+    // the wiring below queries them (their data-* hooks and value survive).
+    panelEl.querySelectorAll("select.cn-input").forEach(upgradeSelect);
 
     const $ = (sel) => panelEl.querySelector(sel);
     $("[data-close]").addEventListener("click", close);
