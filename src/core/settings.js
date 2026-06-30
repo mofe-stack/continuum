@@ -44,18 +44,18 @@
   // prior conversation is attached so it continues seamlessly. User-editable.
   const DEFAULT_RESUME_PREAMBLE =
     "Continue from our previous conversation. The entire chat history is attached " +
-    "as `conversation-history.pdf` — every message, with uploaded files' contents " +
-    "inlined and the images embedded inline so you can read AND see everything. " +
-    "You have the complete prior context, so pick up exactly where we left off — " +
-    "same goals, decisions, constraints, and current state. Don't recap the " +
-    "history back to me; just continue as if this is the same conversation.";
+    "as `conversation-history.pdf` — every message, with any uploaded files' " +
+    "contents inlined and any images embedded inline, so you can read it and see " +
+    "the images directly. You have the complete prior context, so pick up exactly " +
+    "where we left off — same goals, decisions, constraints, and current state. " +
+    "Don't recap the history back to me; just continue as if this is the same conversation.";
   // Markdown-format default: only the .md is attached (text-only, lighter than the
   // PDF). Text-file contents are inlined; images and binary files are referenced by
   // name but NOT attached — so the message must NOT promise the model can see them.
   const DEFAULT_RESUME_PREAMBLE_MD =
     "Continue from our previous conversation. The entire chat history is attached " +
-    "as `conversation-history.md` — every message, with uploaded text files' " +
-    "contents inlined. Images and binary files are referenced by name (not " +
+    "as `conversation-history.md` — every message, with any uploaded text files' " +
+    "contents inlined. Any images and other files are referenced by name (not " +
     "attached), so you won't see those directly. You have the complete prior " +
     "context, so pick up exactly where we left off — same goals, decisions, " +
     "constraints, and current state. Don't recap the history back to me; just " +
@@ -68,18 +68,16 @@
     "Continue from our previous conversation. Attached as `conversation-history.pdf` is a " +
     "structured handoff brief of our entire chat so far — organized under Completed work, Current " +
     "state, In progress, Next steps, Constraints, Critical context, and Discarded attempts, with " +
-    "the important decisions, instructions, code, files, and images preserved — images embedded " +
-    "inline and files referenced by name, with a one-line note on each. " +
-    "This brief is your complete prior context — pick up exactly where we left off and follow the " +
-    "Next steps. Don't recap it back to me; just continue as if this is the same conversation.";
+    "images embedded inline and files referenced by name, each with a one-line note. " +
+    "This brief is your complete prior context — pick up exactly where we left off. Don't recap " +
+    "it back to me; just continue as if this is the same conversation.";
   const DEFAULT_RESUME_PREAMBLE_COMPRESSED_MD =
     "Continue from our previous conversation. Attached as `conversation-history.md` is a structured " +
     "handoff brief of our entire chat so far — organized under Completed work, Current state, In " +
-    "progress, Next steps, Constraints, Critical context, and Discarded attempts, with the " +
-    "important decisions, instructions, code, files, and images preserved — images and files " +
-    "referenced by name (not attached), with a one-line note on each. This " +
-    "brief is your complete prior context — pick up exactly where we left off and follow the Next " +
-    "steps. Don't recap it back to me; just continue as if this is the same conversation.";
+    "progress, Next steps, Constraints, Critical context, and Discarded attempts, with images and " +
+    "files referenced by name (not attached), each with a one-line note. This " +
+    "brief is your complete prior context — pick up exactly where we left off. Don't recap it back " +
+    "to me; just continue as if this is the same conversation.";
   const MAX_PREAMBLE_LEN = 4000; // guard against pathological input
 
   let _cache = null;                       // last known settings, populated by init()
