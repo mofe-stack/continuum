@@ -20,6 +20,7 @@ STATUS.md
 make_store_shots.ps1
 pack-xpi.js
 mcp/
+website/
 
 # Tooling / editor / OS
 .claude/

@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Continuum">
-  <rect width="32" height="32" rx="7" fill="#ffffff"/>
-  <g transform="translate(4,4)">
-    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" fill="none" stroke="#1c2536" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10 5.5 11 7.55 13 8.5 11 9.45 10 11.5 9 9.45 7 8.5 9 7.55Z" fill="#1c2536"/>
-    <path d="M13 9.4 13.52 10.48 14.6 11 13.52 11.52 13 12.6 12.48 11.52 11.4 11 12.48 10.48Z" fill="#1c2536"/>
-  </g>
-</svg>
