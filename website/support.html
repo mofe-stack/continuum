@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Continuum — Support & changelog</title>
+  <meta name="description" content="Continuum release history, plus how to reach us, leave a review, or view the open-source code on GitHub." />
+  <meta name="theme-color" content="#0d111a" />
+  <link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="preload" href="assets/fonts/outfit-600.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora-blob a"></span>
+    <span class="aurora-blob b"></span>
+    <span class="aurora-blob c"></span>
+    <div class="grain"></div>
+  </div>
+
+  <header class="nav" data-reveal>
+    <a class="brand" href="index.html#top" aria-label="Continuum home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 5.5 11 7.55 13 8.5 11 9.45 10 11.5 9 9.45 7 8.5 9 7.55Z" fill="currentColor"/>
+          <path d="M13 9.4 13.52 10.48 14.6 11 13.52 11.52 13 12.6 12.48 11.52 11.4 11 12.48 10.48Z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="brand-name">Continuum</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#features">Features</a>
+      <a href="index.html#private">Privacy</a>
+      <a href="support.html" aria-current="page">Support</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-primary btn-sm" href="#" data-store="chrome" data-magnetic data-ripple>
+        <img class="btn-ico" src="assets/logos/chrome.svg" alt="" width="18" height="18" />
+        Add to Chrome
+      </a>
+      <a class="btn btn-glass btn-sm" href="#" data-store="firefox" data-magnetic data-ripple>
+        <img class="btn-ico" src="assets/logos/firefox.svg" alt="" width="18" height="18" />
+        Add to Firefox
+      </a>
+    </div>
+  </header>
+
+  <main class="support" id="top">
+    <header class="support-head" data-reveal>
+      <span class="eyebrow">Support &amp; changelog</span>
+      <h1>Every version, and where to reach us.</h1>
+      <p class="legal-lede">A running history of what changed in each Continuum release, plus the fastest ways to get help, leave a review, or read the source.</p>
+    </header>
+
+    <!-- ───────────────────────── changelog ──────────────────────── -->
+    <section class="support-block" aria-labelledby="changelog-h">
+      <div class="support-block-head" data-reveal>
+        <h2 id="changelog-h">Version history</h2>
+        <p>Newest first. Continuum is updated often, with most releases focused on broader capture and cleaner hand-offs.</p>
+      </div>
+
+      <ol class="cl-timeline">
+        <li class="cl-item cl-latest" data-reveal>
+          <span class="cl-dot" aria-hidden="true"></span>
+          <div class="glass cl-card" data-spotlight>
+            <div class="cl-top">
+              <span class="cl-ver">1.3.3</span>
+              <span class="cl-flag">Latest</span>
+            </div>
+            <div class="cl-meta">Jul 1, 2026</div>
+            <p class="cl-quiet">Stability and maintenance.</p>
+          </div>
+        </li>
+
+        <li class="cl-item" data-reveal>
+          <span class="cl-dot" aria-hidden="true"></span>
+          <div class="glass cl-card" data-spotlight>
+            <div class="cl-top">
+              <span class="cl-ver">1.3.2</span>
+              <span class="cl-tag tag-improved">Improved</span>
+            </div>
+            <div class="cl-meta">Jun 29, 2026</div>
+            <ul class="cl-notes">
+              <li>Refined the interface to a smaller, more minimal panel with a cleaner, lighter layout.</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="cl-item" data-reveal>
+          <span class="cl-dot" aria-hidden="true"></span>
+          <div class="glass cl-card" data-spotlight>
+            <div class="cl-top">
+              <span class="cl-ver">1.3.1</span>
+              <span class="cl-tag tag-fix">Fix</span>
+            </div>
+            <div class="cl-meta">Jun 28, 2026</div>
+            <ul class="cl-notes">
+              <li>Fixed the extension not showing on an empty &ldquo;new chat&rdquo; page.</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="cl-item" data-reveal>
+          <span class="cl-dot" aria-hidden="true"></span>
+          <div class="glass cl-card" data-spotlight>
+            <div class="cl-top">
+              <span class="cl-ver">1.3.0</span>
+              <span class="cl-tag tag-new">New</span>
+            </div>
+            <div class="cl-meta">Jun 24, 2026</div>
+            <ul class="cl-notes">
+              <li><strong>Refined export formatting.</strong> PDF and Markdown histories now use a cleaner, more readable layout, consistent across AI-compressed and full exports.</li>
+              <li><strong>Broader capture coverage.</strong> Captures more of each conversation, reducing the chance of missing content.</li>
+              <li><strong>New download option.</strong> Export a conversation as PDF or Markdown with a single click.</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="cl-item" data-reveal>
+          <span class="cl-dot" aria-hidden="true"></span>
+          <div class="glass cl-card" data-spotlight>
+            <div class="cl-top">
+              <span class="cl-ver">1.2.0</span>
+              <span class="cl-tag tag-improved">Improved</span>
+            </div>
+            <div class="cl-meta">Jun 22, 2026</div>
+            <ul class="cl-notes">
+              <li><strong>Smarter AI compression.</strong> Instead of just cutting old messages, it turns the whole chat into a structured summary (completed work, current state, in progress, next steps, constraints, critical context, discarded attempts) while preserving your decisions, code, files, and images, plus a custom resume message.</li>
+              <li><strong>Full Gemini capture.</strong> Loads the entire conversation before capturing, so long, virtualized chats are saved in full with no manual scrolling.</li>
+              <li><strong>Search</strong> across your saved AI chats.</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+
+      <!-- collapsible older versions -->
+      <div class="cl-collapse" id="clOlder">
+        <div class="cl-collapse-inner">
+          <ol class="cl-timeline">
+            <li class="cl-item">
+              <span class="cl-dot" aria-hidden="true"></span>
+              <div class="glass cl-card" data-spotlight>
+                <div class="cl-top"><span class="cl-ver">1.1.1</span><span class="cl-tag tag-fix">Fix</span></div>
+                <div class="cl-meta">Jun 20, 2026</div>
+                <ul class="cl-notes"><li>Fixed the extension not working or showing on logged-out AI chats.</li></ul>
+              </div>
+            </li>
+            <li class="cl-item">
+              <span class="cl-dot" aria-hidden="true"></span>
+              <div class="glass cl-card" data-spotlight>
+                <div class="cl-top"><span class="cl-ver">1.1.0</span></div>
+                <div class="cl-meta">Jun 19, 2026</div>
+                <p class="cl-quiet">Stability and maintenance.</p>
+              </div>
+            </li>
+            <li class="cl-item">
+              <span class="cl-dot" aria-hidden="true"></span>
+              <div class="glass cl-card" data-spotlight>
+                <div class="cl-top"><span class="cl-ver">1.0.9</span></div>
+                <div class="cl-meta">Jun 19, 2026</div>
+                <p class="cl-quiet">Stability and maintenance.</p>
+              </div>
+            </li>
+            <li class="cl-item">
+              <span class="cl-dot" aria-hidden="true"></span>
+              <div class="glass cl-card" data-spotlight>
+                <div class="cl-top"><span class="cl-ver">1.0.8</span><span class="cl-tag tag-fix">Fix</span></div>
+                <div class="cl-meta">Jun 16, 2026</div>
+                <ul class="cl-notes"><li>Fixed the ChatGPT upload-limit bug and removed Claude&rsquo;s &ldquo;thinking&rdquo; text from the conversation transcript.</li></ul>
+              </div>
+            </li>
+            <li class="cl-item">
+              <span class="cl-dot" aria-hidden="true"></span>
+              <div class="glass cl-card" data-spotlight>
+                <div class="cl-top"><span class="cl-ver">1.0.7</span><span class="cl-tag tag-fix">Fix</span></div>
+                <div class="cl-meta">Jun 15, 2026</div>
+                <ul class="cl-notes"><li>Fixed PDF chat resume, and you can now open Continuum by clicking its toolbar icon.</li></ul>
+              </div>
+            </li>
+            <li class="cl-item">
+              <span class="cl-dot" aria-hidden="true"></span>
+              <div class="glass cl-card" data-spotlight>
+                <div class="cl-top"><span class="cl-ver">1.0.6</span><span class="cl-tag tag-new">New</span></div>
+                <div class="cl-meta">Jun 11, 2026</div>
+                <ul class="cl-notes"><li>Added compatibility with Perplexity.</li></ul>
+              </div>
+            </li>
+            <li class="cl-item">
+              <span class="cl-dot" aria-hidden="true"></span>
+              <div class="glass cl-card" data-spotlight>
+                <div class="cl-top"><span class="cl-ver">1.0.5</span><span class="cl-tag tag-fix">Fix</span></div>
+                <div class="cl-meta">Jun 10, 2026</div>
+                <ul class="cl-notes"><li>Fixed bugs including the message, image, and file counters and file-attachment detection.</li></ul>
+              </div>
+            </li>
+            <li class="cl-item">
+              <span class="cl-dot" aria-hidden="true"></span>
+              <div class="glass cl-card" data-spotlight>
+                <div class="cl-top"><span class="cl-ver">1.0.4</span><span class="cl-tag tag-new">New</span></div>
+                <div class="cl-meta">Jun 6, 2026</div>
+                <ul class="cl-notes"><li>First public release of Continuum.</li></ul>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="cl-toggle-wrap" data-reveal>
+        <button class="btn btn-glass cl-toggle" type="button" aria-expanded="false" aria-controls="clOlder" data-ripple>
+          <span class="cl-toggle-txt">Show older versions</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── get in touch ───────────────────── -->
+    <section class="support-block" aria-labelledby="touch-h">
+      <div class="support-block-head" data-reveal>
+        <h2 id="touch-h">Get in touch</h2>
+        <p>Hit a bug, have a question, or want to suggest a feature? We&rsquo;d love to hear from you. The fastest way to reach us is by email, and we usually reply within 24 hours.</p>
+      </div>
+
+      <div class="contact-grid">
+        <article class="glass contact-card" data-reveal data-spotlight>
+          <span class="contact-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          </span>
+          <div class="contact-body">
+            <h3>Email</h3>
+            <a class="contact-link" href="mailto:mofecontinuum@gmail.com">mofecontinuum@gmail.com</a>
+            <p class="contact-note">Please include your browser version, which AI platform you were on, and what you were trying to do when it happened. Screenshots always help.</p>
+          </div>
+        </article>
+
+        <article class="glass contact-card" data-reveal data-reveal-delay="1" data-spotlight>
+          <span class="contact-ico" aria-hidden="true">
+            <img src="assets/logos/chrome.svg" alt="" width="23" height="23" />
+          </span>
+          <div class="contact-body">
+            <h3>Chrome Web Store</h3>
+            <a class="link-arrow" href="https://chromewebstore.google.com/detail/continuum-capture-save-re/nnohcpdjcfhkpmplgpcabpfipnokinbi/reviews" target="_blank" rel="noopener">Leave a review or report an issue<span aria-hidden="true">→</span></a>
+            <p class="contact-note">Public reviews help others find the extension and tell us what to improve. <a class="contact-link" href="https://chromewebstore.google.com/detail/continuum-capture-save-re/nnohcpdjcfhkpmplgpcabpfipnokinbi" target="_blank" rel="noopener">View the listing</a>.</p>
+          </div>
+        </article>
+
+        <article class="glass contact-card" data-reveal data-reveal-delay="2" data-spotlight>
+          <span class="contact-ico" aria-hidden="true">
+            <img src="assets/logos/firefox.svg" alt="" width="23" height="23" />
+          </span>
+          <div class="contact-body">
+            <h3>Firefox Add-ons</h3>
+            <a class="link-arrow" href="https://addons.mozilla.org/en-US/firefox/addon/continuum/reviews/" target="_blank" rel="noopener">Leave a review on Firefox<span aria-hidden="true">→</span></a>
+            <p class="contact-note">Rate Continuum on AMO so more Firefox users discover it. <a class="contact-link" href="https://addons.mozilla.org/en-US/firefox/addon/continuum/" target="_blank" rel="noopener">View the listing</a>.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── open source ────────────────────── -->
+    <section class="support-block" aria-labelledby="oss-h">
+      <div class="support-block-head" data-reveal>
+        <h2 id="oss-h">Open source</h2>
+        <p>Continuum is fully open source. Read the code, file an issue, or send a pull request.</p>
+      </div>
+
+      <article class="glass oss-card" data-reveal data-spotlight>
+        <span class="oss-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.305-5.467-1.334-5.467-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23a11.5 11.5 0 0 1 3-.405c1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        </span>
+        <div class="oss-text">
+          <h3>github.com/mofe-stack/continuum</h3>
+          <p>The full extension is released under the MIT License. Star the repo to follow along, or open an issue if you hit a bug or have a feature in mind.</p>
+          <div class="oss-actions">
+            <a class="btn btn-glass" href="https://github.com/mofe-stack/continuum" target="_blank" rel="noopener" data-magnetic data-ripple>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.305-5.467-1.334-5.467-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23a11.5 11.5 0 0 1 3-.405c1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+              View on GitHub
+            </a>
+            <span class="cl-tag tag-improved" style="align-self:center">MIT License</span>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <a class="brand" href="index.html#top" aria-label="Continuum home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 5.5 11 7.55 13 8.5 11 9.45 10 11.5 9 9.45 7 8.5 9 7.55Z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="brand-name">Continuum</span>
+    </a>
+    <p class="foot-note">Capture, save, and resume AI chats. Private by design.</p>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#features">Features</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Continuum — Capture, save & resume AI chats</title>
+  <meta name="description" content="Continuum captures a full AI conversation and reopens it in a fresh chat on any platform, with every message, file, and image intact. 100% local." />
+  <meta property="og:title" content="Continuum — Capture, save & resume AI chats" />
+  <meta property="og:description" content="Save any AI chat and resume it anywhere, with context intact. A private, local browser extension." />
+  <meta name="theme-color" content="#0d111a" />
+  <link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="preload" href="assets/fonts/outfit-600.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ambient aurora field (decorative, pointer-events:none) -->
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora-blob a"></span>
+    <span class="aurora-blob b"></span>
+    <span class="aurora-blob c"></span>
+    <div class="grain"></div>
+  </div>
+
+  <!-- ─────────────────────────── nav ─────────────────────────── -->
+  <header class="nav" data-reveal>
+    <a class="brand" href="#top" aria-label="Continuum home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 5.5 11 7.55 13 8.5 11 9.45 10 11.5 9 9.45 7 8.5 9 7.55Z" fill="currentColor"/>
+          <path d="M13 9.4 13.52 10.48 14.6 11 13.52 11.52 13 12.6 12.48 11.52 11.4 11 12.48 10.48Z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="brand-name">Continuum</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#private">Privacy</a>
+      <a href="support.html">Support</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-primary btn-sm" href="#" data-store="chrome" data-magnetic data-ripple>
+        <img class="btn-ico" src="assets/logos/chrome.svg" alt="" width="18" height="18" />
+        Add to Chrome
+      </a>
+      <a class="btn btn-glass btn-sm" href="#" data-store="firefox" data-magnetic data-ripple>
+        <img class="btn-ico" src="assets/logos/firefox.svg" alt="" width="18" height="18" />
+        Add to Firefox
+      </a>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ─────────────────────────── hero ─────────────────────────── -->
+    <section class="hero">
+      <div class="hero-copy">
+        <h1 class="hero-title" data-reveal>
+          Save any AI chat.<br /><span class="ink-em">Resume it anywhere.</span>
+        </h1>
+        <p class="hero-sub" data-reveal data-reveal-delay="1">
+          Continuum captures the full conversation and reopens it in a fresh chat on any AI, with every message, image, file, and code block intact.
+        </p>
+        <div class="hero-cta" data-reveal data-reveal-delay="2">
+          <a class="btn btn-primary" href="#get" data-magnetic data-ripple>
+            <img class="btn-ico" src="assets/logos/chrome.svg" alt="" width="20" height="20" />
+            Add to Chrome
+          </a>
+          <a class="btn btn-glass" href="#get" data-magnetic data-ripple>
+            <img class="btn-ico" src="assets/logos/firefox.svg" alt="" width="20" height="20" />
+            Add to Firefox
+          </a>
+        </div>
+        <p class="hero-foot" data-reveal data-reveal-delay="3">Free. Works locally. No account.</p>
+      </div>
+
+      <div class="hero-stage" data-reveal data-reveal-delay="2">
+        <div class="tilt" data-tilt>
+          <div class="glass device">
+            <div class="cpanel" role="img" aria-label="Continuum panel capturing an AI conversation and listing saved chats by assistant">
+              <div class="cp-head">
+                <span class="cp-brand">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 5.5 11 7.55 13 8.5 11 9.45 10 11.5 9 9.45 7 8.5 9 7.55Z" fill="currentColor"/>
+                    <path d="M13 9.4 13.52 10.48 14.6 11 13.52 11.52 13 12.6 12.48 11.52 11.4 11 12.48 10.48Z" fill="currentColor"/>
+                  </svg>Continuum
+                </span>
+                <span class="cp-actions">
+                  <span class="cp-review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.27 5.82.85-4.21 4.1.99 5.78L12 16.77l-5.2 2.73.99-5.78-4.21-4.1 5.82-.85z"/></svg>Review</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </span>
+              </div>
+
+              <div class="cp-label">Current chat</div>
+              <div class="cp-title">Troubleshooting an error</div>
+              <div class="cp-stats">124 messages · 37 images · 1 file</div>
+              <div class="cp-started">Started Jun 20, 2026</div>
+
+              <button class="cp-capture" type="button" tabindex="-1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Capture this session
+              </button>
+
+              <hr class="cp-div" />
+              <div class="cp-rowlabel"><span>Saved sessions (3)</span><span>Select</span></div>
+              <div class="cp-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                Search saved chats
+              </div>
+
+              <div class="cp-tree">
+                <div class="cp-group">
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                  All saved chats
+                  <svg class="dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>
+                </div>
+                <div class="cp-group cp-indent">
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                  Claude <span class="cp-badge"><svg viewBox="0 0 24 24" fill="#cc785c" aria-hidden="true"><path d="M12 2.5 10.9 12 13.1 12Z M12 21.5 13.1 12 10.9 12Z M2.5 12 12 13.1 12 10.9Z M21.5 12 12 10.9 12 13.1Z M7.4 7.4 12.7 11.3 11.3 12.7Z M16.6 7.4 12.7 12.7 11.3 11.3Z M16.6 16.6 11.3 12.7 12.7 11.3Z M7.4 16.6 11.3 11.3 12.7 12.7Z"/><circle cx="12" cy="12" r="2.1"/></svg></span> <span class="count">(1)</span>
+                  <svg class="dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>
+                </div>
+                <div class="cp-leaf">Troubleshooting an error <span class="date cp-mono">Jun 21, 2026</span></div>
+                <div class="cp-group cp-indent">
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                  ChatGPT <span class="cp-badge"><svg viewBox="0 0 24 24" fill="none" stroke="#10a37f" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.6 20.1 7.3 20.1 16.7 12 21.4 3.9 16.7 3.9 7.3Z"/></svg></span> <span class="count">(1)</span>
+                  <svg class="dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>
+                </div>
+                <div class="cp-leaf">Professionalizing Message Tone <span class="date cp-mono">Jun 21, 2026</span></div>
+                <div class="cp-group cp-indent">
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                  Gemini <span class="cp-badge"><svg viewBox="0 0 24 24" fill="#4285f4" aria-hidden="true"><path d="M12 2c.45 5.35 4.3 9.2 9.65 9.65v.7C16.3 12.8 12.45 16.65 12 22h-.7C10.85 16.65 7 12.8 1.65 12.35v-.7C7 11.2 10.85 7.35 11.3 2Z"/></svg></span> <span class="count">(1)</span>
+                  <svg class="dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>
+                </div>
+                <div class="cp-leaf">Identifying a Floating Input W... <span class="date cp-mono">Jun 21, 2026</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="device-glow" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── works-with strip ─────────────────── -->
+    <section class="strip" data-reveal aria-label="Supported AI platforms">
+      <span class="strip-label">Works with</span>
+      <ul class="strip-logos">
+        <li style="--c:217,119,87"><span class="ai-logo" style="--src:url(assets/logos/claude.svg)" title="Claude"></span>Claude</li>
+        <li style="--c:16,163,127"><span class="ai-logo" style="--src:url(assets/logos/openai.svg)" title="ChatGPT"></span>ChatGPT</li>
+        <li style="--c:59,130,246"><span class="ai-logo" style="--src:url(assets/logos/gemini.svg)" title="Gemini"></span>Gemini</li>
+        <li style="--c:32,184,205"><span class="ai-logo" style="--src:url(assets/logos/perplexity.svg)" title="Perplexity"></span>Perplexity</li>
+      </ul>
+    </section>
+
+    <div id="features"></div>
+
+    <!-- ───────────────────── feature: resume ────────────────────── -->
+    <section class="feature split">
+      <div class="feature-copy" data-reveal>
+        <h2>Resume on any AI platform.</h2>
+        <p>Hit a length limit on Claude? Pick the thread back up on ChatGPT, Gemini, or Perplexity. Continuum writes the hand-off and attaches the history, so the new model starts with full context.</p>
+        <ul class="ticks">
+          <li>One conversation, any destination</li>
+          <li>The hand-off message is editable</li>
+          <li>Optional auto-send when the upload finishes</li>
+        </ul>
+      </div>
+      <div class="feature-art" data-reveal data-reveal-delay="1">
+        <div class="glass device spotlight" data-spotlight>
+          <img src="assets/shots/panel-2.png" alt="Continuum resume panel with a picker for Claude, ChatGPT, Gemini, and Perplexity" loading="lazy" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────── feature: export (reversed) ─────────────── -->
+    <section class="feature split reverse">
+      <div class="feature-art" data-reveal>
+        <div class="glass device spotlight" data-spotlight>
+          <img src="assets/shots/panel-3.png" alt="Continuum export options: PDF, Markdown, copy chat history, and save as zip" loading="lazy" />
+        </div>
+      </div>
+      <div class="feature-copy" data-reveal data-reveal-delay="1">
+        <h2>A PDF the model can read <em>and</em> see.</h2>
+        <p>Continuum builds a single PDF of the whole chat. The text is real, not a screenshot, and your images are embedded inline so the resuming model can actually look at them, not just hear about them.</p>
+        <ul class="ticks">
+          <li>Files inlined, images embedded</li>
+          <li>Markdown for a lighter, text-only hand-off</li>
+          <li>One-click copy of the whole chat history</li>
+          <li>Or a full .zip archive of everything</li>
+        </ul>
+        <a class="link-arrow" href="example-pdf.html">See an example PDF<span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <!-- ─────────────── break: formats (full-width) ──────────────── -->
+    <section class="formats" data-reveal>
+      <h2 class="formats-title">Carry it your way.</h2>
+      <div class="format-row">
+        <article class="glass fmt" data-spotlight>
+          <span class="fmt-tag">PDF</span>
+          <h3>Read and seen</h3>
+          <p>Real text, not a screenshot, plus embedded images. The richest hand-off for vision models.</p>
+        </article>
+        <article class="glass fmt" data-spotlight>
+          <span class="fmt-tag">Markdown</span>
+          <h3>Light and fast</h3>
+          <p>Text-only, fewer tokens. Files and images referenced by name.</p>
+        </article>
+        <article class="glass fmt" data-spotlight>
+          <span class="fmt-tag">ZIP</span>
+          <h3>The full archive</h3>
+          <p>Every message, file, and image saved to disk, exactly as captured.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ─────────────────── feature: compression ─────────────────── -->
+    <section class="feature split">
+      <div class="feature-copy" data-reveal>
+        <span class="eyebrow">AI compression</span>
+        <h2>Trim tokens by up to <span class="stat-pop" data-count="95">95</span>%.</h2>
+        <p>Condense a long chat into a structured hand-off brief, organized by completed work, current state, next steps, and the constraints that matter. Your decisions, code, and images are kept; the noise is summarized.</p>
+        <ul class="ticks">
+          <li>Bring your own provider and key</li>
+          <li>Key stored locally, sent only to that provider</li>
+          <li>Lifetime token savings tracked in the panel</li>
+        </ul>
+        <a class="link-arrow" href="example-brief.html">See an example brief<span aria-hidden="true">→</span></a>
+      </div>
+      <div class="feature-art" data-reveal data-reveal-delay="1">
+        <div class="glass device spotlight" data-spotlight>
+          <img src="assets/shots/panel-5.png" alt="Continuum AI compression panel showing the structured handoff brief sections" loading="lazy" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── privacy ──────────────────────────── -->
+    <section class="private" id="private">
+      <div class="private-inner" data-reveal>
+        <h2 class="private-title"><span class="stat-pop" data-count="100">100</span>% local.<br />No account, no servers.</h2>
+        <p class="private-sub">Your chats and keys never leave your device. No tracking, no analytics, no cloud. Make it yours with dark mode, auto-send, and an editable hand-off message.</p>
+        <div class="private-grid">
+          <div class="pill" data-reveal><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M17 8l4 4m0-4l-4 4"/></svg>No sign-up</div>
+          <div class="pill" data-reveal data-reveal-delay="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="8" rx="2"/><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M6 7h.01M6 17h.01"/><path d="M3 3l18 18"/></svg>No servers</div>
+          <div class="pill" data-reveal data-reveal-delay="2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>No tracking</div>
+          <div class="pill" data-reveal data-reveal-delay="3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Open source</div>
+        </div>
+        <p class="private-more" data-reveal data-reveal-delay="3"><a class="legal-link" href="privacy.html">Read the full privacy policy</a></p>
+      </div>
+    </section>
+
+    <!-- ─────────────────── how it works (flow) ──────────────────── -->
+    <section class="how" id="how">
+      <h2 class="how-title" data-reveal>Three steps. Full context, every time.</h2>
+      <div class="stepper" data-reveal data-reveal-delay="1">
+        <div class="step-track" role="tablist" aria-label="How it works">
+          <span class="step-line" aria-hidden="true"><span class="step-line-fill"></span></span>
+          <button class="step-node" data-step="0" role="tab" aria-label="Step 1: Capture"><span>1</span></button>
+          <button class="step-node" data-step="1" role="tab" aria-label="Step 2: Resume"><span>2</span></button>
+          <button class="step-node" data-step="2" role="tab" aria-label="Step 3: Continue"><span>3</span></button>
+        </div>
+        <ol class="flow">
+          <li class="flow-step" data-step="0">
+            <span class="flow-num">01</span>
+            <span class="flow-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+            <h3>Capture</h3>
+            <p>Open the panel on any supported AI and save the live conversation in one click.</p>
+            <p class="flow-detail">Messages, images, files, and code, stored exactly as shown, on your device.</p>
+          </li>
+          <li class="flow-step" data-step="1">
+            <span class="flow-num">02</span>
+            <span class="flow-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9z"/></svg></span>
+            <h3>Resume</h3>
+            <p>Pick a destination. Continuum opens a fresh chat and attaches the history.</p>
+            <p class="flow-detail">It writes the hand-off and uploads the PDF, or pastes the markdown, for you.</p>
+          </li>
+          <li class="flow-step" data-step="2">
+            <span class="flow-num">03</span>
+            <span class="flow-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+            <h3>Continue</h3>
+            <p>The model reads the context and picks up exactly where you left off.</p>
+            <p class="flow-detail">No re-explaining. Same thread, any model, full memory of the work.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ─────────────────── coming soon / roadmap ────────────────── -->
+    <section class="soon" id="roadmap">
+      <span class="eyebrow" data-reveal>Coming soon</span>
+      <h2 class="soon-title" data-reveal>More models and agents. Notes that sync.<br />Then, an app of its own.</h2>
+      <p class="soon-sub" data-reveal data-reveal-delay="1">Continuum is just getting started. Here is what is next.</p>
+      <div class="soon-grid">
+        <article class="glass soon-card" data-reveal data-spotlight>
+          <span class="soon-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>
+          <span class="soon-tag"><i class="soon-dot"></i>Soon</span>
+          <h3>More models &amp; agents</h3>
+          <p>Grok, DeepSeek, and Copilot join the resume picker, and a session can hand off to coding agents like Claude Code, alive from chat to editor and back.</p>
+        </article>
+        <article class="glass soon-card" data-reveal data-reveal-delay="1" data-spotlight>
+          <span class="soon-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></span>
+          <span class="soon-tag"><i class="soon-dot"></i>Soon</span>
+          <h3>Sync to Obsidian &amp; Notion</h3>
+          <p>Send every captured chat straight into your Obsidian vault or Notion workspace as a clean, linked note.</p>
+        </article>
+        <article class="glass soon-card" data-reveal data-reveal-delay="2" data-spotlight>
+          <span class="soon-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg></span>
+          <span class="soon-tag"><i class="soon-dot"></i>Soon</span>
+          <h3>More export formats</h3>
+          <p>Save a chat as HTML for a browsable, self-contained page, or as JSON for clean, structured data you can pipe anywhere.</p>
+        </article>
+        <article class="glass soon-card" data-reveal data-reveal-delay="3" data-spotlight>
+          <span class="soon-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+          <span class="soon-tag"><i class="soon-dot"></i>Soon</span>
+          <h3>A desktop app</h3>
+          <p>A native Continuum app to search, organize, and resume your entire chat library outside the browser.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── final cta ──────────────────────── -->
+    <section class="get" id="get">
+      <div class="glass cta-card" data-reveal data-spotlight>
+        <h2>Bring your AI chats with you.</h2>
+        <p>Install Continuum and stop losing context to length limits.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#" data-magnetic data-ripple data-store="chrome">
+            <img class="btn-ico" src="assets/logos/chrome.svg" alt="" width="20" height="20" />
+            Add to Chrome
+          </a>
+          <a class="btn btn-glass" href="#" data-magnetic data-ripple data-store="firefox">
+            <img class="btn-ico" src="assets/logos/firefox.svg" alt="" width="20" height="20" />
+            Add to Firefox
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <a class="brand" href="#top" aria-label="Continuum home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 5.5 11 7.55 13 8.5 11 9.45 10 11.5 9 9.45 7 8.5 9 7.55Z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="brand-name">Continuum</span>
+    </a>
+    <p class="foot-note">Capture, save, and resume AI chats. Private by design.</p>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

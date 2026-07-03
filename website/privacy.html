@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Continuum — Privacy Policy</title>
+  <meta name="description" content="Continuum is local-first: no server, no account, no tracking. Your chats and API keys stay on your device." />
+  <meta name="theme-color" content="#0d111a" />
+  <link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="preload" href="assets/fonts/outfit-600.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora-blob a"></span>
+    <span class="aurora-blob b"></span>
+    <span class="aurora-blob c"></span>
+    <div class="grain"></div>
+  </div>
+
+  <header class="nav" data-reveal>
+    <a class="brand" href="index.html#top" aria-label="Continuum home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 5.5 11 7.55 13 8.5 11 9.45 10 11.5 9 9.45 7 8.5 9 7.55Z" fill="currentColor"/>
+          <path d="M13 9.4 13.52 10.48 14.6 11 13.52 11.52 13 12.6 12.48 11.52 11.4 11 12.48 10.48Z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="brand-name">Continuum</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#features">Features</a>
+      <a href="index.html#private">Privacy</a>
+      <a href="support.html">Support</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-primary btn-sm" href="#" data-store="chrome" data-magnetic data-ripple>
+        <img class="btn-ico" src="assets/logos/chrome.svg" alt="" width="18" height="18" />
+        Add to Chrome
+      </a>
+      <a class="btn btn-glass btn-sm" href="#" data-store="firefox" data-magnetic data-ripple>
+        <img class="btn-ico" src="assets/logos/firefox.svg" alt="" width="18" height="18" />
+        Add to Firefox
+      </a>
+    </div>
+  </header>
+
+  <main class="legal" id="top">
+    <header class="legal-head" data-reveal>
+      <span class="eyebrow">Privacy Policy</span>
+      <h1>Local-first, by design.</h1>
+      <p class="legal-lede">Continuum is a browser extension that captures an AI chat session and lets you resume it in a new chat. It is built local-first: your conversations and API keys stay on your own device.</p>
+      <p class="legal-updated">Last updated: June 14, 2026</p>
+    </header>
+
+    <article class="legal-body" data-reveal data-reveal-delay="1">
+      <section class="legal-callout glass">
+        <h2>The short version</h2>
+        <ul>
+          <li>There is no Continuum server, cloud, or account. We do not run a backend.</li>
+          <li>We do not collect, sell, transfer, or transmit your data to ourselves — there is no "us" to send it to.</li>
+          <li>No tracking, no analytics, and no background data collection of any kind.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>What Continuum stores, and where</h2>
+        <p>Everything Continuum saves lives in your browser's own extension storage on your device:</p>
+        <ul>
+          <li><strong>Captured chat sessions</strong> — the messages, transcripts, and any images or files captured from a conversation.</li>
+          <li><strong>Your settings</strong> — theme, resume message, and AI-compression preferences.</li>
+          <li><strong>API keys</strong> — only if you choose to use the optional "Compress with AI" feature.</li>
+        </ul>
+        <p>This data never leaves your device except in the two cases below, both of which you initiate.</p>
+      </section>
+
+      <section>
+        <h2>When data leaves your device <span class="legal-h-note">(only on your action)</span></h2>
+        <ul>
+          <li><strong>Resuming a chat.</strong> When you click "Resume in new chat," Continuum opens the AI site you chose (Claude, ChatGPT, Gemini, or Perplexity) and places your captured conversation into that site's chat box or as an attachment. The data goes to that AI provider because you asked to continue the conversation there.</li>
+          <li><strong>AI compression (optional, off by default).</strong> If you turn on "Compress with AI," your conversation is sent to the AI provider you select (for example Anthropic, OpenAI, Google, Perplexity, Grok, or DeepSeek) using your own API key, solely to condense it into a summary.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Your API keys</h2>
+        <ul>
+          <li>Keys you enter are stored locally in your browser's extension storage.</li>
+          <li>A key is sent only to the provider it belongs to (your Anthropic key goes only to Anthropic, and so on), and only when you run AI compression.</li>
+          <li>Keys are never transmitted to the developer or any third party.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Permissions, and why they're used</h2>
+        <ul>
+          <li><strong>Storage / unlimited storage</strong> — to save your captured chats and settings on your device.</li>
+          <li><strong>Access to claude.ai, chatgpt.com, gemini.google.com, and perplexity.ai</strong> — to read the conversation you're viewing so it can be captured, and to fill the chat box when you resume.</li>
+          <li><strong>Access to googleusercontent.com</strong> — to fetch images shown in Gemini chats so they can be captured.</li>
+          <li><strong>Access to AI provider API hosts</strong> (api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, api.perplexity.ai, api.x.ai, api.deepseek.com) — optional permissions requested only when you turn on AI compression, used solely for that feature with your own key.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Data retention and deletion</h2>
+        <p>Your data stays until you delete it. You can remove individual sessions, use multi-select to delete many at once, or use Factory Reset to wipe everything. Uninstalling the extension also removes its local storage.</p>
+      </section>
+
+      <section>
+        <h2>Children</h2>
+        <p>Continuum is a general-purpose productivity tool and is not directed at children.</p>
+      </section>
+
+      <section>
+        <h2>Contact</h2>
+        <p>Questions about privacy? Contact <a class="legal-link" href="mailto:mofecontinuum@gmail.com">mofecontinuum@gmail.com</a>.</p>
+      </section>
+    </article>
+  </main>
+
+  <footer class="foot">
+    <a class="brand" href="index.html#top" aria-label="Continuum home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 5.5 11 7.55 13 8.5 11 9.45 10 11.5 9 9.45 7 8.5 9 7.55Z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="brand-name">Continuum</span>
+    </a>
+    <p class="foot-note">Capture, save, and resume AI chats. Private by design.</p>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#features">Features</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

@@ -23,6 +23,8 @@ mcp/
 
 # Tooling / editor / OS
 .claude/
+.agents/
+skills-lock.json
 .vscode/
 .DS_Store
 Thumbs.db
