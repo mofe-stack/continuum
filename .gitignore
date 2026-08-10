@@ -59,3 +59,6 @@ i18n/site2.js
 
 # Long store description — marketing copy, pasted into the dashboard by hand.
 i18n/listing-detailed.js
+
+# Promo-tile artwork copy and renderer (marketing, same as the frames).
+i18n/tiles.js
