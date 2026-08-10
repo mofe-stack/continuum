@@ -28,12 +28,23 @@ function grab(decl) {
   for (; i < src.length; i++) { if (src[i] === "{") d++; else if (src[i] === "}") { d--; if (!d) { i++; break; } } }
   return src.slice(start, i);
 }
+// grab() walks braces, so it only works for functions. cleanChatGptText leans on
+// two single-line consts, which need their own extractor.
+function grabConst(name) {
+  const m = src.match(new RegExp("^[ \\t]*const " + name + "\\s*=.*$", "m"));
+  if (!m) throw new Error("not found: const " + name);
+  return m[0];
+}
+
 const sandbox = new Function(
+  grabConst("PUA_REF_RE") + "\n" +
+  grabConst("REF_TOKEN") + "\n" +
+  grab("function cleanChatGptText(text)") + "\n" +
   grab("function extractText(msg)") + "\n" +
   grab("function extractAttachments(msg)") + "\n" +
   grab("function hasGeneratedImage(msg)") + "\n" +
   grab("function nodeToRecord(node)") + "\n" +
-  "return { extractText, extractAttachments, hasGeneratedImage, nodeToRecord };"
+  "return { cleanChatGptText, extractText, extractAttachments, hasGeneratedImage, nodeToRecord };"
 )();
 const { extractAttachments, hasGeneratedImage, nodeToRecord } = sandbox;
 
