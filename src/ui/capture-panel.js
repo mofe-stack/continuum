@@ -9,6 +9,17 @@
 
   const Continuum = (window.Continuum = window.Continuum || {});
 
+  // Localized labels for Continuum's own chrome. T() escapes for interpolation
+  // into the HTML template below. TR() returns the raw string — correct for
+  // .textContent assignments (which escape nothing themselves) and for the two
+  // hints that intentionally carry <strong>/<em>, both authored by us and
+  // bundled in _locales, never user content.
+  //
+  // Captured data never passes through either one: chat titles, message text,
+  // and title-derived filenames render exactly as captured in every locale.
+  const T = (k, s) => Continuum.i18n.tEsc(k, s);
+  const TR = (k, s) => Continuum.i18n.tRaw(k, s);
+
   // Lucide icons (24x24, stroke). Inline so the extension needs no network /
   // icon-font dependency, and so nothing renders as an emoji.
   const ICON = {
@@ -291,8 +302,14 @@
     );
   }
 
+  // Counts in the stat line. Chrome's i18n has no plural support, so each unit
+  // carries an explicit one/other pair and we choose between them here. Languages
+  // without a singular/plural split (ja, zh, ko) simply define both the same.
+  const STAT_KEY = { message: "uiStatMessages", image: "uiStatImages", file: "uiStatFiles" };
   function plural(n, word) {
-    return n + " " + word + (n === 1 ? "" : "s");
+    const base = STAT_KEY[word];
+    if (!base) return n + " " + word + (n === 1 ? "" : "s");
+    return TR(base + (n === 1 ? "One" : "Other"), n);
   }
 
   // Strip characters that are INVISIBLE in a chat UI but render as blank cells in
@@ -889,43 +906,45 @@
     setHTML(panelEl, [
       // Header (back button visible in detail/settings views)
       '<div class="cn-header">',
-      '  <button class="cn-iconbtn cn-back" data-back aria-label="Back" hidden>' + svg("back", 20) + "</button>",
+      '  <button class="cn-iconbtn cn-back" data-back aria-label="' + T("uiBack") + '" hidden>' + svg("back", 20) + "</button>",
       '  <span class="cn-mark" data-mark>' + logoMark(16) + "</span>",
+      // Brand name — never translated.
       '  <span class="cn-title">Continuum</span>',
       // Rate/review CTA — hollow star + "Review", opens the store's reviews page.
-      '  <button class="cn-review" data-review aria-label="Rate Continuum" title="Rate Continuum">' +
-        svg("star", 15) + "<span>Review</span></button>",
-      '  <button class="cn-iconbtn" data-settings aria-label="Settings">' + svg("gear", 20) + "</button>",
-      '  <button class="cn-iconbtn" data-close aria-label="Close">' + svg("close", 20) + "</button>",
+      '  <button class="cn-review" data-review aria-label="' + T("uiRateContinuum") + '" title="' + T("uiRateContinuum") + '">' +
+        svg("star", 15) + "<span>" + T("uiReview") + "</span></button>",
+      '  <button class="cn-iconbtn" data-settings aria-label="' + T("uiSettings") + '">' + svg("gear", 20) + "</button>",
+      '  <button class="cn-iconbtn" data-close aria-label="' + T("uiClose") + '">' + svg("close", 20) + "</button>",
       "</div>",
 
       // ── Main view ──
       '<div data-view-main>',
       '  <div class="cn-section">',
-      '    <div class="cn-label">Current chat</div>',
+      '    <div class="cn-label">' + T("uiCurrentChat") + "</div>",
+      // data-chat-title holds the user's own chat title — captured verbatim.
       '    <div class="cn-chat-title" data-chat-title>…</div>',
       '    <div class="cn-stats" data-chat-stats>…</div>',
       '    <div class="cn-started" data-chat-started></div>',
-      '    <button class="cn-btn-primary" data-capture>' + svg("camera") + "<span>Capture this session</span></button>",
+      '    <button class="cn-btn-primary" data-capture>' + svg("camera") + "<span>" + T("uiCaptureSession") + "</span></button>",
       '    <div class="cn-progress" data-progress></div>',
       '    <div class="cn-status" data-capture-status></div>',
       "  </div>",
       '  <div class="cn-divider"></div>',
       '  <div class="cn-section">',
       '    <div class="cn-saved-head">',
-      '      <div class="cn-label" data-saved-label>Saved sessions</div>',
-      '      <button class="cn-btn-link" data-select-toggle hidden>Select</button>',
+      '      <div class="cn-label" data-saved-label>' + T("uiSavedSessions") + "</div>",
+      '      <button class="cn-btn-link" data-select-toggle hidden>' + T("uiSelect") + "</button>",
       "    </div>",
       // Filter the saved list — shown once there's anything to search. The clear (×)
       // appears only while there's text in the field.
       '    <div class="cn-search" data-search-row hidden>',
       '      <span class="cn-search-icon">' + svg("search", 15) + "</span>",
-      '      <input class="cn-search-input" data-search type="search" name="cn-search-q" placeholder="Search saved chats" aria-label="Search saved chats" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other" />',
-      '      <button class="cn-search-clear" data-search-clear type="button" aria-label="Clear search" hidden>' + svg("close", 14) + "</button>",
+      '      <input class="cn-search-input" data-search type="search" name="cn-search-q" placeholder="' + T("uiSearchSaved") + '" aria-label="' + T("uiSearchSaved") + '" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other" />',
+      '      <button class="cn-search-clear" data-search-clear type="button" aria-label="' + T("uiClearSearch") + '" hidden>' + svg("close", 14) + "</button>",
       "    </div>",
       '    <div class="cn-select-bar" data-select-bar hidden>',
-      '      <button class="cn-btn-ghost cn-btn-small" data-select-all>Select all</button>',
-      '      <button class="cn-btn-danger cn-btn-small" data-delete-selected disabled>Delete (0)</button>',
+      '      <button class="cn-btn-ghost cn-btn-small" data-select-all>' + T("uiSelectAll") + "</button>",
+      '      <button class="cn-btn-danger cn-btn-small" data-delete-selected disabled>' + T("uiDeleteCount", 0) + "</button>",
       "    </div>",
       '    <ul class="cn-list" data-list></ul>',
       "  </div>",
@@ -944,7 +963,7 @@
       // are placeholders (disabled) until per-site injectors exist.
       '    <div class="cn-resume" data-resume-wrap>',
       '      <button class="cn-btn-primary" data-resume-btn>' + svg("play") +
-        "<span>Resume in new chat</span>" +
+        "<span>" + T("uiResumeNewChat") + "</span>" +
         '<span class="cn-resume-caret">' + svg("chevron", 16) + "</span></button>",
       '      <div class="cn-resume-targets" data-resume-targets>',
       '        <div class="cn-resume-targets-inner">',
@@ -961,30 +980,31 @@
         "</span><span>Perplexity</span></button>",
       '        <button class="cn-resume-target disabled" data-resume-target="grok" disabled>' +
         '<span class="cn-resume-logo">' + providerLogo("grok", 18) +
-        '</span><span>Grok</span><span class="cn-resume-soon">soon</span></button>',
+        '</span><span>Grok</span><span class="cn-resume-soon">' + T("uiSoonLower") + '</span></button>',
       '        <button class="cn-resume-target disabled" data-resume-target="deepseek" disabled>' +
         '<span class="cn-resume-logo">' + providerLogo("deepseek", 18) +
-        '</span><span>DeepSeek</span><span class="cn-resume-soon">soon</span></button>',
+        '</span><span>DeepSeek</span><span class="cn-resume-soon">' + T("uiSoonLower") + '</span></button>',
       '        <button class="cn-resume-target disabled" data-resume-target="copilot" disabled>' +
         '<span class="cn-resume-logo">' + providerLogo("copilot", 18) +
-        '</span><span>Copilot</span><span class="cn-resume-soon">soon</span></button>',
+        '</span><span>Copilot</span><span class="cn-resume-soon">' + T("uiSoonLower") + '</span></button>',
       "        </div>",
       "      </div>",
       "    </div>",
       // Resume format selector — pick PDF or Markdown before resuming. Independent
       // of "Compress with AI": either format can be compressed.
       '    <div class="cn-format-select" data-format-row>',
-      '      <div class="cn-radio-group" role="radiogroup" aria-label="Resume format">',
+      '      <div class="cn-radio-group" role="radiogroup" aria-label="' + T("uiResumeFormat") + '">',
       '        <label class="cn-radio"><input type="radio" name="cn-resume-fmt" value="pdf" data-resume-fmt checked /><span>PDF</span></label>',
       '        <label class="cn-radio"><input type="radio" name="cn-resume-fmt" value="markdown" data-resume-fmt /><span>MD</span></label>',
       "      </div>",
-      '      <div class="cn-hint cn-format-hint"><strong>PDF</strong> embeds images and references files — heavier, but the model can <em>see</em> the images. <strong>MD</strong> references images and files by name only — much lighter (fewer tokens), text-only.</div>',
+      // Carries <strong>/<em> by design — bundled copy, not user content.
+      '      <div class="cn-hint cn-format-hint">' + TR("uiFormatHint") + "</div>",
       "    </div>",
       // Compress with AI: condense the whole chat into a structured handoff brief
       // (needs an API key in Settings). Works with either format.
       '    <label class="cn-compress" data-compress-row>',
       '      <input type="checkbox" data-compress-toggle />',
-      '      <span class="cn-compress-text" data-compress-label>Compress with AI (structured handoff brief)</span>',
+      '      <span class="cn-compress-text" data-compress-label>' + T("uiCompressWithAI") + "</span>",
       "    </label>",
       // Shown INSTEAD of the toggle when the chat is too small to be worth
       // compressing — a small static box matching the action rows.
@@ -993,20 +1013,20 @@
       // documents ride along to the new chat (the images are always in the PDF).
       '    <label class="cn-compress" data-addfiles-row hidden>',
       '      <input type="checkbox" data-addfiles-toggle />',
-      '      <span class="cn-compress-text" data-addfiles-label>Attach files to the new chat</span>',
+      '      <span class="cn-compress-text" data-addfiles-label>' + T("uiAttachFiles") + "</span>",
       "    </label>",
       // Markdown only — attach the referenced images too (PDF embeds them instead).
       '    <label class="cn-compress" data-addimages-row hidden>',
       '      <input type="checkbox" data-addimages-toggle />',
-      '      <span class="cn-compress-text" data-addimages-label>Attach images to the new chat</span>',
+      '      <span class="cn-compress-text" data-addimages-label>' + T("uiAttachImages") + "</span>",
       "    </label>",
-      '    <button class="cn-btn-ghost" data-copy>' + svg("copy") + "<span>Copy chat history</span></button>",
+      '    <button class="cn-btn-ghost" data-copy>' + svg("copy") + "<span>" + T("uiCopyChatHistory") + "</span></button>",
       // Download the exact resume handoff in the selected format (PDF/MD), named —
       // before resuming. Label tracks the format radio above.
-      '    <button class="cn-btn-ghost" data-download-resume>' + svg("download") + '<span data-download-resume-label>Download PDF</span></button>',
-      '    <button class="cn-btn-ghost" data-savefile>' + svg("download") + "<span>Save as file (.zip)</span></button>",
+      '    <button class="cn-btn-ghost" data-download-resume>' + svg("download") + '<span data-download-resume-label>' + T("uiDownloadFmt", "PDF") + "</span></button>",
+      '    <button class="cn-btn-ghost" data-savefile>' + svg("download") + "<span>" + T("uiSaveAsFile") + "</span></button>",
       "  </div>",
-      '  <button class="cn-btn-danger" data-delete>' + svg("trash") + "<span>Delete session</span></button>",
+      '  <button class="cn-btn-danger" data-delete>' + svg("trash") + "<span>" + T("uiDeleteSession") + "</span></button>",
       "</div>",
 
       // ── Settings view ──
@@ -1014,7 +1034,7 @@
       // Lifetime AI-compression savings. Always present (shows a guiding zero-state
       // before the first compression) so the figure is discoverable here.
       '  <div class="cn-section">',
-      '    <div class="cn-label">Compression stats</div>',
+      '    <div class="cn-label">' + T("uiCompressionStats") + "</div>",
       '    <div class="cn-metric" data-compress-stats></div>',
       "  </div>",
       '  <div class="cn-divider"></div>',
@@ -1022,45 +1042,45 @@
       // rows (brand mark + name + "Soon" pill) so the destinations are visible but
       // clearly not yet live.
       '  <div class="cn-section">',
-      '    <div class="cn-label">Sync &amp; integrations</div>',
+      '    <div class="cn-label">' + T("uiSyncIntegrations") + "</div>",
       '    <div class="cn-soon" aria-disabled="true">',
       '      <span class="cn-soon-logo">' + obsidianLogo(18) + "</span>",
-      '      <span class="cn-soon-name">Obsidian sync</span>',
-      '      <span class="cn-soon-badge">Soon</span>',
+      '      <span class="cn-soon-name">' + T("uiObsidianSync") + "</span>",
+      '      <span class="cn-soon-badge">' + T("uiSoonBadge") + "</span>",
       "    </div>",
       '    <div class="cn-soon" aria-disabled="true">',
       '      <span class="cn-soon-logo">' + notionLogo(18) + "</span>",
-      '      <span class="cn-soon-name">Notion sync</span>',
-      '      <span class="cn-soon-badge">Soon</span>',
+      '      <span class="cn-soon-name">' + T("uiNotionSync") + "</span>",
+      '      <span class="cn-soon-badge">' + T("uiSoonBadge") + "</span>",
       "    </div>",
       "  </div>",
       '  <div class="cn-divider"></div>',
       '  <div class="cn-section">',
-      '    <div class="cn-label">Theme</div>',
+      '    <div class="cn-label">' + T("uiTheme") + "</div>",
       '    <label class="cn-toggle-row">',
-      '      <span class="cn-radio-label">Dark mode</span>',
+      '      <span class="cn-radio-label">' + T("uiDarkMode") + "</span>",
       '      <span class="cn-switch">',
-      '        <input type="checkbox" data-theme-toggle aria-label="Dark mode">',
+      '        <input type="checkbox" data-theme-toggle aria-label="' + T("uiDarkMode") + '">',
       '        <span class="cn-switch-track"></span>',
       "      </span>",
       "    </label>",
       "  </div>",
       '  <div class="cn-divider"></div>',
       '  <div class="cn-section">',
-      '    <div class="cn-label">Resume</div>',
+      '    <div class="cn-label">' + T("uiResume") + "</div>",
       '    <label class="cn-toggle-row">',
-      '      <span class="cn-radio-label">Auto-send after resume</span>',
+      '      <span class="cn-radio-label">' + T("uiAutoSend") + "</span>",
       '      <span class="cn-switch">',
-      '        <input type="checkbox" data-autosend-toggle aria-label="Auto-send after resume">',
+      '        <input type="checkbox" data-autosend-toggle aria-label="' + T("uiAutoSend") + '">',
       '        <span class="cn-switch-track"></span>',
       "      </span>",
       "    </label>",
-      '    <div class="cn-hint">When on, Continuum sends automatically once the chat history and any additional attachments finish uploading. When off, it fills the message and attachments in and waits for you to review and press Send.</div>',
+      '    <div class="cn-hint">' + T("uiAutoSendHint") + "</div>",
       "  </div>",
       '  <div class="cn-divider"></div>',
       '  <div class="cn-section">',
-      '    <label class="cn-label" for="cn-preamble-pick">Resume message</label>',
-      '    <div class="cn-hint">Auto-typed into the new chat when you resume. Each format keeps its own message, so pick which one to edit.</div>',
+      '    <label class="cn-label" for="cn-preamble-pick">' + T("uiResumeMessage") + "</label>",
+      '    <div class="cn-hint">' + T("uiResumeMessageHint") + "</div>",
       '    <select class="cn-input" id="cn-preamble-pick" data-preamble-pick>',
       '      <option value="pdf">PDF</option>',
       '      <option value="markdown">Markdown</option>',
@@ -1068,12 +1088,12 @@
       '      <option value="markdown-c">Markdown (AI brief)</option>',
       "    </select>",
       '    <textarea class="cn-textarea" id="cn-resume-preamble" data-resume-preamble rows="6" maxlength="4000" spellcheck="true"></textarea>',
-      '    <button class="cn-btn-ghost cn-btn-small" data-resume-reset>Reset to default</button>',
+      '    <button class="cn-btn-ghost cn-btn-small" data-resume-reset>' + T("uiResetToDefault") + "</button>",
       "  </div>",
       '  <div class="cn-divider"></div>',
       '  <div class="cn-section">',
-      '    <label class="cn-label" for="cn-provider">AI compression</label>',
-      '    <div class="cn-hint">Used only when you tick "Compress with AI" on a chat. Pick a provider and paste its API key — stored locally in this browser and sent only to that provider to condense the whole chat into a structured handoff brief.</div>',
+      '    <label class="cn-label" for="cn-provider">' + T("uiAICompression") + "</label>",
+      '    <div class="cn-hint">' + T("uiAICompressionHint") + "</div>",
       '    <select class="cn-input" id="cn-provider" data-compress-provider>',
       '      <option value="anthropic">Claude (Anthropic)</option>',
       '      <option value="openai">ChatGPT (OpenAI)</option>',
@@ -1082,34 +1102,34 @@
       '      <option value="grok">Grok (xAI)</option>',
       '      <option value="deepseek">DeepSeek</option>',
       "    </select>",
-      '    <input class="cn-input" id="cn-api-key" data-api-key type="password" autocomplete="current-password" spellcheck="false" placeholder="API key" readonly />',
+      '    <input class="cn-input" id="cn-api-key" data-api-key type="password" autocomplete="current-password" spellcheck="false" placeholder="' + T("uiAPIKey") + '" readonly />',
       '    <div class="cn-brief-sections">',
-      '      <div class="cn-brief-sections-label">The handoff brief is organized as</div>',
+      '      <div class="cn-brief-sections-label">' + T("uiBriefOrganized") + "</div>",
       '      <div class="cn-chips">',
-      '        <span class="cn-chip">Completed work</span>',
-      '        <span class="cn-chip">Current state</span>',
-      '        <span class="cn-chip">In progress</span>',
-      '        <span class="cn-chip">Next steps</span>',
-      '        <span class="cn-chip">Constraints</span>',
-      '        <span class="cn-chip">Critical context</span>',
-      '        <span class="cn-chip">Discarded attempts</span>',
+      '        <span class="cn-chip">' + T("uiChipCompleted") + "</span>",
+      '        <span class="cn-chip">' + T("uiChipCurrent") + "</span>",
+      '        <span class="cn-chip">' + T("uiChipInProgress") + "</span>",
+      '        <span class="cn-chip">' + T("uiChipNext") + "</span>",
+      '        <span class="cn-chip">' + T("uiChipConstraints") + "</span>",
+      '        <span class="cn-chip">' + T("uiChipCritical") + "</span>",
+      '        <span class="cn-chip">' + T("uiChipDiscarded") + "</span>",
       "      </div>",
-      '      <div class="cn-hint">Compresses the whole conversation into a structured brief while keeping full context. All your key details are kept (decisions, instructions, code, files, and images) and everything else is summarized. Empty sections just say None.</div>',
+      '      <div class="cn-hint">' + T("uiBriefHint") + "</div>",
       "    </div>",
       "  </div>",
 
       '  <div class="cn-divider"></div>',
-      '  <button class="cn-btn-danger" data-factory-reset>' + svg("trash") + "<span>Factory reset</span></button>",
+      '  <button class="cn-btn-danger" data-factory-reset>' + svg("trash") + "<span>" + T("uiFactoryReset") + "</span></button>",
       "</div>",
 
       // ── Delete confirmation dialog ──
       '<div class="cn-dialog-backdrop" data-dialog>',
       '  <div class="cn-dialog" role="dialog" aria-modal="true" aria-labelledby="cn-dlg-title">',
-      '    <div class="cn-dialog-title" id="cn-dlg-title" data-dlg-title>Delete this session?</div>',
-      '    <div class="cn-dialog-sub" data-dlg-sub>This can\'t be undone.</div>',
+      '    <div class="cn-dialog-title" id="cn-dlg-title" data-dlg-title>' + T("uiDeleteThisSession") + "</div>",
+      '    <div class="cn-dialog-sub" data-dlg-sub>' + T("uiCantBeUndone") + "</div>",
       '    <div class="cn-dialog-row">',
-      '      <button class="cn-dialog-cancel" data-dlg-cancel>Cancel</button>',
-      '      <button class="cn-dialog-confirm" data-dlg-confirm>Delete</button>',
+      '      <button class="cn-dialog-cancel" data-dlg-cancel>' + T("uiCancel") + "</button>",
+      '      <button class="cn-dialog-confirm" data-dlg-confirm>' + T("uiDelete") + "</button>",
       "    </div>",
       "  </div>",
       "</div>",
@@ -1117,15 +1137,17 @@
       // ── File-name dialog (shared by "Save as file" and "Download resume file") ──
       '<div class="cn-dialog-backdrop" data-savefile-dialog>',
       '  <div class="cn-dialog" role="dialog" aria-modal="true" aria-labelledby="cn-savefile-title">',
-      '    <div class="cn-dialog-title" id="cn-savefile-title" data-savefile-title>Save chat as file</div>',
-      '    <label class="cn-dialog-label" for="cn-savefile-name">File name</label>',
+      '    <div class="cn-dialog-title" id="cn-savefile-title" data-savefile-title>' + T("uiSaveChatAsFile") + "</div>",
+      '    <label class="cn-dialog-label" for="cn-savefile-name">' + T("uiFileName") + "</label>",
+      // The field's VALUE is derived from the chat title — user content, left
+      // exactly as captured. Only the label around it is localized.
       '    <div class="cn-savefile-field">',
-      '      <input class="cn-savefile-name" id="cn-savefile-name" type="text" data-savefile-name spellcheck="false" autocomplete="off" aria-label="File name" />',
+      '      <input class="cn-savefile-name" id="cn-savefile-name" type="text" data-savefile-name spellcheck="false" autocomplete="off" aria-label="' + T("uiFileName") + '" />',
       '      <span class="cn-savefile-ext" data-savefile-ext>.zip</span>',
       "    </div>",
       '    <div class="cn-dialog-row">',
-      '      <button class="cn-dialog-cancel" data-savefile-cancel>Cancel</button>',
-      '      <button class="cn-dialog-confirm cn-dialog-go" data-savefile-confirm>Save</button>',
+      '      <button class="cn-dialog-cancel" data-savefile-cancel>' + T("uiCancel") + "</button>",
+      '      <button class="cn-dialog-confirm cn-dialog-go" data-savefile-confirm>' + T("uiSave") + "</button>",
       "    </div>",
       "  </div>",
       "</div>",
@@ -1133,11 +1155,11 @@
       // ── Factory-reset confirmation dialog ──
       '<div class="cn-dialog-backdrop" data-reset-dialog>',
       '  <div class="cn-dialog" role="dialog" aria-modal="true" aria-labelledby="cn-reset-title">',
-      '    <div class="cn-dialog-title" id="cn-reset-title">Factory reset?</div>',
-      '    <div class="cn-dialog-sub">Deletes all saved sessions and resets every setting. This can\'t be undone.</div>',
+      '    <div class="cn-dialog-title" id="cn-reset-title">' + T("uiFactoryResetQ") + "</div>",
+      '    <div class="cn-dialog-sub">' + T("uiFactoryResetSub") + "</div>",
       '    <div class="cn-dialog-row">',
-      '      <button class="cn-dialog-cancel" data-reset-cancel>Cancel</button>',
-      '      <button class="cn-dialog-confirm" data-reset-confirm>Reset</button>',
+      '      <button class="cn-dialog-cancel" data-reset-cancel>' + T("uiCancel") + "</button>",
+      '      <button class="cn-dialog-confirm" data-reset-confirm>' + T("uiReset") + "</button>",
       "    </div>",
       "  </div>",
       "</div>",
@@ -1609,8 +1631,7 @@
   // capture, during which the chat already has messages so the state can't flip).
   let _captureGateEmpty = null; // null = unknown, true = empty, false = has messages
   // Kept deliberately short and plain (per request): there's no chat here yet.
-  const EMPTY_CHAT_NOTE =
-    "Empty chat — nothing to capture yet. Pick a saved session below to resume it here or on another AI.";
+  const EMPTY_CHAT_NOTE = () => TR("uiEmptyChatNote");
   function updateCaptureGate() {
     if (!panelEl) return;
     const empty = !currentChatHasMessages();
@@ -1621,7 +1642,7 @@
     const el = panelEl.querySelector("[data-capture-status]");
     if (!el) return;
     if (empty) {
-      el.textContent = EMPTY_CHAT_NOTE;
+      el.textContent = EMPTY_CHAT_NOTE();
       el.className = "cn-status muted"; // neutral gray (guidance, not an error); collapsed until reflow
       void el.offsetHeight;             // reflow so re-showing always runs the open animation (matches the green/red pop-in)
       el.classList.add("show");         // persistent (no auto-hide)
@@ -1843,8 +1864,8 @@
       : allSessions;
 
     labelEl.textContent = filtering
-      ? "Saved sessions (" + sessions.length + " of " + totalCount + ")"
-      : "Saved sessions (" + totalCount + ")";
+      ? TR("uiSavedSessionsFiltered", [sessions.length, totalCount])
+      : TR("uiSavedSessionsCount", totalCount);
 
     // Search bar appears once there's anything to search; the clear (×) only while typing.
     const searchRow = panelEl.querySelector("[data-search-row]");
@@ -1857,7 +1878,7 @@
     const selectBar = panelEl.querySelector("[data-select-bar]");
     if (selectToggle) {
       selectToggle.hidden = totalCount === 0;
-      selectToggle.textContent = _selectMode ? "Cancel" : "Select";
+      selectToggle.textContent = TR(_selectMode ? "uiCancel" : "uiSelect");
     }
     if (selectBar) selectBar.hidden = !_selectMode || totalCount === 0;
     updateSelectBar();
@@ -1866,14 +1887,15 @@
     if (!totalCount) {
       const li = document.createElement("li");
       li.className = "cn-empty";
-      li.textContent = "No saved sessions yet.";
+      li.textContent = TR("uiNoSavedSessions");
       listEl.appendChild(li);
       return;
     }
     if (!sessions.length) {
       const li = document.createElement("li");
       li.className = "cn-empty";
-      li.textContent = 'No chats match "' + String(_savedQuery).trim() + '".';
+      // The query itself is the user's text and is interpolated verbatim.
+      li.textContent = TR("uiNoChatsMatch", String(_savedQuery).trim());
       listEl.appendChild(li);
       return;
     }
@@ -1908,7 +1930,7 @@
 
     // Root "All saved chats": no count, no logo. Sub-folders: the AI's logo +
     // a "(N)" count matching the "SAVED SESSIONS (N)" label format.
-    const root = makeFolder("All saved chats", { onExport: () => exportFolder("all"), depth: 0 });
+    const root = makeFolder(TR("uiAllSavedChats"), { onExport: () => exportFolder("all"), depth: 0 });
     listEl.appendChild(root.el);
     for (const provider of orderedProviders) {
       const metas = groups.get(provider);
@@ -1946,7 +1968,7 @@
       '<span class="cn-folder-name"></span>' +
       (o.logoHtml ? '<span class="cn-folder-logo">' + o.logoHtml + "</span>" : "") +
       '<span class="cn-folder-count"></span>' +
-      '<button class="cn-folder-export" title="Extract this folder as a .zip" aria-label="Extract folder">' +
+      '<button class="cn-folder-export" title="' + T("uiExtractFolderTitle") + '" aria-label="' + T("uiExtractFolder") + '">' +
       svg("download", 15) + "</button>");
     head.querySelector(".cn-folder-name").textContent = label;
     head.querySelector(".cn-folder-count").textContent = o.count != null ? "(" + o.count + ")" : "";
@@ -2133,7 +2155,7 @@
       // the green/red message into the note with no blank gap in between.
       _captureStatusTimer = setTimeout(() => {
         if (currentChatHasMessages()) return; // non-empty: leave it collapsed
-        el.textContent = EMPTY_CHAT_NOTE;
+        el.textContent = EMPTY_CHAT_NOTE();
         el.className = "cn-status muted show";
         _captureGateEmpty = true;
       }, 90);
@@ -2453,13 +2475,14 @@
   }
   function updateDownloadLabel() {
     const el = panelEl && panelEl.querySelector("[data-download-resume-label]");
-    if (el) el.textContent = "Download " + downloadFmtLabel();
+    // "PDF"/"MD" are format names, not prose — they stay literal in every locale.
+    if (el) el.textContent = TR("uiDownloadFmt", downloadFmtLabel());
   }
   function onDownloadResume() {
     if (!currentDetail) return;
     const fmt = markdownEnabled ? "md" : "pdf";
     openNameDialog({
-      title: "Download resume file",
+      title: TR("uiDownloadResumeFile"),
       defaultName: defaultSaveName(currentDetail),
       ext: fmt,
       onConfirm: (name) => doDownloadResume(name, fmt),
@@ -2595,7 +2618,7 @@
     const btn = panelEl && panelEl.querySelector("[data-delete-selected]");
     if (!btn) return;
     const n = _selectedIds.size;
-    btn.textContent = "Delete (" + n + ")";
+    btn.textContent = TR("uiDeleteCount", n);
     btn.disabled = n === 0;
   }
   function enterSelectMode() {

@@ -1,0 +1,275 @@
+{
+  "extName": {
+    "message": "Continuum: сохранение и экспорт чатов с ИИ, продолжение",
+    "description": "Extension name — shown as the store listing title."
+  },
+  "extShortDescription": {
+    "message": "Сохраняйте и экспортируйте чаты с ИИ в PDF или Markdown и продолжайте их в новом чате без потери контекста.",
+    "description": "Chrome Web Store short description (max 132 characters)."
+  },
+  "extLongDescription": {
+    "message": "Сохраняйте и экспортируйте любой диалог с ИИ в PDF, Markdown или ZIP, а затем продолжайте его в новом чате на другой платформе с полным контекстом — не теряя нить из-за лимитов на сообщения и длину. Сжатие с помощью ИИ по желанию.",
+    "description": "Firefox/AMO summary (max 250 characters)."
+  },
+  "uiReview": {
+    "message": "Оценить"
+  },
+  "uiRateContinuum": {
+    "message": "Оценить Continuum"
+  },
+  "uiSettings": {
+    "message": "Настройки"
+  },
+  "uiClose": {
+    "message": "Закрыть"
+  },
+  "uiBack": {
+    "message": "Назад"
+  },
+  "uiCurrentChat": {
+    "message": "Текущий чат"
+  },
+  "uiCaptureSession": {
+    "message": "Сохранить эту сессию"
+  },
+  "uiSavedSessions": {
+    "message": "Сохранённые сессии"
+  },
+  "uiSelect": {
+    "message": "Выбрать"
+  },
+  "uiSelectAll": {
+    "message": "Выбрать все"
+  },
+  "uiSearchSaved": {
+    "message": "Поиск по сохранённым чатам"
+  },
+  "uiClearSearch": {
+    "message": "Очистить поиск"
+  },
+  "uiAllSavedChats": {
+    "message": "Все сохранённые чаты"
+  },
+  "uiDeleteCount": {
+    "message": "Удалить ($1)"
+  },
+  "uiResumeNewChat": {
+    "message": "Продолжить в новом чате"
+  },
+  "uiResumeFormat": {
+    "message": "Формат для продолжения"
+  },
+  "uiFormatHint": {
+    "message": "<strong>PDF</strong> встраивает изображения и ссылается на файлы — тяжелее, зато модель может <em>видеть</em> изображения. <strong>MD</strong> ссылается на изображения и файлы только по имени — намного легче (меньше токенов), только текст."
+  },
+  "uiCompressWithAI": {
+    "message": "Сжать с помощью ИИ (структурированная сводка)"
+  },
+  "uiAttachFiles": {
+    "message": "Прикрепить файлы к новому чату"
+  },
+  "uiAttachImages": {
+    "message": "Прикрепить изображения к новому чату"
+  },
+  "uiCopyChatHistory": {
+    "message": "Скопировать историю чата"
+  },
+  "uiDownloadFmt": {
+    "message": "Скачать $1"
+  },
+  "uiSaveAsFile": {
+    "message": "Сохранить как файл (.zip)"
+  },
+  "uiDeleteSession": {
+    "message": "Удалить сессию"
+  },
+  "uiSoonLower": {
+    "message": "скоро"
+  },
+  "uiCompressionStats": {
+    "message": "Статистика сжатия"
+  },
+  "uiSyncIntegrations": {
+    "message": "Синхронизация и интеграции"
+  },
+  "uiObsidianSync": {
+    "message": "Синхронизация с Obsidian"
+  },
+  "uiNotionSync": {
+    "message": "Синхронизация с Notion"
+  },
+  "uiSoonBadge": {
+    "message": "Скоро"
+  },
+  "uiTheme": {
+    "message": "Тема"
+  },
+  "uiDarkMode": {
+    "message": "Тёмная тема"
+  },
+  "uiResume": {
+    "message": "Продолжение"
+  },
+  "uiAutoSend": {
+    "message": "Отправлять автоматически после продолжения"
+  },
+  "uiAutoSendHint": {
+    "message": "Когда включено, Continuum отправляет автоматически, как только история чата и вложения загрузятся. Когда выключено, он заполняет сообщение и вложения и ждёт, пока вы проверите и нажмёте «Отправить»."
+  },
+  "uiResumeMessage": {
+    "message": "Сообщение при продолжении"
+  },
+  "uiResumeMessageHint": {
+    "message": "Автоматически вводится в новый чат при продолжении. У каждого формата своё сообщение — выберите, какое редактировать."
+  },
+  "uiResetToDefault": {
+    "message": "Сбросить по умолчанию"
+  },
+  "uiAICompression": {
+    "message": "Сжатие с помощью ИИ"
+  },
+  "uiAICompressionHint": {
+    "message": "Используется только когда вы отмечаете «Сжать с помощью ИИ» для чата. Выберите провайдера и вставьте его API-ключ — он хранится локально в этом браузере и отправляется только этому провайдеру, чтобы свернуть весь диалог в структурированную сводку."
+  },
+  "uiAPIKey": {
+    "message": "API-ключ"
+  },
+  "uiBriefOrganized": {
+    "message": "Структура сводки для передачи"
+  },
+  "uiBriefHint": {
+    "message": "Сжимает весь диалог в структурированную сводку, сохраняя полный контекст. Все ключевые детали остаются (решения, инструкции, код, файлы и изображения), остальное резюмируется. Пустые разделы помечаются как «Нет»."
+  },
+  "uiFactoryReset": {
+    "message": "Сброс к заводским настройкам"
+  },
+  "uiChipCompleted": {
+    "message": "Выполненная работа"
+  },
+  "uiChipCurrent": {
+    "message": "Текущее состояние"
+  },
+  "uiChipInProgress": {
+    "message": "В работе"
+  },
+  "uiChipNext": {
+    "message": "Следующие шаги"
+  },
+  "uiChipConstraints": {
+    "message": "Ограничения"
+  },
+  "uiChipCritical": {
+    "message": "Критический контекст"
+  },
+  "uiChipDiscarded": {
+    "message": "Отвергнутые попытки"
+  },
+  "uiDeleteThisSession": {
+    "message": "Удалить эту сессию?"
+  },
+  "uiCantBeUndone": {
+    "message": "Это действие нельзя отменить."
+  },
+  "uiCancel": {
+    "message": "Отмена"
+  },
+  "uiDelete": {
+    "message": "Удалить"
+  },
+  "uiSaveChatAsFile": {
+    "message": "Сохранить чат как файл"
+  },
+  "uiFileName": {
+    "message": "Имя файла"
+  },
+  "uiSave": {
+    "message": "Сохранить"
+  },
+  "uiFactoryResetQ": {
+    "message": "Сбросить к заводским настройкам?"
+  },
+  "uiFactoryResetSub": {
+    "message": "Удаляет все сохранённые сессии и сбрасывает все настройки. Это действие нельзя отменить."
+  },
+  "uiReset": {
+    "message": "Сбросить"
+  },
+  "uiDownloadResumeFile": {
+    "message": "Скачать файл для продолжения"
+  },
+  "uiExtractFolderTitle": {
+    "message": "Выгрузить эту папку в .zip"
+  },
+  "uiExtractFolder": {
+    "message": "Выгрузить папку"
+  },
+  "uiSavedSessionsCount": {
+    "message": "Сохранённые сессии ($1)"
+  },
+  "uiSavedSessionsFiltered": {
+    "message": "Сохранённые сессии ($1 из $2)"
+  },
+  "uiNoSavedSessions": {
+    "message": "Сохранённых сессий пока нет."
+  },
+  "uiNoChatsMatch": {
+    "message": "Нет чатов, соответствующих \"$1\"."
+  },
+  "uiEmptyChatNote": {
+    "message": "Пустой чат — сохранять пока нечего. Выберите сохранённую сессию ниже, чтобы продолжить её здесь или в другом ИИ."
+  },
+  "uiStatMessagesOne": {
+    "message": "$1 сообщение"
+  },
+  "uiStatMessagesOther": {
+    "message": "$1 сообщений"
+  },
+  "uiStatImagesOne": {
+    "message": "$1 изображение"
+  },
+  "uiStatImagesOther": {
+    "message": "$1 изображений"
+  },
+  "uiStatFilesOne": {
+    "message": "$1 файл"
+  },
+  "uiStatFilesOther": {
+    "message": "$1 файлов"
+  },
+  "uiFabTitle": {
+    "message": "Continuum — сохранить эту сессию"
+  },
+  "uiOpenContinuum": {
+    "message": "Открыть Continuum"
+  },
+  "uiGrantEyebrow": {
+    "message": "Continuum · Сжатие с помощью ИИ"
+  },
+  "uiGrantTitle": {
+    "message": "Разрешить доступ к $1"
+  },
+  "uiGrantDesc": {
+    "message": "Continuum отправляет этот чат в API $1 для сжатия. Ваш ключ и чаты остаются на устройстве и передаются только $1 — никогда на сервер Continuum."
+  },
+  "uiGrantAllow": {
+    "message": "Разрешить доступ"
+  },
+  "uiGrantNotNow": {
+    "message": "Не сейчас"
+  },
+  "uiGrantedTitle": {
+    "message": "Доступ предоставлен"
+  },
+  "uiGrantedDesc": {
+    "message": "Вернитесь в чат и снова нажмите <strong>Продолжить</strong> — для $1 больше спрашивать не будем."
+  },
+  "uiGrantMissing": {
+    "message": "Нет данных провайдера — закройте это окно и попробуйте снова."
+  },
+  "uiGrantNeeded": {
+    "message": "Для сжатия через $1 нужен доступ."
+  },
+  "uiGrantFailed": {
+    "message": "Не удалось запросить доступ — попробуйте снова."
+  }
+}

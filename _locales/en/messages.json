@@ -1,0 +1,275 @@
+{
+  "extName": {
+    "message": "Continuum: Save & Export AI Chats, Resume Anywhere",
+    "description": "Extension name — shown as the store listing title."
+  },
+  "extShortDescription": {
+    "message": "Save and export AI chats to PDF or Markdown, then resume them in a new chat with the full context intact.",
+    "description": "Chrome Web Store short description (max 132 characters)."
+  },
+  "extLongDescription": {
+    "message": "Save and export any AI conversation to PDF, Markdown, or ZIP, then resume it in a fresh chat on another platform with the full context intact — so you never lose a thread to message or length limits. Optional AI compression.",
+    "description": "Firefox/AMO summary (max 250 characters)."
+  },
+  "uiReview": {
+    "message": "Review"
+  },
+  "uiRateContinuum": {
+    "message": "Rate Continuum"
+  },
+  "uiSettings": {
+    "message": "Settings"
+  },
+  "uiClose": {
+    "message": "Close"
+  },
+  "uiBack": {
+    "message": "Back"
+  },
+  "uiCurrentChat": {
+    "message": "Current chat"
+  },
+  "uiCaptureSession": {
+    "message": "Capture this session"
+  },
+  "uiSavedSessions": {
+    "message": "Saved sessions"
+  },
+  "uiSelect": {
+    "message": "Select"
+  },
+  "uiSelectAll": {
+    "message": "Select all"
+  },
+  "uiSearchSaved": {
+    "message": "Search saved chats"
+  },
+  "uiClearSearch": {
+    "message": "Clear search"
+  },
+  "uiAllSavedChats": {
+    "message": "All saved chats"
+  },
+  "uiDeleteCount": {
+    "message": "Delete ($1)"
+  },
+  "uiResumeNewChat": {
+    "message": "Resume in new chat"
+  },
+  "uiResumeFormat": {
+    "message": "Resume format"
+  },
+  "uiFormatHint": {
+    "message": "<strong>PDF</strong> embeds images and references files — heavier, but the model can <em>see</em> the images. <strong>MD</strong> references images and files by name only — much lighter (fewer tokens), text-only."
+  },
+  "uiCompressWithAI": {
+    "message": "Compress with AI (structured handoff brief)"
+  },
+  "uiAttachFiles": {
+    "message": "Attach files to the new chat"
+  },
+  "uiAttachImages": {
+    "message": "Attach images to the new chat"
+  },
+  "uiCopyChatHistory": {
+    "message": "Copy chat history"
+  },
+  "uiDownloadFmt": {
+    "message": "Download $1"
+  },
+  "uiSaveAsFile": {
+    "message": "Save as file (.zip)"
+  },
+  "uiDeleteSession": {
+    "message": "Delete session"
+  },
+  "uiSoonLower": {
+    "message": "soon"
+  },
+  "uiCompressionStats": {
+    "message": "Compression stats"
+  },
+  "uiSyncIntegrations": {
+    "message": "Sync & integrations"
+  },
+  "uiObsidianSync": {
+    "message": "Obsidian sync"
+  },
+  "uiNotionSync": {
+    "message": "Notion sync"
+  },
+  "uiSoonBadge": {
+    "message": "Soon"
+  },
+  "uiTheme": {
+    "message": "Theme"
+  },
+  "uiDarkMode": {
+    "message": "Dark mode"
+  },
+  "uiResume": {
+    "message": "Resume"
+  },
+  "uiAutoSend": {
+    "message": "Auto-send after resume"
+  },
+  "uiAutoSendHint": {
+    "message": "When on, Continuum sends automatically once the chat history and any additional attachments finish uploading. When off, it fills the message and attachments in and waits for you to review and press Send."
+  },
+  "uiResumeMessage": {
+    "message": "Resume message"
+  },
+  "uiResumeMessageHint": {
+    "message": "Auto-typed into the new chat when you resume. Each format keeps its own message, so pick which one to edit."
+  },
+  "uiResetToDefault": {
+    "message": "Reset to default"
+  },
+  "uiAICompression": {
+    "message": "AI compression"
+  },
+  "uiAICompressionHint": {
+    "message": "Used only when you tick \"Compress with AI\" on a chat. Pick a provider and paste its API key — stored locally in this browser and sent only to that provider to condense the whole chat into a structured handoff brief."
+  },
+  "uiAPIKey": {
+    "message": "API key"
+  },
+  "uiBriefOrganized": {
+    "message": "The handoff brief is organized as"
+  },
+  "uiBriefHint": {
+    "message": "Compresses the whole conversation into a structured brief while keeping full context. All your key details are kept (decisions, instructions, code, files, and images) and everything else is summarized. Empty sections just say None."
+  },
+  "uiFactoryReset": {
+    "message": "Factory reset"
+  },
+  "uiChipCompleted": {
+    "message": "Completed work"
+  },
+  "uiChipCurrent": {
+    "message": "Current state"
+  },
+  "uiChipInProgress": {
+    "message": "In progress"
+  },
+  "uiChipNext": {
+    "message": "Next steps"
+  },
+  "uiChipConstraints": {
+    "message": "Constraints"
+  },
+  "uiChipCritical": {
+    "message": "Critical context"
+  },
+  "uiChipDiscarded": {
+    "message": "Discarded attempts"
+  },
+  "uiDeleteThisSession": {
+    "message": "Delete this session?"
+  },
+  "uiCantBeUndone": {
+    "message": "This can't be undone."
+  },
+  "uiCancel": {
+    "message": "Cancel"
+  },
+  "uiDelete": {
+    "message": "Delete"
+  },
+  "uiSaveChatAsFile": {
+    "message": "Save chat as file"
+  },
+  "uiFileName": {
+    "message": "File name"
+  },
+  "uiSave": {
+    "message": "Save"
+  },
+  "uiFactoryResetQ": {
+    "message": "Factory reset?"
+  },
+  "uiFactoryResetSub": {
+    "message": "Deletes all saved sessions and resets every setting. This can't be undone."
+  },
+  "uiReset": {
+    "message": "Reset"
+  },
+  "uiDownloadResumeFile": {
+    "message": "Download resume file"
+  },
+  "uiExtractFolderTitle": {
+    "message": "Extract this folder as a .zip"
+  },
+  "uiExtractFolder": {
+    "message": "Extract folder"
+  },
+  "uiSavedSessionsCount": {
+    "message": "Saved sessions ($1)"
+  },
+  "uiSavedSessionsFiltered": {
+    "message": "Saved sessions ($1 of $2)"
+  },
+  "uiNoSavedSessions": {
+    "message": "No saved sessions yet."
+  },
+  "uiNoChatsMatch": {
+    "message": "No chats match \"$1\"."
+  },
+  "uiEmptyChatNote": {
+    "message": "Empty chat — nothing to capture yet. Pick a saved session below to resume it here or on another AI."
+  },
+  "uiStatMessagesOne": {
+    "message": "$1 message"
+  },
+  "uiStatMessagesOther": {
+    "message": "$1 messages"
+  },
+  "uiStatImagesOne": {
+    "message": "$1 image"
+  },
+  "uiStatImagesOther": {
+    "message": "$1 images"
+  },
+  "uiStatFilesOne": {
+    "message": "$1 file"
+  },
+  "uiStatFilesOther": {
+    "message": "$1 files"
+  },
+  "uiFabTitle": {
+    "message": "Continuum — capture this session"
+  },
+  "uiOpenContinuum": {
+    "message": "Open Continuum"
+  },
+  "uiGrantEyebrow": {
+    "message": "Continuum · AI compression"
+  },
+  "uiGrantTitle": {
+    "message": "Allow access to $1"
+  },
+  "uiGrantDesc": {
+    "message": "Continuum sends this chat to $1's API to compress it. Your key and chats stay on your device and are sent only to $1 — never to a Continuum server."
+  },
+  "uiGrantAllow": {
+    "message": "Allow access"
+  },
+  "uiGrantNotNow": {
+    "message": "Not now"
+  },
+  "uiGrantedTitle": {
+    "message": "Access granted"
+  },
+  "uiGrantedDesc": {
+    "message": "Return to your chat and click <strong>Resume</strong> again — this won't be asked for $1 next time."
+  },
+  "uiGrantMissing": {
+    "message": "Missing provider details — close this and try again."
+  },
+  "uiGrantNeeded": {
+    "message": "Access is needed to compress with $1."
+  },
+  "uiGrantFailed": {
+    "message": "Couldn't request access — try again."
+  }
+}

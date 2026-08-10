@@ -1,0 +1,275 @@
+{
+  "extName": {
+    "message": "Continuum：保存、导出并继续 AI 对话",
+    "description": "Extension name — shown as the store listing title."
+  },
+  "extShortDescription": {
+    "message": "将 AI 对话保存并导出为 PDF 或 Markdown，并在新对话中继续，不会丢失上下文。",
+    "description": "Chrome Web Store short description (max 132 characters)."
+  },
+  "extLongDescription": {
+    "message": "将任意 AI 对话保存并导出为 PDF、Markdown 或 ZIP，然后在其他平台的新对话中继续，完整保留上下文，不再因消息数量或长度限制而中断思路。可选 AI 压缩。",
+    "description": "Firefox/AMO summary (max 250 characters)."
+  },
+  "uiReview": {
+    "message": "评价"
+  },
+  "uiRateContinuum": {
+    "message": "评价 Continuum"
+  },
+  "uiSettings": {
+    "message": "设置"
+  },
+  "uiClose": {
+    "message": "关闭"
+  },
+  "uiBack": {
+    "message": "返回"
+  },
+  "uiCurrentChat": {
+    "message": "当前对话"
+  },
+  "uiCaptureSession": {
+    "message": "捕获此对话"
+  },
+  "uiSavedSessions": {
+    "message": "已保存的会话"
+  },
+  "uiSelect": {
+    "message": "选择"
+  },
+  "uiSelectAll": {
+    "message": "全选"
+  },
+  "uiSearchSaved": {
+    "message": "搜索已保存的对话"
+  },
+  "uiClearSearch": {
+    "message": "清除搜索"
+  },
+  "uiAllSavedChats": {
+    "message": "所有已保存的对话"
+  },
+  "uiDeleteCount": {
+    "message": "删除 ($1)"
+  },
+  "uiResumeNewChat": {
+    "message": "在新对话中继续"
+  },
+  "uiResumeFormat": {
+    "message": "继续时使用的格式"
+  },
+  "uiFormatHint": {
+    "message": "<strong>PDF</strong> 会嵌入图片并引用文件——体积更大，但模型能够<em>看到</em>图片。<strong>MD</strong> 仅按名称引用图片和文件——轻量得多（token 更少），纯文本。"
+  },
+  "uiCompressWithAI": {
+    "message": "使用 AI 压缩（结构化交接摘要）"
+  },
+  "uiAttachFiles": {
+    "message": "将文件附加到新对话"
+  },
+  "uiAttachImages": {
+    "message": "将图片附加到新对话"
+  },
+  "uiCopyChatHistory": {
+    "message": "复制聊天记录"
+  },
+  "uiDownloadFmt": {
+    "message": "下载 $1"
+  },
+  "uiSaveAsFile": {
+    "message": "保存为文件 (.zip)"
+  },
+  "uiDeleteSession": {
+    "message": "删除会话"
+  },
+  "uiSoonLower": {
+    "message": "即将推出"
+  },
+  "uiCompressionStats": {
+    "message": "压缩统计"
+  },
+  "uiSyncIntegrations": {
+    "message": "同步与集成"
+  },
+  "uiObsidianSync": {
+    "message": "Obsidian 同步"
+  },
+  "uiNotionSync": {
+    "message": "Notion 同步"
+  },
+  "uiSoonBadge": {
+    "message": "即将推出"
+  },
+  "uiTheme": {
+    "message": "主题"
+  },
+  "uiDarkMode": {
+    "message": "深色模式"
+  },
+  "uiResume": {
+    "message": "继续"
+  },
+  "uiAutoSend": {
+    "message": "继续后自动发送"
+  },
+  "uiAutoSendHint": {
+    "message": "开启后，Continuum 会在聊天记录和附加文件上传完成后自动发送。关闭时，它会填好消息和附件，等你检查后自己点击发送。"
+  },
+  "uiResumeMessage": {
+    "message": "继续时的消息"
+  },
+  "uiResumeMessageHint": {
+    "message": "继续时会自动输入到新对话中。每种格式都有各自的消息，请选择要编辑的格式。"
+  },
+  "uiResetToDefault": {
+    "message": "恢复默认"
+  },
+  "uiAICompression": {
+    "message": "AI 压缩"
+  },
+  "uiAICompressionHint": {
+    "message": "仅在你为某个对话勾选\"使用 AI 压缩\"时才会用到。选择一个服务商并粘贴其 API 密钥——密钥只保存在本浏览器中，并且仅发送给该服务商，用于把整段对话浓缩成结构化的交接摘要。"
+  },
+  "uiAPIKey": {
+    "message": "API 密钥"
+  },
+  "uiBriefOrganized": {
+    "message": "交接摘要的结构如下"
+  },
+  "uiBriefHint": {
+    "message": "在保留完整上下文的前提下，把整段对话压缩成结构化摘要。所有关键细节都会保留（决定、指令、代码、文件和图片），其余内容会被概括。没有内容的部分会标注为无。"
+  },
+  "uiFactoryReset": {
+    "message": "恢复出厂设置"
+  },
+  "uiChipCompleted": {
+    "message": "已完成的工作"
+  },
+  "uiChipCurrent": {
+    "message": "当前状态"
+  },
+  "uiChipInProgress": {
+    "message": "进行中"
+  },
+  "uiChipNext": {
+    "message": "下一步"
+  },
+  "uiChipConstraints": {
+    "message": "限制条件"
+  },
+  "uiChipCritical": {
+    "message": "关键背景"
+  },
+  "uiChipDiscarded": {
+    "message": "已放弃的尝试"
+  },
+  "uiDeleteThisSession": {
+    "message": "删除此会话？"
+  },
+  "uiCantBeUndone": {
+    "message": "此操作无法撤销。"
+  },
+  "uiCancel": {
+    "message": "取消"
+  },
+  "uiDelete": {
+    "message": "删除"
+  },
+  "uiSaveChatAsFile": {
+    "message": "将对话保存为文件"
+  },
+  "uiFileName": {
+    "message": "文件名"
+  },
+  "uiSave": {
+    "message": "保存"
+  },
+  "uiFactoryResetQ": {
+    "message": "恢复出厂设置？"
+  },
+  "uiFactoryResetSub": {
+    "message": "删除所有已保存的会话并重置全部设置。此操作无法撤销。"
+  },
+  "uiReset": {
+    "message": "重置"
+  },
+  "uiDownloadResumeFile": {
+    "message": "下载用于继续的文件"
+  },
+  "uiExtractFolderTitle": {
+    "message": "将此文件夹导出为 .zip"
+  },
+  "uiExtractFolder": {
+    "message": "导出文件夹"
+  },
+  "uiSavedSessionsCount": {
+    "message": "已保存的会话 ($1)"
+  },
+  "uiSavedSessionsFiltered": {
+    "message": "已保存的会话（共 $2 个，显示 $1 个）"
+  },
+  "uiNoSavedSessions": {
+    "message": "还没有已保存的会话。"
+  },
+  "uiNoChatsMatch": {
+    "message": "没有与\"$1\"匹配的对话。"
+  },
+  "uiEmptyChatNote": {
+    "message": "对话为空——暂时没有可捕获的内容。在下方选择一个已保存的会话，即可在这里或换一个 AI 继续。"
+  },
+  "uiStatMessagesOne": {
+    "message": "$1 条消息"
+  },
+  "uiStatMessagesOther": {
+    "message": "$1 条消息"
+  },
+  "uiStatImagesOne": {
+    "message": "$1 张图片"
+  },
+  "uiStatImagesOther": {
+    "message": "$1 张图片"
+  },
+  "uiStatFilesOne": {
+    "message": "$1 个文件"
+  },
+  "uiStatFilesOther": {
+    "message": "$1 个文件"
+  },
+  "uiFabTitle": {
+    "message": "Continuum — 捕获此对话"
+  },
+  "uiOpenContinuum": {
+    "message": "打开 Continuum"
+  },
+  "uiGrantEyebrow": {
+    "message": "Continuum · AI 压缩"
+  },
+  "uiGrantTitle": {
+    "message": "允许访问 $1"
+  },
+  "uiGrantDesc": {
+    "message": "Continuum 会把这段对话发送到 $1 的 API 进行压缩。你的密钥和对话保留在本机，且只会发送给 $1，绝不会发送到 Continuum 的服务器。"
+  },
+  "uiGrantAllow": {
+    "message": "允许访问"
+  },
+  "uiGrantNotNow": {
+    "message": "暂不"
+  },
+  "uiGrantedTitle": {
+    "message": "已授予访问权限"
+  },
+  "uiGrantedDesc": {
+    "message": "回到你的对话并再次点击<strong>继续</strong>——下次不会再为 $1 询问。"
+  },
+  "uiGrantMissing": {
+    "message": "缺少服务商信息——请关闭后重试。"
+  },
+  "uiGrantNeeded": {
+    "message": "需要访问权限才能使用 $1 进行压缩。"
+  },
+  "uiGrantFailed": {
+    "message": "无法请求访问权限——请重试。"
+  }
+}

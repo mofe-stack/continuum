@@ -1,0 +1,275 @@
+{
+  "extName": {
+    "message": "Continuum: AIチャットを保存・エクスポート・再開",
+    "description": "Extension name — shown as the store listing title."
+  },
+  "extShortDescription": {
+    "message": "AIとの会話をPDFやMarkdownで保存・エクスポートし、新しいチャットで文脈を保ったまま再開できます。",
+    "description": "Chrome Web Store short description (max 132 characters)."
+  },
+  "extLongDescription": {
+    "message": "AIとの会話をPDF・Markdown・ZIPで保存してエクスポートし、別のプラットフォームの新しいチャットでも文脈をそのまま引き継いで再開できます。メッセージ数や長さの上限で話の流れを失いません。AI圧縮にも対応。",
+    "description": "Firefox/AMO summary (max 250 characters)."
+  },
+  "uiReview": {
+    "message": "評価"
+  },
+  "uiRateContinuum": {
+    "message": "Continuum を評価"
+  },
+  "uiSettings": {
+    "message": "設定"
+  },
+  "uiClose": {
+    "message": "閉じる"
+  },
+  "uiBack": {
+    "message": "戻る"
+  },
+  "uiCurrentChat": {
+    "message": "現在のチャット"
+  },
+  "uiCaptureSession": {
+    "message": "このセッションを保存"
+  },
+  "uiSavedSessions": {
+    "message": "保存したセッション"
+  },
+  "uiSelect": {
+    "message": "選択"
+  },
+  "uiSelectAll": {
+    "message": "すべて選択"
+  },
+  "uiSearchSaved": {
+    "message": "保存したチャットを検索"
+  },
+  "uiClearSearch": {
+    "message": "検索をクリア"
+  },
+  "uiAllSavedChats": {
+    "message": "保存したすべてのチャット"
+  },
+  "uiDeleteCount": {
+    "message": "削除 ($1)"
+  },
+  "uiResumeNewChat": {
+    "message": "新しいチャットで再開"
+  },
+  "uiResumeFormat": {
+    "message": "再開の形式"
+  },
+  "uiFormatHint": {
+    "message": "<strong>PDF</strong> は画像を埋め込み、ファイルを参照します。容量は大きくなりますが、モデルが画像を<em>見る</em>ことができます。<strong>MD</strong> は画像とファイルを名前で参照するだけです。はるかに軽量（トークン数が少ない）で、テキストのみです。"
+  },
+  "uiCompressWithAI": {
+    "message": "AIで圧縮（構造化された引き継ぎブリーフ）"
+  },
+  "uiAttachFiles": {
+    "message": "新しいチャットにファイルを添付"
+  },
+  "uiAttachImages": {
+    "message": "新しいチャットに画像を添付"
+  },
+  "uiCopyChatHistory": {
+    "message": "チャット履歴をコピー"
+  },
+  "uiDownloadFmt": {
+    "message": "$1 をダウンロード"
+  },
+  "uiSaveAsFile": {
+    "message": "ファイルとして保存（.zip）"
+  },
+  "uiDeleteSession": {
+    "message": "セッションを削除"
+  },
+  "uiSoonLower": {
+    "message": "近日"
+  },
+  "uiCompressionStats": {
+    "message": "圧縮の統計"
+  },
+  "uiSyncIntegrations": {
+    "message": "同期と連携"
+  },
+  "uiObsidianSync": {
+    "message": "Obsidian 同期"
+  },
+  "uiNotionSync": {
+    "message": "Notion 同期"
+  },
+  "uiSoonBadge": {
+    "message": "近日"
+  },
+  "uiTheme": {
+    "message": "テーマ"
+  },
+  "uiDarkMode": {
+    "message": "ダークモード"
+  },
+  "uiResume": {
+    "message": "再開"
+  },
+  "uiAutoSend": {
+    "message": "再開後に自動送信"
+  },
+  "uiAutoSendHint": {
+    "message": "オンのとき、Continuum はチャット履歴と追加の添付ファイルのアップロードが完了すると自動的に送信します。オフのときは、メッセージと添付ファイルを入力した状態で止まり、確認して送信を押すのを待ちます。"
+  },
+  "uiResumeMessage": {
+    "message": "再開メッセージ"
+  },
+  "uiResumeMessageHint": {
+    "message": "再開時に新しいチャットへ自動入力されます。形式ごとに別のメッセージを保持するため、編集する形式を選んでください。"
+  },
+  "uiResetToDefault": {
+    "message": "初期値に戻す"
+  },
+  "uiAICompression": {
+    "message": "AI 圧縮"
+  },
+  "uiAICompressionHint": {
+    "message": "チャットで「AIで圧縮」にチェックを入れたときだけ使われます。プロバイダーを選んで API キーを貼り付けてください。キーはこのブラウザ内にローカル保存され、会話全体を構造化された引き継ぎブリーフにまとめるために、そのプロバイダーにのみ送信されます。"
+  },
+  "uiAPIKey": {
+    "message": "API キー"
+  },
+  "uiBriefOrganized": {
+    "message": "引き継ぎブリーフの構成"
+  },
+  "uiBriefHint": {
+    "message": "会話全体を構造化されたブリーフに圧縮しつつ、文脈は完全に保ちます。重要な情報（決定事項、指示、コード、ファイル、画像）はすべて残し、それ以外は要約します。該当のない項目には「なし」と記載されます。"
+  },
+  "uiFactoryReset": {
+    "message": "初期化"
+  },
+  "uiChipCompleted": {
+    "message": "完了した作業"
+  },
+  "uiChipCurrent": {
+    "message": "現在の状態"
+  },
+  "uiChipInProgress": {
+    "message": "進行中"
+  },
+  "uiChipNext": {
+    "message": "次のステップ"
+  },
+  "uiChipConstraints": {
+    "message": "制約"
+  },
+  "uiChipCritical": {
+    "message": "重要な文脈"
+  },
+  "uiChipDiscarded": {
+    "message": "見送った試み"
+  },
+  "uiDeleteThisSession": {
+    "message": "このセッションを削除しますか？"
+  },
+  "uiCantBeUndone": {
+    "message": "この操作は取り消せません。"
+  },
+  "uiCancel": {
+    "message": "キャンセル"
+  },
+  "uiDelete": {
+    "message": "削除"
+  },
+  "uiSaveChatAsFile": {
+    "message": "チャットをファイルとして保存"
+  },
+  "uiFileName": {
+    "message": "ファイル名"
+  },
+  "uiSave": {
+    "message": "保存"
+  },
+  "uiFactoryResetQ": {
+    "message": "初期化しますか？"
+  },
+  "uiFactoryResetSub": {
+    "message": "保存済みのセッションをすべて削除し、すべての設定を初期化します。この操作は取り消せません。"
+  },
+  "uiReset": {
+    "message": "初期化"
+  },
+  "uiDownloadResumeFile": {
+    "message": "再開用ファイルをダウンロード"
+  },
+  "uiExtractFolderTitle": {
+    "message": "このフォルダーを .zip として書き出す"
+  },
+  "uiExtractFolder": {
+    "message": "フォルダーを書き出す"
+  },
+  "uiSavedSessionsCount": {
+    "message": "保存したセッション ($1)"
+  },
+  "uiSavedSessionsFiltered": {
+    "message": "保存したセッション ($2 件中 $1 件)"
+  },
+  "uiNoSavedSessions": {
+    "message": "保存されたセッションはまだありません。"
+  },
+  "uiNoChatsMatch": {
+    "message": "「$1」に一致するチャットはありません。"
+  },
+  "uiEmptyChatNote": {
+    "message": "空のチャットです。保存するものがまだありません。下の保存済みセッションを選ぶと、ここでも別のAIでも再開できます。"
+  },
+  "uiStatMessagesOne": {
+    "message": "メッセージ $1 件"
+  },
+  "uiStatMessagesOther": {
+    "message": "メッセージ $1 件"
+  },
+  "uiStatImagesOne": {
+    "message": "画像 $1 点"
+  },
+  "uiStatImagesOther": {
+    "message": "画像 $1 点"
+  },
+  "uiStatFilesOne": {
+    "message": "ファイル $1 件"
+  },
+  "uiStatFilesOther": {
+    "message": "ファイル $1 件"
+  },
+  "uiFabTitle": {
+    "message": "Continuum — このセッションを保存"
+  },
+  "uiOpenContinuum": {
+    "message": "Continuum を開く"
+  },
+  "uiGrantEyebrow": {
+    "message": "Continuum · AI 圧縮"
+  },
+  "uiGrantTitle": {
+    "message": "$1 へのアクセスを許可"
+  },
+  "uiGrantDesc": {
+    "message": "Continuum は圧縮のためにこのチャットを $1 の API に送信します。キーとチャットはお使いのデバイスに保存され、$1 にのみ送信されます。Continuum のサーバーに送られることはありません。"
+  },
+  "uiGrantAllow": {
+    "message": "アクセスを許可"
+  },
+  "uiGrantNotNow": {
+    "message": "今はしない"
+  },
+  "uiGrantedTitle": {
+    "message": "アクセスを許可しました"
+  },
+  "uiGrantedDesc": {
+    "message": "チャットに戻ってもう一度<strong>再開</strong>をクリックしてください。次回から $1 について確認されることはありません。"
+  },
+  "uiGrantMissing": {
+    "message": "プロバイダーの情報がありません。これを閉じてもう一度お試しください。"
+  },
+  "uiGrantNeeded": {
+    "message": "$1 で圧縮するにはアクセス許可が必要です。"
+  },
+  "uiGrantFailed": {
+    "message": "アクセスを要求できませんでした。もう一度お試しください。"
+  }
+}

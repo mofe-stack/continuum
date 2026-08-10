@@ -20,7 +20,9 @@ const MANIFEST = "manifest.firefox.json"; // written into the package as manifes
 const OUTDIR = path.join(root, "build", "firefox");
 const OUTPKG = path.join(root, "continuum-firefox.xpi");
 
-const INCLUDE = ["icons", "src"];
+// _locales must sit at the package root for browser.i18n to find it. Regenerate
+// it with `node tools/build-locales.js` after editing anything under i18n/.
+const INCLUDE = ["_locales", "icons", "src"];
 const SKIP = new Set(["icons/generate_icons.py"]); // dev-only file
 
 const files = {};

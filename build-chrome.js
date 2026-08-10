@@ -21,7 +21,9 @@ const MANIFEST = "manifest.chrome.json"; // written into the package as manifest
 const OUTDIR = path.join(root, "build", "chrome");
 const OUTPKG = path.join(root, "continuum-chrome.zip");
 
-const INCLUDE = ["icons", "src"];
+// _locales must sit at the package root for chrome.i18n to find it. Regenerate
+// it with `node tools/build-locales.js` after editing anything under i18n/.
+const INCLUDE = ["_locales", "icons", "src"];
 const SKIP = new Set(["icons/generate_icons.py"]); // dev-only file
 
 const files = {};

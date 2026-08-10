@@ -1,0 +1,275 @@
+{
+  "extName": {
+    "message": "Continuum: KI-Chats speichern, exportieren & fortsetzen",
+    "description": "Extension name — shown as the store listing title."
+  },
+  "extShortDescription": {
+    "message": "KI-Chats als PDF oder Markdown speichern und exportieren und in einem neuen Chat ohne Kontextverlust fortsetzen.",
+    "description": "Chrome Web Store short description (max 132 characters)."
+  },
+  "extLongDescription": {
+    "message": "Speichere und exportiere jede KI-Unterhaltung als PDF, Markdown oder ZIP und setze sie in einem neuen Chat auf einer anderen Plattform fort — mit vollem Kontext, ohne an Nachrichten- oder Längenlimits zu scheitern. Optional mit KI-Komprimierung.",
+    "description": "Firefox/AMO summary (max 250 characters)."
+  },
+  "uiReview": {
+    "message": "Bewerten"
+  },
+  "uiRateContinuum": {
+    "message": "Continuum bewerten"
+  },
+  "uiSettings": {
+    "message": "Einstellungen"
+  },
+  "uiClose": {
+    "message": "Schließen"
+  },
+  "uiBack": {
+    "message": "Zurück"
+  },
+  "uiCurrentChat": {
+    "message": "Aktueller Chat"
+  },
+  "uiCaptureSession": {
+    "message": "Diese Sitzung sichern"
+  },
+  "uiSavedSessions": {
+    "message": "Gespeicherte Sitzungen"
+  },
+  "uiSelect": {
+    "message": "Auswählen"
+  },
+  "uiSelectAll": {
+    "message": "Alle auswählen"
+  },
+  "uiSearchSaved": {
+    "message": "Gespeicherte Chats durchsuchen"
+  },
+  "uiClearSearch": {
+    "message": "Suche löschen"
+  },
+  "uiAllSavedChats": {
+    "message": "Alle gespeicherten Chats"
+  },
+  "uiDeleteCount": {
+    "message": "Löschen ($1)"
+  },
+  "uiResumeNewChat": {
+    "message": "In neuem Chat fortsetzen"
+  },
+  "uiResumeFormat": {
+    "message": "Format zum Fortsetzen"
+  },
+  "uiFormatHint": {
+    "message": "<strong>PDF</strong> bettet Bilder ein und verweist auf Dateien — schwerer, aber das Modell kann die Bilder <em>sehen</em>. <strong>MD</strong> verweist auf Bilder und Dateien nur per Name — deutlich leichter (weniger Tokens), reiner Text."
+  },
+  "uiCompressWithAI": {
+    "message": "Mit KI komprimieren (strukturiertes Übergabe-Briefing)"
+  },
+  "uiAttachFiles": {
+    "message": "Dateien an den neuen Chat anhängen"
+  },
+  "uiAttachImages": {
+    "message": "Bilder an den neuen Chat anhängen"
+  },
+  "uiCopyChatHistory": {
+    "message": "Chatverlauf kopieren"
+  },
+  "uiDownloadFmt": {
+    "message": "$1 herunterladen"
+  },
+  "uiSaveAsFile": {
+    "message": "Als Datei speichern (.zip)"
+  },
+  "uiDeleteSession": {
+    "message": "Sitzung löschen"
+  },
+  "uiSoonLower": {
+    "message": "bald"
+  },
+  "uiCompressionStats": {
+    "message": "Komprimierungsstatistik"
+  },
+  "uiSyncIntegrations": {
+    "message": "Sync & Integrationen"
+  },
+  "uiObsidianSync": {
+    "message": "Obsidian-Sync"
+  },
+  "uiNotionSync": {
+    "message": "Notion-Sync"
+  },
+  "uiSoonBadge": {
+    "message": "Bald"
+  },
+  "uiTheme": {
+    "message": "Design"
+  },
+  "uiDarkMode": {
+    "message": "Dunkelmodus"
+  },
+  "uiResume": {
+    "message": "Fortsetzen"
+  },
+  "uiAutoSend": {
+    "message": "Nach dem Fortsetzen automatisch senden"
+  },
+  "uiAutoSendHint": {
+    "message": "Wenn aktiviert, sendet Continuum automatisch, sobald Chatverlauf und Anhänge hochgeladen sind. Wenn deaktiviert, füllt es Nachricht und Anhänge ein und wartet, bis du prüfst und auf Senden klickst."
+  },
+  "uiResumeMessage": {
+    "message": "Fortsetzungsnachricht"
+  },
+  "uiResumeMessageHint": {
+    "message": "Wird beim Fortsetzen automatisch in den neuen Chat geschrieben. Jedes Format hat seine eigene Nachricht — wähle, welche du bearbeiten willst."
+  },
+  "uiResetToDefault": {
+    "message": "Auf Standard zurücksetzen"
+  },
+  "uiAICompression": {
+    "message": "KI-Komprimierung"
+  },
+  "uiAICompressionHint": {
+    "message": "Wird nur verwendet, wenn du bei einem Chat \"Mit KI komprimieren\" aktivierst. Wähle einen Anbieter und füge seinen API-Schlüssel ein — lokal in diesem Browser gespeichert und nur an diesen Anbieter gesendet, um den Chat zu einem strukturierten Übergabe-Briefing zu verdichten."
+  },
+  "uiAPIKey": {
+    "message": "API-Schlüssel"
+  },
+  "uiBriefOrganized": {
+    "message": "Das Übergabe-Briefing ist so gegliedert"
+  },
+  "uiBriefHint": {
+    "message": "Verdichtet die gesamte Unterhaltung zu einem strukturierten Briefing, ohne Kontext zu verlieren. Alle wichtigen Details bleiben erhalten (Entscheidungen, Anweisungen, Code, Dateien und Bilder), der Rest wird zusammengefasst. Leere Abschnitte stehen einfach auf Keine."
+  },
+  "uiFactoryReset": {
+    "message": "Auf Werkseinstellungen zurücksetzen"
+  },
+  "uiChipCompleted": {
+    "message": "Erledigte Arbeit"
+  },
+  "uiChipCurrent": {
+    "message": "Aktueller Stand"
+  },
+  "uiChipInProgress": {
+    "message": "In Arbeit"
+  },
+  "uiChipNext": {
+    "message": "Nächste Schritte"
+  },
+  "uiChipConstraints": {
+    "message": "Rahmenbedingungen"
+  },
+  "uiChipCritical": {
+    "message": "Kritischer Kontext"
+  },
+  "uiChipDiscarded": {
+    "message": "Verworfene Ansätze"
+  },
+  "uiDeleteThisSession": {
+    "message": "Diese Sitzung löschen?"
+  },
+  "uiCantBeUndone": {
+    "message": "Das lässt sich nicht rückgängig machen."
+  },
+  "uiCancel": {
+    "message": "Abbrechen"
+  },
+  "uiDelete": {
+    "message": "Löschen"
+  },
+  "uiSaveChatAsFile": {
+    "message": "Chat als Datei speichern"
+  },
+  "uiFileName": {
+    "message": "Dateiname"
+  },
+  "uiSave": {
+    "message": "Speichern"
+  },
+  "uiFactoryResetQ": {
+    "message": "Auf Werkseinstellungen zurücksetzen?"
+  },
+  "uiFactoryResetSub": {
+    "message": "Löscht alle gespeicherten Sitzungen und setzt jede Einstellung zurück. Das lässt sich nicht rückgängig machen."
+  },
+  "uiReset": {
+    "message": "Zurücksetzen"
+  },
+  "uiDownloadResumeFile": {
+    "message": "Fortsetzungsdatei herunterladen"
+  },
+  "uiExtractFolderTitle": {
+    "message": "Diesen Ordner als .zip exportieren"
+  },
+  "uiExtractFolder": {
+    "message": "Ordner exportieren"
+  },
+  "uiSavedSessionsCount": {
+    "message": "Gespeicherte Sitzungen ($1)"
+  },
+  "uiSavedSessionsFiltered": {
+    "message": "Gespeicherte Sitzungen ($1 von $2)"
+  },
+  "uiNoSavedSessions": {
+    "message": "Noch keine gespeicherten Sitzungen."
+  },
+  "uiNoChatsMatch": {
+    "message": "Keine Chats passen zu \"$1\"."
+  },
+  "uiEmptyChatNote": {
+    "message": "Leerer Chat — noch nichts zu sichern. Wähle unten eine gespeicherte Sitzung, um sie hier oder bei einer anderen KI fortzusetzen."
+  },
+  "uiStatMessagesOne": {
+    "message": "$1 Nachricht"
+  },
+  "uiStatMessagesOther": {
+    "message": "$1 Nachrichten"
+  },
+  "uiStatImagesOne": {
+    "message": "$1 Bild"
+  },
+  "uiStatImagesOther": {
+    "message": "$1 Bilder"
+  },
+  "uiStatFilesOne": {
+    "message": "$1 Datei"
+  },
+  "uiStatFilesOther": {
+    "message": "$1 Dateien"
+  },
+  "uiFabTitle": {
+    "message": "Continuum — diese Sitzung sichern"
+  },
+  "uiOpenContinuum": {
+    "message": "Continuum öffnen"
+  },
+  "uiGrantEyebrow": {
+    "message": "Continuum · KI-Komprimierung"
+  },
+  "uiGrantTitle": {
+    "message": "Zugriff auf $1 erlauben"
+  },
+  "uiGrantDesc": {
+    "message": "Continuum sendet diesen Chat zum Komprimieren an die API von $1. Dein Schlüssel und deine Chats bleiben auf deinem Gerät und gehen nur an $1 — nie an einen Continuum-Server."
+  },
+  "uiGrantAllow": {
+    "message": "Zugriff erlauben"
+  },
+  "uiGrantNotNow": {
+    "message": "Jetzt nicht"
+  },
+  "uiGrantedTitle": {
+    "message": "Zugriff erteilt"
+  },
+  "uiGrantedDesc": {
+    "message": "Kehre zu deinem Chat zurück und klicke erneut auf <strong>Fortsetzen</strong> — für $1 wird nicht noch einmal gefragt."
+  },
+  "uiGrantMissing": {
+    "message": "Anbieterdaten fehlen — schließe das Fenster und versuche es erneut."
+  },
+  "uiGrantNeeded": {
+    "message": "Für das Komprimieren mit $1 wird Zugriff benötigt."
+  },
+  "uiGrantFailed": {
+    "message": "Zugriff konnte nicht angefragt werden — versuche es erneut."
+  }
+}

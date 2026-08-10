@@ -1,0 +1,275 @@
+{
+  "extName": {
+    "message": "Continuum: AI 대화 저장·내보내기·이어하기",
+    "description": "Extension name — shown as the store listing title."
+  },
+  "extShortDescription": {
+    "message": "AI 대화를 PDF나 Markdown으로 저장하고 내보내며, 새 대화에서 맥락을 잃지 않고 이어갈 수 있습니다.",
+    "description": "Chrome Web Store short description (max 132 characters)."
+  },
+  "extLongDescription": {
+    "message": "AI 대화를 PDF, Markdown, ZIP으로 저장하고 내보낸 뒤 다른 플랫폼의 새 대화에서 전체 맥락 그대로 이어갈 수 있습니다. 메시지 수나 길이 제한으로 흐름을 잃지 않습니다. AI 압축 선택 가능.",
+    "description": "Firefox/AMO summary (max 250 characters)."
+  },
+  "uiReview": {
+    "message": "평가"
+  },
+  "uiRateContinuum": {
+    "message": "Continuum 평가하기"
+  },
+  "uiSettings": {
+    "message": "설정"
+  },
+  "uiClose": {
+    "message": "닫기"
+  },
+  "uiBack": {
+    "message": "뒤로"
+  },
+  "uiCurrentChat": {
+    "message": "현재 대화"
+  },
+  "uiCaptureSession": {
+    "message": "이 세션 저장"
+  },
+  "uiSavedSessions": {
+    "message": "저장된 세션"
+  },
+  "uiSelect": {
+    "message": "선택"
+  },
+  "uiSelectAll": {
+    "message": "전체 선택"
+  },
+  "uiSearchSaved": {
+    "message": "저장된 대화 검색"
+  },
+  "uiClearSearch": {
+    "message": "검색 지우기"
+  },
+  "uiAllSavedChats": {
+    "message": "저장된 모든 대화"
+  },
+  "uiDeleteCount": {
+    "message": "삭제 ($1)"
+  },
+  "uiResumeNewChat": {
+    "message": "새 대화에서 이어하기"
+  },
+  "uiResumeFormat": {
+    "message": "이어하기 형식"
+  },
+  "uiFormatHint": {
+    "message": "<strong>PDF</strong>는 이미지를 포함하고 파일을 참조합니다. 용량은 크지만 모델이 이미지를 <em>볼</em> 수 있습니다. <strong>MD</strong>는 이미지와 파일을 이름으로만 참조합니다. 훨씬 가볍고(토큰이 적음) 텍스트 전용입니다."
+  },
+  "uiCompressWithAI": {
+    "message": "AI로 압축 (구조화된 인계 요약)"
+  },
+  "uiAttachFiles": {
+    "message": "새 대화에 파일 첨부"
+  },
+  "uiAttachImages": {
+    "message": "새 대화에 이미지 첨부"
+  },
+  "uiCopyChatHistory": {
+    "message": "대화 기록 복사"
+  },
+  "uiDownloadFmt": {
+    "message": "$1 다운로드"
+  },
+  "uiSaveAsFile": {
+    "message": "파일로 저장 (.zip)"
+  },
+  "uiDeleteSession": {
+    "message": "세션 삭제"
+  },
+  "uiSoonLower": {
+    "message": "곧"
+  },
+  "uiCompressionStats": {
+    "message": "압축 통계"
+  },
+  "uiSyncIntegrations": {
+    "message": "동기화 및 연동"
+  },
+  "uiObsidianSync": {
+    "message": "Obsidian 동기화"
+  },
+  "uiNotionSync": {
+    "message": "Notion 동기화"
+  },
+  "uiSoonBadge": {
+    "message": "곧"
+  },
+  "uiTheme": {
+    "message": "테마"
+  },
+  "uiDarkMode": {
+    "message": "다크 모드"
+  },
+  "uiResume": {
+    "message": "이어하기"
+  },
+  "uiAutoSend": {
+    "message": "이어한 뒤 자동 전송"
+  },
+  "uiAutoSendHint": {
+    "message": "켜면 대화 기록과 추가 첨부 파일 업로드가 끝나는 대로 Continuum이 자동으로 전송합니다. 끄면 메시지와 첨부 파일만 채워 두고, 사용자가 확인한 뒤 보내기를 누를 때까지 기다립니다."
+  },
+  "uiResumeMessage": {
+    "message": "이어하기 메시지"
+  },
+  "uiResumeMessageHint": {
+    "message": "이어할 때 새 대화에 자동으로 입력됩니다. 형식마다 메시지가 따로 있으니 편집할 형식을 선택하세요."
+  },
+  "uiResetToDefault": {
+    "message": "기본값으로 되돌리기"
+  },
+  "uiAICompression": {
+    "message": "AI 압축"
+  },
+  "uiAICompressionHint": {
+    "message": "대화에서 \"AI로 압축\"을 선택했을 때만 사용됩니다. 제공업체를 고르고 해당 API 키를 붙여 넣으세요. 키는 이 브라우저에 로컬로 저장되며, 대화 전체를 구조화된 인계 요약으로 압축하기 위해 해당 제공업체에만 전송됩니다."
+  },
+  "uiAPIKey": {
+    "message": "API 키"
+  },
+  "uiBriefOrganized": {
+    "message": "인계 요약의 구성"
+  },
+  "uiBriefHint": {
+    "message": "전체 맥락을 유지하면서 대화 전부를 구조화된 요약으로 압축합니다. 핵심 내용(결정, 지시, 코드, 파일, 이미지)은 모두 남기고 나머지는 요약합니다. 해당 사항이 없는 항목에는 없음이라고 표시됩니다."
+  },
+  "uiFactoryReset": {
+    "message": "초기화"
+  },
+  "uiChipCompleted": {
+    "message": "완료된 작업"
+  },
+  "uiChipCurrent": {
+    "message": "현재 상태"
+  },
+  "uiChipInProgress": {
+    "message": "진행 중"
+  },
+  "uiChipNext": {
+    "message": "다음 단계"
+  },
+  "uiChipConstraints": {
+    "message": "제약 사항"
+  },
+  "uiChipCritical": {
+    "message": "핵심 맥락"
+  },
+  "uiChipDiscarded": {
+    "message": "폐기된 시도"
+  },
+  "uiDeleteThisSession": {
+    "message": "이 세션을 삭제할까요?"
+  },
+  "uiCantBeUndone": {
+    "message": "이 작업은 되돌릴 수 없습니다."
+  },
+  "uiCancel": {
+    "message": "취소"
+  },
+  "uiDelete": {
+    "message": "삭제"
+  },
+  "uiSaveChatAsFile": {
+    "message": "대화를 파일로 저장"
+  },
+  "uiFileName": {
+    "message": "파일 이름"
+  },
+  "uiSave": {
+    "message": "저장"
+  },
+  "uiFactoryResetQ": {
+    "message": "초기화할까요?"
+  },
+  "uiFactoryResetSub": {
+    "message": "저장된 세션을 모두 삭제하고 모든 설정을 초기화합니다. 되돌릴 수 없습니다."
+  },
+  "uiReset": {
+    "message": "초기화"
+  },
+  "uiDownloadResumeFile": {
+    "message": "이어하기 파일 다운로드"
+  },
+  "uiExtractFolderTitle": {
+    "message": "이 폴더를 .zip으로 내보내기"
+  },
+  "uiExtractFolder": {
+    "message": "폴더 내보내기"
+  },
+  "uiSavedSessionsCount": {
+    "message": "저장된 세션 ($1)"
+  },
+  "uiSavedSessionsFiltered": {
+    "message": "저장된 세션 ($2개 중 $1개)"
+  },
+  "uiNoSavedSessions": {
+    "message": "아직 저장된 세션이 없습니다."
+  },
+  "uiNoChatsMatch": {
+    "message": "\"$1\"과(와) 일치하는 대화가 없습니다."
+  },
+  "uiEmptyChatNote": {
+    "message": "빈 대화입니다. 아직 저장할 내용이 없습니다. 아래에서 저장된 세션을 골라 여기서 또는 다른 AI에서 이어가세요."
+  },
+  "uiStatMessagesOne": {
+    "message": "메시지 $1개"
+  },
+  "uiStatMessagesOther": {
+    "message": "메시지 $1개"
+  },
+  "uiStatImagesOne": {
+    "message": "이미지 $1개"
+  },
+  "uiStatImagesOther": {
+    "message": "이미지 $1개"
+  },
+  "uiStatFilesOne": {
+    "message": "파일 $1개"
+  },
+  "uiStatFilesOther": {
+    "message": "파일 $1개"
+  },
+  "uiFabTitle": {
+    "message": "Continuum — 이 세션 저장"
+  },
+  "uiOpenContinuum": {
+    "message": "Continuum 열기"
+  },
+  "uiGrantEyebrow": {
+    "message": "Continuum · AI 압축"
+  },
+  "uiGrantTitle": {
+    "message": "$1 접근 허용"
+  },
+  "uiGrantDesc": {
+    "message": "Continuum은 압축을 위해 이 대화를 $1의 API로 전송합니다. 키와 대화는 기기에 남아 있으며 $1에게만 전송됩니다. Continuum 서버로는 전송되지 않습니다."
+  },
+  "uiGrantAllow": {
+    "message": "접근 허용"
+  },
+  "uiGrantNotNow": {
+    "message": "나중에"
+  },
+  "uiGrantedTitle": {
+    "message": "접근이 허용되었습니다"
+  },
+  "uiGrantedDesc": {
+    "message": "대화로 돌아가 <strong>이어하기</strong>를 다시 누르세요. 다음부터는 $1에 대해 묻지 않습니다."
+  },
+  "uiGrantMissing": {
+    "message": "제공업체 정보가 없습니다. 창을 닫고 다시 시도하세요."
+  },
+  "uiGrantNeeded": {
+    "message": "$1(으)로 압축하려면 접근 권한이 필요합니다."
+  },
+  "uiGrantFailed": {
+    "message": "접근 권한을 요청하지 못했습니다. 다시 시도하세요."
+  }
+}

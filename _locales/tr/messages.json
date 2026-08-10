@@ -1,0 +1,275 @@
+{
+  "extName": {
+    "message": "Continuum: Yapay Zeka Sohbetlerini Kaydet, Dışa Aktar, Sürdür",
+    "description": "Extension name — shown as the store listing title."
+  },
+  "extShortDescription": {
+    "message": "Yapay zeka sohbetlerini PDF veya Markdown olarak kaydedip dışa aktarın, yeni sohbette bağlamı kaybetmeden sürdürün.",
+    "description": "Chrome Web Store short description (max 132 characters)."
+  },
+  "extLongDescription": {
+    "message": "Yapay zeka sohbetlerini PDF, Markdown veya ZIP olarak kaydedip dışa aktarın ve başka bir platformdaki yeni sohbette bağlamı eksiksiz koruyarak sürdürün. Mesaj ve uzunluk sınırları yüzünden konuyu kaybetmeyin. İsteğe bağlı yapay zeka sıkıştırması.",
+    "description": "Firefox/AMO summary (max 250 characters)."
+  },
+  "uiReview": {
+    "message": "Değerlendir"
+  },
+  "uiRateContinuum": {
+    "message": "Continuum'u değerlendir"
+  },
+  "uiSettings": {
+    "message": "Ayarlar"
+  },
+  "uiClose": {
+    "message": "Kapat"
+  },
+  "uiBack": {
+    "message": "Geri"
+  },
+  "uiCurrentChat": {
+    "message": "Geçerli sohbet"
+  },
+  "uiCaptureSession": {
+    "message": "Bu oturumu yakala"
+  },
+  "uiSavedSessions": {
+    "message": "Kayıtlı oturumlar"
+  },
+  "uiSelect": {
+    "message": "Seç"
+  },
+  "uiSelectAll": {
+    "message": "Tümünü seç"
+  },
+  "uiSearchSaved": {
+    "message": "Kayıtlı sohbetlerde ara"
+  },
+  "uiClearSearch": {
+    "message": "Aramayı temizle"
+  },
+  "uiAllSavedChats": {
+    "message": "Tüm kayıtlı sohbetler"
+  },
+  "uiDeleteCount": {
+    "message": "Sil ($1)"
+  },
+  "uiResumeNewChat": {
+    "message": "Yeni sohbette sürdür"
+  },
+  "uiResumeFormat": {
+    "message": "Sürdürme biçimi"
+  },
+  "uiFormatHint": {
+    "message": "<strong>PDF</strong> görselleri gömer ve dosyalara referans verir — daha ağırdır, ancak model görselleri <em>görebilir</em>. <strong>MD</strong> görsel ve dosyalara yalnızca adlarıyla referans verir — çok daha hafiftir (daha az token), yalnızca metin."
+  },
+  "uiCompressWithAI": {
+    "message": "Yapay zeka ile sıkıştır (yapılandırılmış devir özeti)"
+  },
+  "uiAttachFiles": {
+    "message": "Dosyaları yeni sohbete ekle"
+  },
+  "uiAttachImages": {
+    "message": "Görselleri yeni sohbete ekle"
+  },
+  "uiCopyChatHistory": {
+    "message": "Sohbet geçmişini kopyala"
+  },
+  "uiDownloadFmt": {
+    "message": "$1 indir"
+  },
+  "uiSaveAsFile": {
+    "message": "Dosya olarak kaydet (.zip)"
+  },
+  "uiDeleteSession": {
+    "message": "Oturumu sil"
+  },
+  "uiSoonLower": {
+    "message": "yakında"
+  },
+  "uiCompressionStats": {
+    "message": "Sıkıştırma istatistikleri"
+  },
+  "uiSyncIntegrations": {
+    "message": "Senkronizasyon ve entegrasyonlar"
+  },
+  "uiObsidianSync": {
+    "message": "Obsidian senkronizasyonu"
+  },
+  "uiNotionSync": {
+    "message": "Notion senkronizasyonu"
+  },
+  "uiSoonBadge": {
+    "message": "Yakında"
+  },
+  "uiTheme": {
+    "message": "Tema"
+  },
+  "uiDarkMode": {
+    "message": "Koyu mod"
+  },
+  "uiResume": {
+    "message": "Sürdürme"
+  },
+  "uiAutoSend": {
+    "message": "Sürdürdükten sonra otomatik gönder"
+  },
+  "uiAutoSendHint": {
+    "message": "Açıkken Continuum, sohbet geçmişi ve ek dosyaların yüklenmesi biter bitmez otomatik gönderir. Kapalıyken mesajı ve ekleri doldurur, sizin kontrol edip Gönder'e basmanızı bekler."
+  },
+  "uiResumeMessage": {
+    "message": "Sürdürme mesajı"
+  },
+  "uiResumeMessageHint": {
+    "message": "Sürdürürken yeni sohbete otomatik yazılır. Her biçimin kendi mesajı vardır; hangisini düzenleyeceğinizi seçin."
+  },
+  "uiResetToDefault": {
+    "message": "Varsayılana sıfırla"
+  },
+  "uiAICompression": {
+    "message": "Yapay zeka sıkıştırması"
+  },
+  "uiAICompressionHint": {
+    "message": "Yalnızca bir sohbette \"Yapay zeka ile sıkıştır\" seçeneğini işaretlediğinizde kullanılır. Bir sağlayıcı seçip API anahtarını yapıştırın — anahtar bu tarayıcıda yerel olarak saklanır ve sohbetin tamamını yapılandırılmış bir devir özetine indirgemek için yalnızca o sağlayıcıya gönderilir."
+  },
+  "uiAPIKey": {
+    "message": "API anahtarı"
+  },
+  "uiBriefOrganized": {
+    "message": "Devir özeti şu şekilde düzenlenir"
+  },
+  "uiBriefHint": {
+    "message": "Tüm bağlamı korurken konuşmanın tamamını yapılandırılmış bir özete sıkıştırır. Önemli ayrıntıların hepsi korunur (kararlar, talimatlar, kod, dosyalar ve görseller), gerisi özetlenir. Boş bölümlerde yalnızca Yok yazar."
+  },
+  "uiFactoryReset": {
+    "message": "Fabrika ayarlarına sıfırla"
+  },
+  "uiChipCompleted": {
+    "message": "Tamamlanan iş"
+  },
+  "uiChipCurrent": {
+    "message": "Mevcut durum"
+  },
+  "uiChipInProgress": {
+    "message": "Devam eden"
+  },
+  "uiChipNext": {
+    "message": "Sonraki adımlar"
+  },
+  "uiChipConstraints": {
+    "message": "Kısıtlar"
+  },
+  "uiChipCritical": {
+    "message": "Kritik bağlam"
+  },
+  "uiChipDiscarded": {
+    "message": "Vazgeçilen denemeler"
+  },
+  "uiDeleteThisSession": {
+    "message": "Bu oturum silinsin mi?"
+  },
+  "uiCantBeUndone": {
+    "message": "Bu işlem geri alınamaz."
+  },
+  "uiCancel": {
+    "message": "Vazgeç"
+  },
+  "uiDelete": {
+    "message": "Sil"
+  },
+  "uiSaveChatAsFile": {
+    "message": "Sohbeti dosya olarak kaydet"
+  },
+  "uiFileName": {
+    "message": "Dosya adı"
+  },
+  "uiSave": {
+    "message": "Kaydet"
+  },
+  "uiFactoryResetQ": {
+    "message": "Fabrika ayarlarına sıfırlansın mı?"
+  },
+  "uiFactoryResetSub": {
+    "message": "Kayıtlı tüm oturumları siler ve bütün ayarları sıfırlar. Bu işlem geri alınamaz."
+  },
+  "uiReset": {
+    "message": "Sıfırla"
+  },
+  "uiDownloadResumeFile": {
+    "message": "Sürdürme dosyasını indir"
+  },
+  "uiExtractFolderTitle": {
+    "message": "Bu klasörü .zip olarak dışa aktar"
+  },
+  "uiExtractFolder": {
+    "message": "Klasörü dışa aktar"
+  },
+  "uiSavedSessionsCount": {
+    "message": "Kayıtlı oturumlar ($1)"
+  },
+  "uiSavedSessionsFiltered": {
+    "message": "Kayıtlı oturumlar ($2 içinden $1)"
+  },
+  "uiNoSavedSessions": {
+    "message": "Henüz kayıtlı oturum yok."
+  },
+  "uiNoChatsMatch": {
+    "message": "\"$1\" ile eşleşen sohbet yok."
+  },
+  "uiEmptyChatNote": {
+    "message": "Boş sohbet — henüz yakalanacak bir şey yok. Aşağıdan kayıtlı bir oturum seçip burada ya da başka bir yapay zekâda sürdürün."
+  },
+  "uiStatMessagesOne": {
+    "message": "$1 mesaj"
+  },
+  "uiStatMessagesOther": {
+    "message": "$1 mesaj"
+  },
+  "uiStatImagesOne": {
+    "message": "$1 görsel"
+  },
+  "uiStatImagesOther": {
+    "message": "$1 görsel"
+  },
+  "uiStatFilesOne": {
+    "message": "$1 dosya"
+  },
+  "uiStatFilesOther": {
+    "message": "$1 dosya"
+  },
+  "uiFabTitle": {
+    "message": "Continuum — bu oturumu yakala"
+  },
+  "uiOpenContinuum": {
+    "message": "Continuum'u aç"
+  },
+  "uiGrantEyebrow": {
+    "message": "Continuum · Yapay zeka sıkıştırması"
+  },
+  "uiGrantTitle": {
+    "message": "$1 erişimine izin ver"
+  },
+  "uiGrantDesc": {
+    "message": "Continuum bu sohbeti sıkıştırmak için $1 API'sine gönderir. Anahtarınız ve sohbetleriniz cihazınızda kalır ve yalnızca $1 adresine gönderilir; asla bir Continuum sunucusuna gitmez."
+  },
+  "uiGrantAllow": {
+    "message": "Erişime izin ver"
+  },
+  "uiGrantNotNow": {
+    "message": "Şimdi değil"
+  },
+  "uiGrantedTitle": {
+    "message": "Erişim verildi"
+  },
+  "uiGrantedDesc": {
+    "message": "Sohbetinize dönüp yeniden <strong>Sürdür</strong>'e tıklayın — $1 için bir daha sorulmayacak."
+  },
+  "uiGrantMissing": {
+    "message": "Sağlayıcı bilgileri eksik — bunu kapatıp yeniden deneyin."
+  },
+  "uiGrantNeeded": {
+    "message": "$1 ile sıkıştırmak için erişim gerekiyor."
+  },
+  "uiGrantFailed": {
+    "message": "Erişim istenemedi — yeniden deneyin."
+  }
+}

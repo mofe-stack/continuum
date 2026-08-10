@@ -34,6 +34,14 @@ More platforms are coming soon.
 
 A captured chat from any of these can be resumed into Claude, ChatGPT, Gemini, or Perplexity today; more sites (Grok, DeepSeek, Copilot) are still being wired up as resume targets. The source and the destination don't have to match — a chat captured on one site can be resumed into another.
 
+## Languages
+
+Continuum's interface is available in 11 languages, chosen automatically from your browser's language:
+
+English · Español · Português (BR) · Deutsch · Français · 日本語 · 简体中文 · Русский · 한국어 · Italiano · Türkçe
+
+**Your own content is never translated.** Chat titles, message text, and exported PDF or Markdown files come through exactly as captured — so running Claude in English with Continuum's interface in Spanish still gives you English chat titles and an unchanged export.
+
 ## What gets captured
 
 Every site captures the full conversation text. What comes through for **attachments** depends on what each site lets an extension reach:
@@ -109,11 +117,21 @@ src/                   Shared source — used by both builds
   core/                Storage, settings, compression, session model, PDF export
   ui/                  Floating button + capture panel
   vendor/              Third-party libs (fflate, jsPDF)
+_locales/              Interface strings for all 11 languages (generated)
+i18n/                  Source copy the _locales catalogs are built from
+tools/                 Build helpers — locale generation and consistency checks
 icons/                 Extension icons
 tests/                 Unit tests for the adapters, compressor, and sanitizer
 build-firefox.js       Builds the Firefox .xpi (+ build/firefox/)
 build-chrome.js        Builds the Chrome .zip (+ build/chrome/)
 PRIVACY.md             Privacy policy
+```
+
+After editing anything under `i18n/`, regenerate the catalogs:
+
+```bash
+node tools/build-locales.js   # writes _locales/<locale>/messages.json
+node tools/check-locales.js   # verifies every key used in src/ exists
 ```
 
 ## License

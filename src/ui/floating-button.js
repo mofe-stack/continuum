@@ -67,8 +67,8 @@
     if (!buttonEl) {
       buttonEl = document.createElement("button");
       buttonEl.className = "continuum-fab";
-      buttonEl.title = "Continuum — capture this session";
-      buttonEl.setAttribute("aria-label", "Open Continuum");
+      buttonEl.title = Continuum.i18n.t("uiFabTitle");
+      buttonEl.setAttribute("aria-label", Continuum.i18n.t("uiOpenContinuum"));
       setHTML(buttonEl, LOGO_SVG);
       buttonEl.addEventListener("click", () => {
         if (Continuum.ui && Continuum.ui.panel) Continuum.ui.panel.toggle(root);

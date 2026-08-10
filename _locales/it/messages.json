@@ -1,0 +1,275 @@
+{
+  "extName": {
+    "message": "Continuum: salva ed esporta le chat IA e riprendile",
+    "description": "Extension name — shown as the store listing title."
+  },
+  "extShortDescription": {
+    "message": "Salva ed esporta le conversazioni IA in PDF o Markdown e riprendile in una nuova chat senza perdere il contesto.",
+    "description": "Chrome Web Store short description (max 132 characters)."
+  },
+  "extLongDescription": {
+    "message": "Salva ed esporta qualsiasi conversazione IA in PDF, Markdown o ZIP, poi riprendila in una nuova chat su un'altra piattaforma con tutto il contesto intatto, senza perdere il filo per i limiti di messaggi o di lunghezza. Compressione IA opzionale.",
+    "description": "Firefox/AMO summary (max 250 characters)."
+  },
+  "uiReview": {
+    "message": "Recensisci"
+  },
+  "uiRateContinuum": {
+    "message": "Valuta Continuum"
+  },
+  "uiSettings": {
+    "message": "Impostazioni"
+  },
+  "uiClose": {
+    "message": "Chiudi"
+  },
+  "uiBack": {
+    "message": "Indietro"
+  },
+  "uiCurrentChat": {
+    "message": "Chat corrente"
+  },
+  "uiCaptureSession": {
+    "message": "Cattura questa sessione"
+  },
+  "uiSavedSessions": {
+    "message": "Sessioni salvate"
+  },
+  "uiSelect": {
+    "message": "Seleziona"
+  },
+  "uiSelectAll": {
+    "message": "Seleziona tutto"
+  },
+  "uiSearchSaved": {
+    "message": "Cerca nelle chat salvate"
+  },
+  "uiClearSearch": {
+    "message": "Cancella ricerca"
+  },
+  "uiAllSavedChats": {
+    "message": "Tutte le chat salvate"
+  },
+  "uiDeleteCount": {
+    "message": "Elimina ($1)"
+  },
+  "uiResumeNewChat": {
+    "message": "Riprendi in una nuova chat"
+  },
+  "uiResumeFormat": {
+    "message": "Formato per riprendere"
+  },
+  "uiFormatHint": {
+    "message": "<strong>PDF</strong> incorpora le immagini e referenzia i file: più pesante, ma il modello può <em>vedere</em> le immagini. <strong>MD</strong> referenzia immagini e file solo per nome: molto più leggero (meno token), solo testo."
+  },
+  "uiCompressWithAI": {
+    "message": "Comprimi con l'IA (sintesi di passaggio strutturata)"
+  },
+  "uiAttachFiles": {
+    "message": "Allega i file alla nuova chat"
+  },
+  "uiAttachImages": {
+    "message": "Allega le immagini alla nuova chat"
+  },
+  "uiCopyChatHistory": {
+    "message": "Copia la cronologia della chat"
+  },
+  "uiDownloadFmt": {
+    "message": "Scarica $1"
+  },
+  "uiSaveAsFile": {
+    "message": "Salva come file (.zip)"
+  },
+  "uiDeleteSession": {
+    "message": "Elimina sessione"
+  },
+  "uiSoonLower": {
+    "message": "presto"
+  },
+  "uiCompressionStats": {
+    "message": "Statistiche di compressione"
+  },
+  "uiSyncIntegrations": {
+    "message": "Sincronizzazione e integrazioni"
+  },
+  "uiObsidianSync": {
+    "message": "Sincronizzazione Obsidian"
+  },
+  "uiNotionSync": {
+    "message": "Sincronizzazione Notion"
+  },
+  "uiSoonBadge": {
+    "message": "Presto"
+  },
+  "uiTheme": {
+    "message": "Tema"
+  },
+  "uiDarkMode": {
+    "message": "Modalità scura"
+  },
+  "uiResume": {
+    "message": "Ripresa"
+  },
+  "uiAutoSend": {
+    "message": "Invio automatico dopo la ripresa"
+  },
+  "uiAutoSendHint": {
+    "message": "Se attivo, Continuum invia automaticamente non appena la cronologia e gli allegati finiscono di caricarsi. Se disattivo, compila messaggio e allegati e aspetta che tu controlli e prema Invia."
+  },
+  "uiResumeMessage": {
+    "message": "Messaggio di ripresa"
+  },
+  "uiResumeMessageHint": {
+    "message": "Digitato automaticamente nella nuova chat quando riprendi. Ogni formato ha il proprio messaggio: scegli quale modificare."
+  },
+  "uiResetToDefault": {
+    "message": "Ripristina predefinito"
+  },
+  "uiAICompression": {
+    "message": "Compressione IA"
+  },
+  "uiAICompressionHint": {
+    "message": "Usato solo quando spunti \"Comprimi con l'IA\" su una chat. Scegli un provider e incolla la sua chiave API: viene salvata localmente in questo browser e inviata solo a quel provider per condensare la chat in una sintesi di passaggio strutturata."
+  },
+  "uiAPIKey": {
+    "message": "Chiave API"
+  },
+  "uiBriefOrganized": {
+    "message": "La sintesi di passaggio è organizzata così"
+  },
+  "uiBriefHint": {
+    "message": "Comprime l'intera conversazione in una sintesi strutturata mantenendo tutto il contesto. Tutti i dettagli chiave vengono conservati (decisioni, istruzioni, codice, file e immagini) e il resto viene riassunto. Le sezioni vuote riportano semplicemente Nessuno."
+  },
+  "uiFactoryReset": {
+    "message": "Ripristino totale"
+  },
+  "uiChipCompleted": {
+    "message": "Lavoro completato"
+  },
+  "uiChipCurrent": {
+    "message": "Stato attuale"
+  },
+  "uiChipInProgress": {
+    "message": "In corso"
+  },
+  "uiChipNext": {
+    "message": "Prossimi passi"
+  },
+  "uiChipConstraints": {
+    "message": "Vincoli"
+  },
+  "uiChipCritical": {
+    "message": "Contesto critico"
+  },
+  "uiChipDiscarded": {
+    "message": "Tentativi scartati"
+  },
+  "uiDeleteThisSession": {
+    "message": "Eliminare questa sessione?"
+  },
+  "uiCantBeUndone": {
+    "message": "Questa azione non può essere annullata."
+  },
+  "uiCancel": {
+    "message": "Annulla"
+  },
+  "uiDelete": {
+    "message": "Elimina"
+  },
+  "uiSaveChatAsFile": {
+    "message": "Salva la chat come file"
+  },
+  "uiFileName": {
+    "message": "Nome del file"
+  },
+  "uiSave": {
+    "message": "Salva"
+  },
+  "uiFactoryResetQ": {
+    "message": "Ripristino totale?"
+  },
+  "uiFactoryResetSub": {
+    "message": "Elimina tutte le sessioni salvate e ripristina ogni impostazione. Questa azione non può essere annullata."
+  },
+  "uiReset": {
+    "message": "Ripristina"
+  },
+  "uiDownloadResumeFile": {
+    "message": "Scarica il file di ripresa"
+  },
+  "uiExtractFolderTitle": {
+    "message": "Estrai questa cartella come .zip"
+  },
+  "uiExtractFolder": {
+    "message": "Estrai cartella"
+  },
+  "uiSavedSessionsCount": {
+    "message": "Sessioni salvate ($1)"
+  },
+  "uiSavedSessionsFiltered": {
+    "message": "Sessioni salvate ($1 di $2)"
+  },
+  "uiNoSavedSessions": {
+    "message": "Nessuna sessione salvata per ora."
+  },
+  "uiNoChatsMatch": {
+    "message": "Nessuna chat corrisponde a \"$1\"."
+  },
+  "uiEmptyChatNote": {
+    "message": "Chat vuota — non c'è ancora nulla da catturare. Scegli qui sotto una sessione salvata per riprenderla qui o su un'altra IA."
+  },
+  "uiStatMessagesOne": {
+    "message": "$1 messaggio"
+  },
+  "uiStatMessagesOther": {
+    "message": "$1 messaggi"
+  },
+  "uiStatImagesOne": {
+    "message": "$1 immagine"
+  },
+  "uiStatImagesOther": {
+    "message": "$1 immagini"
+  },
+  "uiStatFilesOne": {
+    "message": "$1 file"
+  },
+  "uiStatFilesOther": {
+    "message": "$1 file"
+  },
+  "uiFabTitle": {
+    "message": "Continuum — cattura questa sessione"
+  },
+  "uiOpenContinuum": {
+    "message": "Apri Continuum"
+  },
+  "uiGrantEyebrow": {
+    "message": "Continuum · Compressione IA"
+  },
+  "uiGrantTitle": {
+    "message": "Consenti l'accesso a $1"
+  },
+  "uiGrantDesc": {
+    "message": "Continuum invia questa chat all'API di $1 per comprimerla. La tua chiave e le tue chat restano sul dispositivo e vengono inviate solo a $1, mai a un server Continuum."
+  },
+  "uiGrantAllow": {
+    "message": "Consenti l'accesso"
+  },
+  "uiGrantNotNow": {
+    "message": "Non ora"
+  },
+  "uiGrantedTitle": {
+    "message": "Accesso concesso"
+  },
+  "uiGrantedDesc": {
+    "message": "Torna alla tua chat e clicca di nuovo su <strong>Riprendi</strong> — non verrà più chiesto per $1."
+  },
+  "uiGrantMissing": {
+    "message": "Dati del provider mancanti: chiudi questa finestra e riprova."
+  },
+  "uiGrantNeeded": {
+    "message": "Serve l'accesso per comprimere con $1."
+  },
+  "uiGrantFailed": {
+    "message": "Impossibile richiedere l'accesso: riprova."
+  }
+}

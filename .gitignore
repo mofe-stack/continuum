@@ -22,6 +22,15 @@ pack-xpi.js
 mcp/
 website/
 
+# Generated store artwork — 55 PNGs regenerated on demand with
+# `node tools/store-shots/render.js`, so there is no reason to version them.
+# The copy they are built from IS tracked, under i18n/.
+store-listings/
+
+# Internal localization notes (keyword strategy, store-upload steps). The README
+# covers what users need; this is working detail, kept local.
+LOCALIZATION.md
+
 # Tooling / editor / OS
 .claude/
 .agents/

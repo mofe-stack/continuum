@@ -159,17 +159,16 @@
             <path d="m9 12 2 2 4-4" />
           </svg>
         </div>
-        <p class="eyebrow">Continuum · AI compression</p>
-        <h1 id="title">Allow access to <span id="provider">this provider</span></h1>
-        <p class="desc">
-          Continuum sends this chat to <span id="provider-2">the provider</span>'s API to
-          compress it. Your key and chats stay on your device and are sent only to
-          <span id="provider-4">the provider</span> — never to a Continuum server.
-        </p>
+        <!-- All copy is filled in by grant.js from chrome.i18n. The provider
+             name arrives as the $1 substitution, so there are no per-language
+             sentence fragments to stitch together here. -->
+        <p class="eyebrow" id="eyebrow"></p>
+        <h1 id="title"></h1>
+        <p class="desc" id="desc"></p>
         <p class="host" id="host">api.example.com</p>
         <div class="actions">
-          <button class="btn-primary" id="allow" type="button">Allow access</button>
-          <button class="btn-ghost" id="cancel" type="button">Not now</button>
+          <button class="btn-primary" id="allow" type="button"></button>
+          <button class="btn-ghost" id="cancel" type="button"></button>
         </div>
         <p class="note" id="note" aria-live="polite"></p>
       </div>
@@ -183,11 +182,8 @@
             <path d="m9 11 3 3L22 4" />
           </svg>
         </div>
-        <h1>Access granted</h1>
-        <p class="desc" style="margin-bottom: 0">
-          Return to your chat and click <strong>Resume</strong> again — this won't be
-          asked for <span id="provider-3">this provider</span> next time.
-        </p>
+        <h1 id="granted-title"></h1>
+        <p class="desc" id="granted-desc" style="margin-bottom: 0"></p>
       </div>
     </main>
     <script src="grant.js"></script>
