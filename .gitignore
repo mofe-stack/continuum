@@ -56,3 +56,6 @@ tools/build-website.js
 i18n/frames.js
 i18n/site.js
 i18n/site2.js
+
+# Long store description — marketing copy, pasted into the dashboard by hand.
+i18n/listing-detailed.js
