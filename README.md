@@ -134,7 +134,13 @@ src/                   Shared source — used by both builds
   vendor/              Third-party libs (fflate, jsPDF)
 _locales/              Interface strings for all 11 languages (generated)
 i18n/                  Source copy the _locales catalogs are built from
-tools/                 Build helpers — locale generation and consistency checks
+  listing.js           Store name + descriptions
+  ui.js                Panel labels
+  ui-settings.js       Settings, dialogs, and the permission page
+  preambles.js         The resume message typed into the new chat
+tools/
+  build-locales.js     Generates _locales/ from i18n/
+  check-locales.js     Verifies every key used in src/ exists, and flags orphans
 icons/                 Extension icons
 tests/                 Unit tests for the adapters, compressor, and sanitizer
 build-firefox.js       Builds the Firefox .xpi (+ build/firefox/)
