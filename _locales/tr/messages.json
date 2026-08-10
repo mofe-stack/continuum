@@ -278,6 +278,102 @@
   "uiGrantFailed": {
     "message": "Erişim istenemedi — yeniden deneyin."
   },
+  "toastCopied": {
+    "message": "Sohbet geçmişi kopyalandı"
+  },
+  "toastCopyFailed": {
+    "message": "Kopyalanamadı — konsola bakın"
+  },
+  "toastSavedZip": {
+    "message": ".zip indirilenlere kaydedildi"
+  },
+  "toastSavedMd": {
+    "message": ".md indirilenlere kaydedildi"
+  },
+  "toastSavedPdf": {
+    "message": ".pdf indirilenlere kaydedildi"
+  },
+  "toastBuildingPdf": {
+    "message": "PDF oluşturuluyor…"
+  },
+  "toastPreparingExport": {
+    "message": "Dışa aktarma hazırlanıyor…"
+  },
+  "toastNothingToExport": {
+    "message": "Dışa aktarılacak bir şey yok"
+  },
+  "toastExportedOne": {
+    "message": "$1 sohbet indirilenlere aktarıldı"
+  },
+  "toastExportedMany": {
+    "message": "$1 sohbet indirilenlere aktarıldı"
+  },
+  "toastExportFailed": {
+    "message": "Dışa aktarılamadı — konsola bakın"
+  },
+  "toastSaveFailed": {
+    "message": "Kaydedilemedi — konsola bakın"
+  },
+  "toastDownloadFailed": {
+    "message": "İndirilemedi — konsola bakın"
+  },
+  "toastDeleteFailed": {
+    "message": "Silinemedi — konsola bakın"
+  },
+  "toastResetFailed": {
+    "message": "Sıfırlanamadı — konsola bakın"
+  },
+  "toastSaveMessageFailed": {
+    "message": "Mesaj kaydedilemedi — konsola bakın"
+  },
+  "toastSaveKeyFailed": {
+    "message": "Anahtar kaydedilemedi — konsola bakın"
+  },
+  "toastOpenSessionFailed": {
+    "message": "Oturum açılamadı"
+  },
+  "toastZipMissing": {
+    "message": "Zip kitaplığı eksik — konsola bakın"
+  },
+  "toastPdfUnavailable": {
+    "message": "PDF dışa aktarma kullanılamıyor — konsola bakın"
+  },
+  "toastCompressUnavailable": {
+    "message": "Yapay zeka sıkıştırması kullanılamıyor — konsola bakın"
+  },
+  "toastAddKeyToCompress": {
+    "message": "Sıkıştırmak için Ayarlar'dan bir API anahtarı ekleyin"
+  },
+  "toastCompressing": {
+    "message": "Yapay zeka ile sıkıştırılıyor…"
+  },
+  "toastCompressFailed": {
+    "message": "Sıkıştırılamadı — $1"
+  },
+  "toastResumeNoKey": {
+    "message": "Sürdürme iptal edildi — Ayarlar'dan bir $1 API anahtarı ekleyin."
+  },
+  "toastResumeCanceled": {
+    "message": "Sürdürme iptal edildi — $1. Ayarlar'ı kontrol edin."
+  },
+  "toastAllowAccess": {
+    "message": "Açılan pencerede $1 erişimine izin verin, sonra yeniden Sürdür'e tıklayın."
+  },
+  "toastCheckingKey": {
+    "message": "$1 API anahtarınız kontrol ediliyor…"
+  },
+  "toastResumingHere": {
+    "message": "Bu sohbette sürdürülüyor…"
+  },
+  "toastResumingClipFail": {
+    "message": "Sürdürülüyor (panoya kopyalanamadı)"
+  },
+  "toastOpeningTarget": {
+    "message": "$1 açılıyor — dolduruluyor…"
+  },
+  "toastOpenedClipFail": {
+    "message": "Sohbet açıldı (panoya kopyalanamadı)"
+  },
   "preamblePdf": {
     "message": "Önceki konuşmamızdan devam et. Sohbet geçmişinin tamamı `conversation-history.pdf` olarak ekli — her mesaj, yüklenen dosyaların içeriği satır içine alınmış ve görseller gömülü hâlde, böylece okuyabilir ve görselleri doğrudan görebilirsin. Önceki bağlamın tamamı sende, o yüzden tam bıraktığımız yerden devam et: aynı hedefler, kararlar, kısıtlar ve mevcut durum. Geçmişi bana özetleme; sadece aynı konuşmanın devamıymış gibi sürdür."
   },

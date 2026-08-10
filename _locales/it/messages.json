@@ -278,6 +278,102 @@
   "uiGrantFailed": {
     "message": "Impossibile richiedere l'accesso: riprova."
   },
+  "toastCopied": {
+    "message": "Cronologia della chat copiata"
+  },
+  "toastCopyFailed": {
+    "message": "Copia non riuscita — controlla la console"
+  },
+  "toastSavedZip": {
+    "message": ".zip salvato nei download"
+  },
+  "toastSavedMd": {
+    "message": ".md salvato nei download"
+  },
+  "toastSavedPdf": {
+    "message": ".pdf salvato nei download"
+  },
+  "toastBuildingPdf": {
+    "message": "Creazione del PDF…"
+  },
+  "toastPreparingExport": {
+    "message": "Preparazione dell'esportazione…"
+  },
+  "toastNothingToExport": {
+    "message": "Niente da esportare"
+  },
+  "toastExportedOne": {
+    "message": "$1 chat esportata nei download"
+  },
+  "toastExportedMany": {
+    "message": "$1 chat esportate nei download"
+  },
+  "toastExportFailed": {
+    "message": "Esportazione non riuscita — controlla la console"
+  },
+  "toastSaveFailed": {
+    "message": "Salvataggio non riuscito — controlla la console"
+  },
+  "toastDownloadFailed": {
+    "message": "Download non riuscito — controlla la console"
+  },
+  "toastDeleteFailed": {
+    "message": "Eliminazione non riuscita — controlla la console"
+  },
+  "toastResetFailed": {
+    "message": "Ripristino non riuscito — controlla la console"
+  },
+  "toastSaveMessageFailed": {
+    "message": "Impossibile salvare il messaggio — controlla la console"
+  },
+  "toastSaveKeyFailed": {
+    "message": "Impossibile salvare la chiave — controlla la console"
+  },
+  "toastOpenSessionFailed": {
+    "message": "Impossibile aprire la sessione"
+  },
+  "toastZipMissing": {
+    "message": "Libreria zip mancante — controlla la console"
+  },
+  "toastPdfUnavailable": {
+    "message": "Esportazione PDF non disponibile — controlla la console"
+  },
+  "toastCompressUnavailable": {
+    "message": "Compressione IA non disponibile — controlla la console"
+  },
+  "toastAddKeyToCompress": {
+    "message": "Aggiungi una chiave API nelle Impostazioni per comprimere"
+  },
+  "toastCompressing": {
+    "message": "Compressione con l'IA…"
+  },
+  "toastCompressFailed": {
+    "message": "Compressione non riuscita — $1"
+  },
+  "toastResumeNoKey": {
+    "message": "Ripresa annullata — aggiungi una chiave API di $1 nelle Impostazioni."
+  },
+  "toastResumeCanceled": {
+    "message": "Ripresa annullata — $1. Controlla le Impostazioni."
+  },
+  "toastAllowAccess": {
+    "message": "Consenti l'accesso a $1 nella finestra che si è aperta, poi clicca di nuovo su Riprendi."
+  },
+  "toastCheckingKey": {
+    "message": "Verifica della tua chiave API $1…"
+  },
+  "toastResumingHere": {
+    "message": "Ripresa in questa chat…"
+  },
+  "toastResumingClipFail": {
+    "message": "Ripresa (copia negli appunti non riuscita)"
+  },
+  "toastOpeningTarget": {
+    "message": "Apertura di $1 — compilazione in corso…"
+  },
+  "toastOpenedClipFail": {
+    "message": "Chat aperta (copia negli appunti non riuscita)"
+  },
   "preamblePdf": {
     "message": "Riprendi dalla nostra conversazione precedente. L'intera cronologia della chat è allegata come `conversation-history.pdf` — ogni messaggio, con i contenuti dei file caricati incorporati e le immagini inserite, così puoi leggerla e vedere le immagini direttamente. Hai tutto il contesto precedente, quindi riprendi esattamente da dove eravamo rimasti: stessi obiettivi, decisioni, vincoli e stato attuale. Non riassumermi la cronologia; continua semplicemente come se fosse la stessa conversazione."
   },

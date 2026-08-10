@@ -278,6 +278,102 @@
   "uiGrantFailed": {
     "message": "Couldn't request access — try again."
   },
+  "toastCopied": {
+    "message": "Chat history copied"
+  },
+  "toastCopyFailed": {
+    "message": "Copy failed — see console"
+  },
+  "toastSavedZip": {
+    "message": "Saved .zip to downloads"
+  },
+  "toastSavedMd": {
+    "message": "Saved .md to downloads"
+  },
+  "toastSavedPdf": {
+    "message": "Saved .pdf to downloads"
+  },
+  "toastBuildingPdf": {
+    "message": "Building PDF…"
+  },
+  "toastPreparingExport": {
+    "message": "Preparing export…"
+  },
+  "toastNothingToExport": {
+    "message": "Nothing to export"
+  },
+  "toastExportedOne": {
+    "message": "Exported $1 chat to downloads"
+  },
+  "toastExportedMany": {
+    "message": "Exported $1 chats to downloads"
+  },
+  "toastExportFailed": {
+    "message": "Export failed — see console"
+  },
+  "toastSaveFailed": {
+    "message": "Save failed — see console"
+  },
+  "toastDownloadFailed": {
+    "message": "Download failed — see console"
+  },
+  "toastDeleteFailed": {
+    "message": "Delete failed — see console"
+  },
+  "toastResetFailed": {
+    "message": "Reset failed — see console"
+  },
+  "toastSaveMessageFailed": {
+    "message": "Couldn't save message — see console"
+  },
+  "toastSaveKeyFailed": {
+    "message": "Couldn't save key — see console"
+  },
+  "toastOpenSessionFailed": {
+    "message": "Could not open session"
+  },
+  "toastZipMissing": {
+    "message": "Zip library missing — see console"
+  },
+  "toastPdfUnavailable": {
+    "message": "PDF export unavailable — see console"
+  },
+  "toastCompressUnavailable": {
+    "message": "AI compression unavailable — see console"
+  },
+  "toastAddKeyToCompress": {
+    "message": "Add an API key in Settings to compress"
+  },
+  "toastCompressing": {
+    "message": "Compressing with AI…"
+  },
+  "toastCompressFailed": {
+    "message": "Compression failed — $1"
+  },
+  "toastResumeNoKey": {
+    "message": "Resume canceled — add a $1 API key in Settings."
+  },
+  "toastResumeCanceled": {
+    "message": "Resume canceled — $1. Check Settings."
+  },
+  "toastAllowAccess": {
+    "message": "Allow access to $1 in the window that opened, then click Resume again."
+  },
+  "toastCheckingKey": {
+    "message": "Checking your $1 API key…"
+  },
+  "toastResumingHere": {
+    "message": "Resuming in this chat…"
+  },
+  "toastResumingClipFail": {
+    "message": "Resuming (clipboard copy failed)"
+  },
+  "toastOpeningTarget": {
+    "message": "Opening $1 — filling it in…"
+  },
+  "toastOpenedClipFail": {
+    "message": "Opened chat (clipboard copy failed)"
+  },
   "preamblePdf": {
     "message": "Continue from our previous conversation. The entire chat history is attached as `conversation-history.pdf` — every message, with any uploaded files' contents inlined and any images embedded inline, so you can read it and see the images directly. You have the complete prior context, so pick up exactly where we left off — same goals, decisions, constraints, and current state. Don't recap the history back to me; just continue as if this is the same conversation."
   },

@@ -1322,7 +1322,7 @@
         Continuum.settings.setSetting(preambleKeyFor(_preambleFormat, _preambleCompressed), e.target.value).catch((err) => {
           console.warn("[Continuum] resume message set failed:", err);
           _pendingMainStatus = null;
-          showToast("Couldn't save message — see console", false);
+          showToast(TR("toastSaveMessageFailed"), false);
         });
       });
     }
@@ -1356,7 +1356,7 @@
         _preambleDrafts[preambleDraftKey(_preambleFormat, _preambleCompressed)] = def;
         Continuum.settings
           .setSetting(preambleKeyFor(_preambleFormat, _preambleCompressed), def)
-          .then(() => showToast("Reset to default", true)) // immediate, as before
+          .then(() => showToast(TR("uiResetToDefault"), true)) // immediate, as before
           .catch((err) => console.warn("[Continuum] resume message reset failed:", err));
       });
     }
@@ -1395,7 +1395,7 @@
         Continuum.settings.setSetting("compressApiKey", { provider: provider, key: newKey }).catch((err) => {
           console.warn("[Continuum] compressApiKey set failed:", err);
           _pendingMainStatus = null;
-          showToast("Couldn't save key — see console", false);
+          showToast(TR("toastSaveKeyFailed"), false);
         });
       });
     }
@@ -1522,7 +1522,7 @@
       console.warn("[Continuum] getSession failed:", err);
     }
     if (!session) {
-      showToast("Could not open session", false);
+      showToast(TR("toastOpenSessionFailed"), false);
       return;
     }
     currentDetail = session;
@@ -2078,7 +2078,7 @@
   async function exportFolder(scope) {
     const ff = self.fflate || (typeof fflate !== "undefined" ? fflate : null);
     if (!ff) {
-      showToast("Zip library missing — see console", false);
+      showToast(TR("toastZipMissing"), false);
       console.error("[Continuum] fflate not loaded");
       return;
     }
@@ -2092,10 +2092,10 @@
     // Mirror refreshSavedList's grouping key so an empty provider ("unknown") matches.
     if (!all) metas = metas.filter((m) => (String(m.sourceProvider || "").toLowerCase() || "unknown") === scope);
     if (!metas.length) {
-      showToast("Nothing to export", false);
+      showToast(TR("toastNothingToExport"), false);
       return;
     }
-    showToast("Preparing export…", true);
+    showToast(TR("toastPreparingExport"), true);
     try {
       const entries = await buildFolderZipEntries(metas, all);
       const zipped = ff.zipSync(entries, { level: 9 });
@@ -2114,10 +2114,10 @@
       a.download = fname;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast("Exported " + metas.length + " chat" + (metas.length === 1 ? "" : "s") + " to downloads", true);
+      showToast(TR(metas.length === 1 ? "toastExportedOne" : "toastExportedMany", metas.length), true);
     } catch (err) {
       console.error("[Continuum] export failed:", err);
-      showToast("Export failed — see console", false);
+      showToast(TR("toastExportFailed"), false);
     }
   }
 
@@ -2299,7 +2299,7 @@
         /* settings unavailable — fall through and resume verbatim */
       }
       if (!key) {
-        showToast("Resume canceled — add a " + providerName(provider) + " API key in Settings.", false);
+        showToast(TR("toastResumeNoKey", providerName(provider)), false);
         return;
       }
       // Provider API hosts are optional permissions and content scripts can't
@@ -2310,17 +2310,17 @@
       if (!allowed) {
         // Guidance, not an error → neutral gray, and held a little longer so it's
         // readable while the user approves in the other window.
-        showToast("Allow access to " + providerName(provider) + " in the window that opened, then click Resume again.", "info", 5000);
+        showToast(TR("toastAllowAccess", providerName(provider)), "info", 5000);
         return;
       }
       // Confirm the key actually works (catches invalid/expired keys here).
-      showToast("Checking your " + providerName(provider) + " API key…", true);
+      showToast(TR("toastCheckingKey", providerName(provider)), true);
       try {
         await Continuum.llmCompressor.verifyKey({ provider: provider, apiKey: key });
       } catch (e) {
         console.warn("[Continuum] resume: key check failed:", e);
         const reason = Continuum.llmCompressor.friendlyError ? Continuum.llmCompressor.friendlyError(e) : "couldn't compress";
-        showToast("Resume canceled — " + reason + ". Check Settings.", false);
+        showToast(TR("toastResumeCanceled", reason), false);
         return;
       }
     }
@@ -2347,7 +2347,7 @@
       Continuum.resumeInjector &&
       typeof Continuum.resumeInjector.performResume === "function";
     if (resumeHere) {
-      showToast(ok ? "Resuming in this chat…" : "Resuming (clipboard copy failed)", ok);
+      showToast(TR(ok ? "toastResumingHere" : "toastResumingClipFail"), ok);
       close(); // get the panel out of the way so the composer is visible as it fills
       try {
         await Continuum.resumeInjector.performResume(marker);
@@ -2368,7 +2368,7 @@
       console.warn("[Continuum] could not set pendingResume marker:", e);
     }
     window.open(RESUME_URLS[target], "_blank", "noopener");
-    showToast(ok ? "Opening " + providerName(target) + " — filling it in…" : "Opened chat (clipboard copy failed)", ok);
+    showToast(ok ? TR("toastOpeningTarget", providerName(target)) : TR("toastOpenedClipFail"), ok);
   }
 
   async function onCopy() {
@@ -2377,7 +2377,7 @@
     // "You"/"Claude" labels, tidy attachment refs. Never compressed; distinct
     // from the machine-format handoff used by Resume/ZIP.
     const ok = await copyToClipboard(buildReadableTranscript(currentDetail));
-    showToast(ok ? "Chat history copied" : "Copy failed — see console", ok);
+    showToast(TR(ok ? "toastCopied" : "toastCopyFailed"), ok);
   }
 
   // The default base name (no extension) for a session's saved file.
@@ -2453,7 +2453,7 @@
     if (!session) return;
     const ff = self.fflate || (typeof fflate !== "undefined" ? fflate : null);
     if (!ff) {
-      showToast("Zip library missing — see console", false);
+      showToast(TR("toastZipMissing"), false);
       console.error("[Continuum] fflate not loaded");
       return;
     }
@@ -2466,10 +2466,10 @@
       // are already compressed inside themselves — but harmless to ask for.
       const zipped = ff.zipSync(entries, { level: 9 });
       downloadBlob(new Blob([zipped], { type: "application/zip" }), name + ".zip");
-      showToast("Saved .zip to downloads", true);
+      showToast(TR("toastSavedZip"), true);
     } catch (err) {
       console.error("[Continuum] save failed:", err);
-      showToast("Save failed — see console", false);
+      showToast(TR("toastSaveFailed"), false);
     }
   }
 
@@ -2498,7 +2498,7 @@
   // but couldn't run — caller aborts so we never hand over the wrong file silently.
   async function compressForDownload(session) {
     if (!(Continuum.llmCompressor && Continuum.llmCompressor.compressSession)) {
-      showToast("AI compression unavailable — see console", false);
+      showToast(TR("toastCompressUnavailable"), false);
       return null;
     }
     let provider = "anthropic";
@@ -2511,17 +2511,17 @@
       /* fall through to the no-key guard */
     }
     if (!apiKey) {
-      showToast("Add an API key in Settings to compress", false);
+      showToast(TR("toastAddKeyToCompress"), false);
       return null;
     }
     try {
-      showToast("Compressing with AI…", true);
+      showToast(TR("toastCompressing"), true);
       const compressed = await Continuum.llmCompressor.compressSession(session, { provider: provider, apiKey: apiKey, onProgress: function () {} });
       return compressed || session;
     } catch (e) {
       const reason = Continuum.llmCompressor.friendlyError ? Continuum.llmCompressor.friendlyError(e) : "compression failed";
       console.error("[Continuum] download: compression failed:", e);
-      showToast("Compression failed — " + reason, false);
+      showToast(TR("toastCompressFailed", reason), false);
       return null;
     }
   }
@@ -2541,20 +2541,20 @@
             ? Continuum.pdfExport.cleanHandoffMarkdown(raw)
             : raw;
         downloadBlob(new Blob([md], { type: "text/markdown" }), name + ".md");
-        showToast("Saved .md to downloads", true);
+        showToast(TR("toastSavedMd"), true);
       } else {
         if (!(Continuum.pdfExport && Continuum.pdfExport.buildResumePdf)) {
-          showToast("PDF export unavailable — see console", false);
+          showToast(TR("toastPdfUnavailable"), false);
           return;
         }
-        showToast("Building PDF…", true);
+        showToast(TR("toastBuildingPdf"), true);
         const blob = await Continuum.pdfExport.buildResumePdf(session, { onProgress: function () {} });
         downloadBlob(blob, name + ".pdf");
-        showToast("Saved .pdf to downloads", true);
+        showToast(TR("toastSavedPdf"), true);
       }
     } catch (err) {
       console.error("[Continuum] download resume file failed:", err);
-      showToast("Download failed — see console", false);
+      showToast(TR("toastDownloadFailed"), false);
     }
   }
 
@@ -2614,7 +2614,7 @@
     } catch (err) {
       console.error("[Continuum] delete failed:", err);
       closeDialog();
-      showToast("Delete failed — see console", false); // still in detail view
+      showToast(TR("toastDeleteFailed"), false); // still in detail view
     }
   }
 
@@ -2682,7 +2682,7 @@
     } catch (err) {
       console.error("[Continuum] factory reset failed:", err);
       closeResetDialog();
-      showToast("Reset failed — see console", false);
+      showToast(TR("toastResetFailed"), false);
     }
   }
 

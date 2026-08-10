@@ -278,6 +278,102 @@
   "uiGrantFailed": {
     "message": "Não foi possível solicitar acesso — tente de novo."
   },
+  "toastCopied": {
+    "message": "Histórico da conversa copiado"
+  },
+  "toastCopyFailed": {
+    "message": "Falha ao copiar — veja o console"
+  },
+  "toastSavedZip": {
+    "message": "Arquivo .zip salvo em downloads"
+  },
+  "toastSavedMd": {
+    "message": "Arquivo .md salvo em downloads"
+  },
+  "toastSavedPdf": {
+    "message": "Arquivo .pdf salvo em downloads"
+  },
+  "toastBuildingPdf": {
+    "message": "Gerando o PDF…"
+  },
+  "toastPreparingExport": {
+    "message": "Preparando a exportação…"
+  },
+  "toastNothingToExport": {
+    "message": "Nada para exportar"
+  },
+  "toastExportedOne": {
+    "message": "$1 conversa exportada para downloads"
+  },
+  "toastExportedMany": {
+    "message": "$1 conversas exportadas para downloads"
+  },
+  "toastExportFailed": {
+    "message": "Falha na exportação — veja o console"
+  },
+  "toastSaveFailed": {
+    "message": "Falha ao salvar — veja o console"
+  },
+  "toastDownloadFailed": {
+    "message": "Falha no download — veja o console"
+  },
+  "toastDeleteFailed": {
+    "message": "Falha ao excluir — veja o console"
+  },
+  "toastResetFailed": {
+    "message": "Falha ao restaurar — veja o console"
+  },
+  "toastSaveMessageFailed": {
+    "message": "Não foi possível salvar a mensagem — veja o console"
+  },
+  "toastSaveKeyFailed": {
+    "message": "Não foi possível salvar a chave — veja o console"
+  },
+  "toastOpenSessionFailed": {
+    "message": "Não foi possível abrir a sessão"
+  },
+  "toastZipMissing": {
+    "message": "Biblioteca zip ausente — veja o console"
+  },
+  "toastPdfUnavailable": {
+    "message": "Exportação em PDF indisponível — veja o console"
+  },
+  "toastCompressUnavailable": {
+    "message": "Compressão com IA indisponível — veja o console"
+  },
+  "toastAddKeyToCompress": {
+    "message": "Adicione uma chave de API nas Configurações para comprimir"
+  },
+  "toastCompressing": {
+    "message": "Comprimindo com IA…"
+  },
+  "toastCompressFailed": {
+    "message": "Falha na compressão — $1"
+  },
+  "toastResumeNoKey": {
+    "message": "Continuação cancelada — adicione uma chave de API do $1 nas Configurações."
+  },
+  "toastResumeCanceled": {
+    "message": "Continuação cancelada — $1. Verifique as Configurações."
+  },
+  "toastAllowAccess": {
+    "message": "Permita o acesso ao $1 na janela que abriu e clique em Continuar de novo."
+  },
+  "toastCheckingKey": {
+    "message": "Verificando sua chave de API do $1…"
+  },
+  "toastResumingHere": {
+    "message": "Continuando nesta conversa…"
+  },
+  "toastResumingClipFail": {
+    "message": "Continuando (falha ao copiar para a área de transferência)"
+  },
+  "toastOpeningTarget": {
+    "message": "Abrindo o $1 — preenchendo…"
+  },
+  "toastOpenedClipFail": {
+    "message": "Conversa aberta (falha ao copiar para a área de transferência)"
+  },
   "preamblePdf": {
     "message": "Continue a partir da nossa conversa anterior. O histórico completo está anexado como `conversation-history.pdf` — cada mensagem, com o conteúdo dos arquivos enviados incorporado e as imagens embutidas, então você pode ler tudo e ver as imagens diretamente. Você tem todo o contexto anterior, então retome exatamente de onde paramos: mesmos objetivos, decisões, restrições e estado atual. Não me resuma o histórico; apenas continue como se fosse a mesma conversa."
   },

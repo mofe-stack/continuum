@@ -278,6 +278,102 @@
   "uiGrantFailed": {
     "message": "접근 권한을 요청하지 못했습니다. 다시 시도하세요."
   },
+  "toastCopied": {
+    "message": "대화 기록을 복사했습니다"
+  },
+  "toastCopyFailed": {
+    "message": "복사에 실패했습니다 — 콘솔을 확인하세요"
+  },
+  "toastSavedZip": {
+    "message": ".zip을 다운로드에 저장했습니다"
+  },
+  "toastSavedMd": {
+    "message": ".md를 다운로드에 저장했습니다"
+  },
+  "toastSavedPdf": {
+    "message": ".pdf를 다운로드에 저장했습니다"
+  },
+  "toastBuildingPdf": {
+    "message": "PDF를 만드는 중…"
+  },
+  "toastPreparingExport": {
+    "message": "내보내기를 준비하는 중…"
+  },
+  "toastNothingToExport": {
+    "message": "내보낼 항목이 없습니다"
+  },
+  "toastExportedOne": {
+    "message": "대화 $1개를 다운로드로 내보냈습니다"
+  },
+  "toastExportedMany": {
+    "message": "대화 $1개를 다운로드로 내보냈습니다"
+  },
+  "toastExportFailed": {
+    "message": "내보내기에 실패했습니다 — 콘솔을 확인하세요"
+  },
+  "toastSaveFailed": {
+    "message": "저장에 실패했습니다 — 콘솔을 확인하세요"
+  },
+  "toastDownloadFailed": {
+    "message": "다운로드에 실패했습니다 — 콘솔을 확인하세요"
+  },
+  "toastDeleteFailed": {
+    "message": "삭제에 실패했습니다 — 콘솔을 확인하세요"
+  },
+  "toastResetFailed": {
+    "message": "초기화에 실패했습니다 — 콘솔을 확인하세요"
+  },
+  "toastSaveMessageFailed": {
+    "message": "메시지를 저장하지 못했습니다 — 콘솔을 확인하세요"
+  },
+  "toastSaveKeyFailed": {
+    "message": "키를 저장하지 못했습니다 — 콘솔을 확인하세요"
+  },
+  "toastOpenSessionFailed": {
+    "message": "세션을 열지 못했습니다"
+  },
+  "toastZipMissing": {
+    "message": "zip 라이브러리가 없습니다 — 콘솔을 확인하세요"
+  },
+  "toastPdfUnavailable": {
+    "message": "PDF 내보내기를 사용할 수 없습니다 — 콘솔을 확인하세요"
+  },
+  "toastCompressUnavailable": {
+    "message": "AI 압축을 사용할 수 없습니다 — 콘솔을 확인하세요"
+  },
+  "toastAddKeyToCompress": {
+    "message": "압축하려면 설정에서 API 키를 추가하세요"
+  },
+  "toastCompressing": {
+    "message": "AI로 압축하는 중…"
+  },
+  "toastCompressFailed": {
+    "message": "압축에 실패했습니다 — $1"
+  },
+  "toastResumeNoKey": {
+    "message": "이어하기를 취소했습니다 — 설정에서 $1 API 키를 추가하세요."
+  },
+  "toastResumeCanceled": {
+    "message": "이어하기를 취소했습니다 — $1. 설정을 확인하세요."
+  },
+  "toastAllowAccess": {
+    "message": "열린 창에서 $1 접근을 허용한 뒤 이어하기를 다시 누르세요."
+  },
+  "toastCheckingKey": {
+    "message": "$1 API 키를 확인하는 중…"
+  },
+  "toastResumingHere": {
+    "message": "이 대화에서 이어가는 중…"
+  },
+  "toastResumingClipFail": {
+    "message": "이어가는 중 (클립보드 복사 실패)"
+  },
+  "toastOpeningTarget": {
+    "message": "$1 여는 중 — 입력하는 중…"
+  },
+  "toastOpenedClipFail": {
+    "message": "대화를 열었습니다 (클립보드 복사 실패)"
+  },
   "preamblePdf": {
     "message": "이전 대화에서 이어서 진행해 주세요. 전체 대화 기록이 `conversation-history.pdf`로 첨부되어 있습니다. 모든 메시지와 함께 업로드된 파일의 내용이 포함되어 있고 이미지도 삽입되어 있어, 그대로 읽고 이미지를 직접 확인할 수 있습니다. 이전 맥락이 모두 갖춰져 있으니 우리가 멈춘 지점에서 정확히 이어가 주세요. 목표와 결정, 제약, 현재 상태는 그대로입니다. 기록을 다시 요약해 줄 필요는 없습니다. 같은 대화의 연장선으로 계속 진행해 주세요."
   },

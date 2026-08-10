@@ -278,6 +278,102 @@
   "uiGrantFailed": {
     "message": "Не удалось запросить доступ — попробуйте снова."
   },
+  "toastCopied": {
+    "message": "История чата скопирована"
+  },
+  "toastCopyFailed": {
+    "message": "Не удалось скопировать — смотрите консоль"
+  },
+  "toastSavedZip": {
+    "message": "Файл .zip сохранён в загрузки"
+  },
+  "toastSavedMd": {
+    "message": "Файл .md сохранён в загрузки"
+  },
+  "toastSavedPdf": {
+    "message": "Файл .pdf сохранён в загрузки"
+  },
+  "toastBuildingPdf": {
+    "message": "Создаём PDF…"
+  },
+  "toastPreparingExport": {
+    "message": "Готовим экспорт…"
+  },
+  "toastNothingToExport": {
+    "message": "Нечего экспортировать"
+  },
+  "toastExportedOne": {
+    "message": "Экспортирован $1 чат в загрузки"
+  },
+  "toastExportedMany": {
+    "message": "Экспортировано чатов: $1 — в загрузки"
+  },
+  "toastExportFailed": {
+    "message": "Не удалось экспортировать — смотрите консоль"
+  },
+  "toastSaveFailed": {
+    "message": "Не удалось сохранить — смотрите консоль"
+  },
+  "toastDownloadFailed": {
+    "message": "Не удалось скачать — смотрите консоль"
+  },
+  "toastDeleteFailed": {
+    "message": "Не удалось удалить — смотрите консоль"
+  },
+  "toastResetFailed": {
+    "message": "Не удалось сбросить — смотрите консоль"
+  },
+  "toastSaveMessageFailed": {
+    "message": "Не удалось сохранить сообщение — смотрите консоль"
+  },
+  "toastSaveKeyFailed": {
+    "message": "Не удалось сохранить ключ — смотрите консоль"
+  },
+  "toastOpenSessionFailed": {
+    "message": "Не удалось открыть сессию"
+  },
+  "toastZipMissing": {
+    "message": "Отсутствует zip-библиотека — смотрите консоль"
+  },
+  "toastPdfUnavailable": {
+    "message": "Экспорт в PDF недоступен — смотрите консоль"
+  },
+  "toastCompressUnavailable": {
+    "message": "Сжатие через ИИ недоступно — смотрите консоль"
+  },
+  "toastAddKeyToCompress": {
+    "message": "Добавьте API-ключ в настройках, чтобы сжимать"
+  },
+  "toastCompressing": {
+    "message": "Сжимаем с помощью ИИ…"
+  },
+  "toastCompressFailed": {
+    "message": "Не удалось сжать — $1"
+  },
+  "toastResumeNoKey": {
+    "message": "Продолжение отменено — добавьте API-ключ $1 в настройках."
+  },
+  "toastResumeCanceled": {
+    "message": "Продолжение отменено — $1. Проверьте настройки."
+  },
+  "toastAllowAccess": {
+    "message": "Разрешите доступ к $1 в открывшемся окне, затем снова нажмите «Продолжить»."
+  },
+  "toastCheckingKey": {
+    "message": "Проверяем ваш API-ключ $1…"
+  },
+  "toastResumingHere": {
+    "message": "Продолжаем в этом чате…"
+  },
+  "toastResumingClipFail": {
+    "message": "Продолжаем (не удалось скопировать в буфер обмена)"
+  },
+  "toastOpeningTarget": {
+    "message": "Открываем $1 — заполняем…"
+  },
+  "toastOpenedClipFail": {
+    "message": "Чат открыт (не удалось скопировать в буфер обмена)"
+  },
   "preamblePdf": {
     "message": "Продолжи наш предыдущий разговор. Полная история чата приложена как `conversation-history.pdf` — каждое сообщение, с содержимым загруженных файлов внутри и встроенными изображениями, так что ты можешь прочитать её и увидеть изображения напрямую. У тебя есть весь предыдущий контекст, поэтому продолжай ровно с того места, где мы остановились: те же цели, решения, ограничения и текущее состояние. Не пересказывай мне историю — просто продолжай, как если бы это был тот же разговор."
   },

@@ -278,6 +278,102 @@
   "uiGrantFailed": {
     "message": "No se pudo solicitar el acceso: inténtalo de nuevo."
   },
+  "toastCopied": {
+    "message": "Historial del chat copiado"
+  },
+  "toastCopyFailed": {
+    "message": "No se pudo copiar: mira la consola"
+  },
+  "toastSavedZip": {
+    "message": "Se guardó el .zip en descargas"
+  },
+  "toastSavedMd": {
+    "message": "Se guardó el .md en descargas"
+  },
+  "toastSavedPdf": {
+    "message": "Se guardó el .pdf en descargas"
+  },
+  "toastBuildingPdf": {
+    "message": "Creando el PDF…"
+  },
+  "toastPreparingExport": {
+    "message": "Preparando la exportación…"
+  },
+  "toastNothingToExport": {
+    "message": "No hay nada que exportar"
+  },
+  "toastExportedOne": {
+    "message": "Se exportó $1 chat a descargas"
+  },
+  "toastExportedMany": {
+    "message": "Se exportaron $1 chats a descargas"
+  },
+  "toastExportFailed": {
+    "message": "Falló la exportación: mira la consola"
+  },
+  "toastSaveFailed": {
+    "message": "No se pudo guardar: mira la consola"
+  },
+  "toastDownloadFailed": {
+    "message": "Falló la descarga: mira la consola"
+  },
+  "toastDeleteFailed": {
+    "message": "No se pudo eliminar: mira la consola"
+  },
+  "toastResetFailed": {
+    "message": "No se pudo restablecer: mira la consola"
+  },
+  "toastSaveMessageFailed": {
+    "message": "No se pudo guardar el mensaje: mira la consola"
+  },
+  "toastSaveKeyFailed": {
+    "message": "No se pudo guardar la clave: mira la consola"
+  },
+  "toastOpenSessionFailed": {
+    "message": "No se pudo abrir la sesión"
+  },
+  "toastZipMissing": {
+    "message": "Falta la biblioteca zip: mira la consola"
+  },
+  "toastPdfUnavailable": {
+    "message": "La exportación a PDF no está disponible: mira la consola"
+  },
+  "toastCompressUnavailable": {
+    "message": "La compresión con IA no está disponible: mira la consola"
+  },
+  "toastAddKeyToCompress": {
+    "message": "Añade una clave de API en Ajustes para comprimir"
+  },
+  "toastCompressing": {
+    "message": "Comprimiendo con IA…"
+  },
+  "toastCompressFailed": {
+    "message": "Falló la compresión: $1"
+  },
+  "toastResumeNoKey": {
+    "message": "Continuación cancelada: añade una clave de API de $1 en Ajustes."
+  },
+  "toastResumeCanceled": {
+    "message": "Continuación cancelada: $1. Revisa los Ajustes."
+  },
+  "toastAllowAccess": {
+    "message": "Permite el acceso a $1 en la ventana que se abrió y vuelve a pulsar Continuar."
+  },
+  "toastCheckingKey": {
+    "message": "Comprobando tu clave de API de $1…"
+  },
+  "toastResumingHere": {
+    "message": "Continuando en este chat…"
+  },
+  "toastResumingClipFail": {
+    "message": "Continuando (falló la copia al portapapeles)"
+  },
+  "toastOpeningTarget": {
+    "message": "Abriendo $1: rellenando…"
+  },
+  "toastOpenedClipFail": {
+    "message": "Chat abierto (falló la copia al portapapeles)"
+  },
   "preamblePdf": {
     "message": "Continúa nuestra conversación anterior. El historial completo del chat está adjunto como `conversation-history.pdf`: cada mensaje, con el contenido de los archivos subidos incorporado y las imágenes insertadas, así que puedes leerlo y ver las imágenes directamente. Tienes todo el contexto previo, así que retoma exactamente donde lo dejamos: mismos objetivos, decisiones, restricciones y estado actual. No me resumas el historial; simplemente continúa como si fuera la misma conversación."
   },

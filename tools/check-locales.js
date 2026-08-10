@@ -50,8 +50,15 @@ function walk(dir, out = []) {
 const catalog = JSON.parse(fs.readFileSync(EN, "utf8"));
 const defined = new Set(Object.keys(catalog));
 
-// Matches T("key"), TR("key"), t("key"), i18n.t("key"), tEsc("key"), tRaw("key").
+// Matches T("key"), TR("key"), t("key"), i18n.t("key"), tEsc("key"), tRaw("key")
+// where the key is written directly as the first argument. Used to catch typos.
 const CALL = /\b(?:T|TR|t|tEsc|tRaw)\(\s*"([A-Za-z0-9_]+)"/g;
+
+// Any bare string literal, used only to decide whether a catalogued key is
+// referenced at all. The direct-call regex above cannot see a key chosen inside
+// a ternary — TR(ok ? "toastCopied" : "toastCopyFailed") — and whitelisting
+// those would hide real orphans instead of finding them.
+const LITERAL = /"([A-Za-z0-9_]+)"/g;
 
 const used = new Set();
 const problems = [];
@@ -68,6 +75,10 @@ for (const file of walk(SRC)) {
         `${path.relative(root, file)}:${line}: uses "${key}" — not in _locales/en`
       );
     }
+  }
+  // Second pass: a catalogued key quoted anywhere in src/ counts as referenced.
+  while ((m = LITERAL.exec(text))) {
+    if (defined.has(m[1])) used.add(m[1]);
   }
 }
 

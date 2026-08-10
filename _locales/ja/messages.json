@@ -278,6 +278,102 @@
   "uiGrantFailed": {
     "message": "アクセスを要求できませんでした。もう一度お試しください。"
   },
+  "toastCopied": {
+    "message": "チャット履歴をコピーしました"
+  },
+  "toastCopyFailed": {
+    "message": "コピーに失敗しました — コンソールを確認してください"
+  },
+  "toastSavedZip": {
+    "message": ".zip をダウンロードに保存しました"
+  },
+  "toastSavedMd": {
+    "message": ".md をダウンロードに保存しました"
+  },
+  "toastSavedPdf": {
+    "message": ".pdf をダウンロードに保存しました"
+  },
+  "toastBuildingPdf": {
+    "message": "PDF を作成しています…"
+  },
+  "toastPreparingExport": {
+    "message": "エクスポートを準備しています…"
+  },
+  "toastNothingToExport": {
+    "message": "エクスポートするものがありません"
+  },
+  "toastExportedOne": {
+    "message": "$1 件のチャットをダウンロードに書き出しました"
+  },
+  "toastExportedMany": {
+    "message": "$1 件のチャットをダウンロードに書き出しました"
+  },
+  "toastExportFailed": {
+    "message": "エクスポートに失敗しました — コンソールを確認してください"
+  },
+  "toastSaveFailed": {
+    "message": "保存に失敗しました — コンソールを確認してください"
+  },
+  "toastDownloadFailed": {
+    "message": "ダウンロードに失敗しました — コンソールを確認してください"
+  },
+  "toastDeleteFailed": {
+    "message": "削除に失敗しました — コンソールを確認してください"
+  },
+  "toastResetFailed": {
+    "message": "初期化に失敗しました — コンソールを確認してください"
+  },
+  "toastSaveMessageFailed": {
+    "message": "メッセージを保存できませんでした — コンソールを確認してください"
+  },
+  "toastSaveKeyFailed": {
+    "message": "キーを保存できませんでした — コンソールを確認してください"
+  },
+  "toastOpenSessionFailed": {
+    "message": "セッションを開けませんでした"
+  },
+  "toastZipMissing": {
+    "message": "zip ライブラリが見つかりません — コンソールを確認してください"
+  },
+  "toastPdfUnavailable": {
+    "message": "PDF エクスポートを利用できません — コンソールを確認してください"
+  },
+  "toastCompressUnavailable": {
+    "message": "AI 圧縮を利用できません — コンソールを確認してください"
+  },
+  "toastAddKeyToCompress": {
+    "message": "圧縮するには設定で API キーを追加してください"
+  },
+  "toastCompressing": {
+    "message": "AI で圧縮しています…"
+  },
+  "toastCompressFailed": {
+    "message": "圧縮に失敗しました — $1"
+  },
+  "toastResumeNoKey": {
+    "message": "再開を中止しました — 設定で $1 の API キーを追加してください。"
+  },
+  "toastResumeCanceled": {
+    "message": "再開を中止しました — $1。設定を確認してください。"
+  },
+  "toastAllowAccess": {
+    "message": "開いたウィンドウで $1 へのアクセスを許可し、もう一度「再開」をクリックしてください。"
+  },
+  "toastCheckingKey": {
+    "message": "$1 の API キーを確認しています…"
+  },
+  "toastResumingHere": {
+    "message": "このチャットで再開しています…"
+  },
+  "toastResumingClipFail": {
+    "message": "再開しています（クリップボードへのコピーに失敗）"
+  },
+  "toastOpeningTarget": {
+    "message": "$1 を開いています — 入力しています…"
+  },
+  "toastOpenedClipFail": {
+    "message": "チャットを開きました（クリップボードへのコピーに失敗）"
+  },
   "preamblePdf": {
     "message": "前回の会話の続きから進めてください。これまでのチャット履歴はすべて `conversation-history.pdf` として添付されています。すべてのメッセージに加え、アップロードされたファイルの内容も取り込まれ、画像も埋め込まれているため、そのまま読んで画像も直接確認できます。これまでの文脈はすべて揃っているので、中断したところから正確に再開してください。目標、決定事項、制約、現在の状態はそのままです。履歴を要約して返す必要はありません。同じ会話の続きとしてそのまま進めてください。"
   },

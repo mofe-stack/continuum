@@ -278,6 +278,102 @@
   "uiGrantFailed": {
     "message": "Zugriff konnte nicht angefragt werden — versuche es erneut."
   },
+  "toastCopied": {
+    "message": "Chatverlauf kopiert"
+  },
+  "toastCopyFailed": {
+    "message": "Kopieren fehlgeschlagen — siehe Konsole"
+  },
+  "toastSavedZip": {
+    "message": ".zip in Downloads gespeichert"
+  },
+  "toastSavedMd": {
+    "message": ".md in Downloads gespeichert"
+  },
+  "toastSavedPdf": {
+    "message": ".pdf in Downloads gespeichert"
+  },
+  "toastBuildingPdf": {
+    "message": "PDF wird erstellt…"
+  },
+  "toastPreparingExport": {
+    "message": "Export wird vorbereitet…"
+  },
+  "toastNothingToExport": {
+    "message": "Nichts zu exportieren"
+  },
+  "toastExportedOne": {
+    "message": "$1 Chat in Downloads exportiert"
+  },
+  "toastExportedMany": {
+    "message": "$1 Chats in Downloads exportiert"
+  },
+  "toastExportFailed": {
+    "message": "Export fehlgeschlagen — siehe Konsole"
+  },
+  "toastSaveFailed": {
+    "message": "Speichern fehlgeschlagen — siehe Konsole"
+  },
+  "toastDownloadFailed": {
+    "message": "Download fehlgeschlagen — siehe Konsole"
+  },
+  "toastDeleteFailed": {
+    "message": "Löschen fehlgeschlagen — siehe Konsole"
+  },
+  "toastResetFailed": {
+    "message": "Zurücksetzen fehlgeschlagen — siehe Konsole"
+  },
+  "toastSaveMessageFailed": {
+    "message": "Nachricht konnte nicht gespeichert werden — siehe Konsole"
+  },
+  "toastSaveKeyFailed": {
+    "message": "Schlüssel konnte nicht gespeichert werden — siehe Konsole"
+  },
+  "toastOpenSessionFailed": {
+    "message": "Sitzung konnte nicht geöffnet werden"
+  },
+  "toastZipMissing": {
+    "message": "Zip-Bibliothek fehlt — siehe Konsole"
+  },
+  "toastPdfUnavailable": {
+    "message": "PDF-Export nicht verfügbar — siehe Konsole"
+  },
+  "toastCompressUnavailable": {
+    "message": "KI-Komprimierung nicht verfügbar — siehe Konsole"
+  },
+  "toastAddKeyToCompress": {
+    "message": "Füge in den Einstellungen einen API-Schlüssel hinzu, um zu komprimieren"
+  },
+  "toastCompressing": {
+    "message": "Wird mit KI komprimiert…"
+  },
+  "toastCompressFailed": {
+    "message": "Komprimierung fehlgeschlagen — $1"
+  },
+  "toastResumeNoKey": {
+    "message": "Fortsetzen abgebrochen — füge in den Einstellungen einen $1-API-Schlüssel hinzu."
+  },
+  "toastResumeCanceled": {
+    "message": "Fortsetzen abgebrochen — $1. Prüfe die Einstellungen."
+  },
+  "toastAllowAccess": {
+    "message": "Erlaube den Zugriff auf $1 im geöffneten Fenster und klicke erneut auf Fortsetzen."
+  },
+  "toastCheckingKey": {
+    "message": "Dein $1-API-Schlüssel wird geprüft…"
+  },
+  "toastResumingHere": {
+    "message": "Wird in diesem Chat fortgesetzt…"
+  },
+  "toastResumingClipFail": {
+    "message": "Wird fortgesetzt (Kopieren in die Zwischenablage fehlgeschlagen)"
+  },
+  "toastOpeningTarget": {
+    "message": "$1 wird geöffnet — wird ausgefüllt…"
+  },
+  "toastOpenedClipFail": {
+    "message": "Chat geöffnet (Kopieren in die Zwischenablage fehlgeschlagen)"
+  },
   "preamblePdf": {
     "message": "Setze unsere vorherige Unterhaltung fort. Der vollständige Chatverlauf ist als `conversation-history.pdf` angehängt — jede Nachricht, mit den Inhalten hochgeladener Dateien eingebettet und allen Bildern inline, sodass du ihn lesen und die Bilder direkt sehen kannst. Du hast den vollständigen bisherigen Kontext, mach also genau dort weiter, wo wir aufgehört haben — gleiche Ziele, Entscheidungen, Rahmenbedingungen und aktueller Stand. Fasse den Verlauf nicht für mich zusammen; mach einfach weiter, als wäre es dieselbe Unterhaltung."
   },

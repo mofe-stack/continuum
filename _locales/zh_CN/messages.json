@@ -278,6 +278,102 @@
   "uiGrantFailed": {
     "message": "无法请求访问权限——请重试。"
   },
+  "toastCopied": {
+    "message": "已复制聊天记录"
+  },
+  "toastCopyFailed": {
+    "message": "复制失败——请查看控制台"
+  },
+  "toastSavedZip": {
+    "message": "已将 .zip 保存到下载"
+  },
+  "toastSavedMd": {
+    "message": "已将 .md 保存到下载"
+  },
+  "toastSavedPdf": {
+    "message": "已将 .pdf 保存到下载"
+  },
+  "toastBuildingPdf": {
+    "message": "正在生成 PDF…"
+  },
+  "toastPreparingExport": {
+    "message": "正在准备导出…"
+  },
+  "toastNothingToExport": {
+    "message": "没有可导出的内容"
+  },
+  "toastExportedOne": {
+    "message": "已导出 $1 段对话到下载"
+  },
+  "toastExportedMany": {
+    "message": "已导出 $1 段对话到下载"
+  },
+  "toastExportFailed": {
+    "message": "导出失败——请查看控制台"
+  },
+  "toastSaveFailed": {
+    "message": "保存失败——请查看控制台"
+  },
+  "toastDownloadFailed": {
+    "message": "下载失败——请查看控制台"
+  },
+  "toastDeleteFailed": {
+    "message": "删除失败——请查看控制台"
+  },
+  "toastResetFailed": {
+    "message": "重置失败——请查看控制台"
+  },
+  "toastSaveMessageFailed": {
+    "message": "无法保存消息——请查看控制台"
+  },
+  "toastSaveKeyFailed": {
+    "message": "无法保存密钥——请查看控制台"
+  },
+  "toastOpenSessionFailed": {
+    "message": "无法打开该会话"
+  },
+  "toastZipMissing": {
+    "message": "缺少 zip 库——请查看控制台"
+  },
+  "toastPdfUnavailable": {
+    "message": "无法导出 PDF——请查看控制台"
+  },
+  "toastCompressUnavailable": {
+    "message": "无法使用 AI 压缩——请查看控制台"
+  },
+  "toastAddKeyToCompress": {
+    "message": "请在设置中添加 API 密钥后再压缩"
+  },
+  "toastCompressing": {
+    "message": "正在使用 AI 压缩…"
+  },
+  "toastCompressFailed": {
+    "message": "压缩失败——$1"
+  },
+  "toastResumeNoKey": {
+    "message": "已取消继续——请在设置中添加 $1 的 API 密钥。"
+  },
+  "toastResumeCanceled": {
+    "message": "已取消继续——$1。请检查设置。"
+  },
+  "toastAllowAccess": {
+    "message": "请在打开的窗口中允许访问 $1，然后再次点击「继续」。"
+  },
+  "toastCheckingKey": {
+    "message": "正在检查你的 $1 API 密钥…"
+  },
+  "toastResumingHere": {
+    "message": "正在此对话中继续…"
+  },
+  "toastResumingClipFail": {
+    "message": "正在继续（复制到剪贴板失败）"
+  },
+  "toastOpeningTarget": {
+    "message": "正在打开 $1——正在填入…"
+  },
+  "toastOpenedClipFail": {
+    "message": "已打开对话（复制到剪贴板失败）"
+  },
   "preamblePdf": {
     "message": "接着我们之前的对话继续。完整的聊天记录已作为 `conversation-history.pdf` 附上——包含每一条消息，上传文件的内容已内联，图片也已嵌入，因此你可以直接阅读并查看这些图片。你已经掌握了全部先前的上下文，请从我们停下的地方精确接着往下走：目标、决定、限制条件和当前状态都不变。不要把历史内容复述给我，直接当作同一段对话继续即可。"
   },
