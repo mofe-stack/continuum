@@ -62,4 +62,17 @@ function runPool(items, plan, onDone, workers) {
   });
 }
 
-module.exports = { runPool, DEFAULT_WORKERS };
+// Chromium can hold a profile directory open briefly after its process exits,
+// so a straight rmSync sometimes throws EPERM and would fail a run whose real
+// work already succeeded. The screenshots are what matter; leftover scratch is
+// swept on the next run.
+function cleanup(dir) {
+  const fs = require("fs");
+  try {
+    fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 300 });
+  } catch (e) {
+    console.warn("  (left " + dir + " in place — still locked by a browser process)");
+  }
+}
+
+module.exports = { runPool, DEFAULT_WORKERS, cleanup };

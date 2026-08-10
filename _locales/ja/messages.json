@@ -219,22 +219,22 @@
     "message": "空のチャットです。保存するものがまだありません。下の保存済みセッションを選ぶと、ここでも別のAIでも再開できます。"
   },
   "uiStatMessagesOne": {
-    "message": "メッセージ $1 件"
+    "message": "$1 メッセージ"
   },
   "uiStatMessagesOther": {
-    "message": "メッセージ $1 件"
+    "message": "$1 メッセージ"
   },
   "uiStatImagesOne": {
-    "message": "画像 $1 点"
+    "message": "$1 画像"
   },
   "uiStatImagesOther": {
-    "message": "画像 $1 点"
+    "message": "$1 画像"
   },
   "uiStatFilesOne": {
-    "message": "ファイル $1 件"
+    "message": "$1 ファイル"
   },
   "uiStatFilesOther": {
-    "message": "ファイル $1 件"
+    "message": "$1 ファイル"
   },
   "uiFabTitle": {
     "message": "Continuum — このセッションを保存"

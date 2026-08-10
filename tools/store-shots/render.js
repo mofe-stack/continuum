@@ -14,7 +14,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { runPool, DEFAULT_WORKERS } = require("./pool.js");
+const { runPool, DEFAULT_WORKERS, cleanup } = require("./pool.js");
 
 const { LISTING, LOCALES } = require("../../i18n/listing.js");
 const { FRAMES } = require("../../i18n/frames.js");
@@ -132,7 +132,7 @@ runPool(
   }
 )
   .then(() => {
-    fs.rmSync(TMP, { recursive: true, force: true });
+    cleanup(TMP);
     console.log(
       "\n" + jobs.length + " screenshots across " + locales.length +
       " locales → store-listings/  (" + DEFAULT_WORKERS + " workers)"

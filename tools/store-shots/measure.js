@@ -17,7 +17,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { runPool } = require("./pool.js");
+const { runPool, cleanup } = require("./pool.js");
 
 const { LOCALES } = require("../../i18n/listing.js");
 const { FRAMES } = require("../../i18n/frames.js");
@@ -118,7 +118,7 @@ runPool(
     }
   }
 ).then(() => {
-  fs.rmSync(TMP, { recursive: true, force: true });
+  cleanup(TMP);
   if (problems.length) {
     problems.sort();
     console.error(`${problems.length} layout problem(s):\n`);

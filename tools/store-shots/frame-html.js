@@ -86,6 +86,21 @@ function iconBlock() {
   return src.slice(a, b);
 }
 
+// providerLogo() colours each mark with style="color:var(--cn-claude)" and
+// fill="currentColor". Those variables are declared on :host inside the shadow
+// root, so the "works with" row — which lives in the page, not the panel — has
+// no value for them and the marks render in the inherited colour (white on the
+// dark frame). Lift the real declarations out of panel.css so the row uses the
+// same brand colours as the product and cannot drift from them.
+function brandVars() {
+  const css = fs.readFileSync(path.join(root, "src", "ui", "panel.css"), "utf8");
+  const found = [...css.matchAll(/(--cn-(?:claude|openai|gemini|perplexity|grok|deepseek|copilot))\s*:\s*([^;]+);/g)];
+  if (!found.length) {
+    throw new Error("frame-html: no --cn-<brand> variables found in panel.css");
+  }
+  return found.map((m) => `${m[1]}:${m[2].trim()}`).join(";");
+}
+
 function css(theme, locale, geom) {
   const fb = FALLBACK[locale] ? "," + FALLBACK[locale] : "";
   const track = FALLBACK[locale] && locale !== "ru" ? "0" : "-.028em";
@@ -114,7 +129,7 @@ h1 .lt{font-weight:400}
 .works{margin-top:40px}
 .works-label{font-family:ui-monospace,Consolas,monospace;font-size:11px;font-weight:500;
   letter-spacing:.19em;color:${COPY_INK_2[theme]};margin-bottom:16px}
-.works-row{display:flex;gap:26px;align-items:center}
+.works-row{display:flex;gap:26px;align-items:center;${brandVars()}}
 /* Shadow host carrying the real panel, scaled to the measured frame width. */
 #host{position:absolute;left:${geom.panelX}px;top:50%;
   transform:translateY(-50%) scale(${geom.scale});transform-origin:left center;

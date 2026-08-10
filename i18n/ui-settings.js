@@ -368,32 +368,32 @@ const UI_SETTINGS = {
   // an explicit one/other pair and plural() picks between them.
   uiStatMessagesOne: {
     en: "$1 message", es: "$1 mensaje", pt_BR: "$1 mensagem", de: "$1 Nachricht",
-    fr: "$1 message", ja: "メッセージ $1 件", zh_CN: "$1 条消息", ru: "$1 сообщение",
+    fr: "$1 message", ja: "$1 メッセージ", zh_CN: "$1 条消息", ru: "$1 сообщение",
     ko: "메시지 $1개", it: "$1 messaggio", tr: "$1 mesaj",
   },
   uiStatMessagesOther: {
     en: "$1 messages", es: "$1 mensajes", pt_BR: "$1 mensagens", de: "$1 Nachrichten",
-    fr: "$1 messages", ja: "メッセージ $1 件", zh_CN: "$1 条消息", ru: "$1 сообщений",
+    fr: "$1 messages", ja: "$1 メッセージ", zh_CN: "$1 条消息", ru: "$1 сообщений",
     ko: "메시지 $1개", it: "$1 messaggi", tr: "$1 mesaj",
   },
   uiStatImagesOne: {
     en: "$1 image", es: "$1 imagen", pt_BR: "$1 imagem", de: "$1 Bild",
-    fr: "$1 image", ja: "画像 $1 点", zh_CN: "$1 张图片", ru: "$1 изображение",
+    fr: "$1 image", ja: "$1 画像", zh_CN: "$1 张图片", ru: "$1 изображение",
     ko: "이미지 $1개", it: "$1 immagine", tr: "$1 görsel",
   },
   uiStatImagesOther: {
     en: "$1 images", es: "$1 imágenes", pt_BR: "$1 imagens", de: "$1 Bilder",
-    fr: "$1 images", ja: "画像 $1 点", zh_CN: "$1 张图片", ru: "$1 изображений",
+    fr: "$1 images", ja: "$1 画像", zh_CN: "$1 张图片", ru: "$1 изображений",
     ko: "이미지 $1개", it: "$1 immagini", tr: "$1 görsel",
   },
   uiStatFilesOne: {
     en: "$1 file", es: "$1 archivo", pt_BR: "$1 arquivo", de: "$1 Datei",
-    fr: "$1 fichier", ja: "ファイル $1 件", zh_CN: "$1 个文件", ru: "$1 файл",
+    fr: "$1 fichier", ja: "$1 ファイル", zh_CN: "$1 个文件", ru: "$1 файл",
     ko: "파일 $1개", it: "$1 file", tr: "$1 dosya",
   },
   uiStatFilesOther: {
     en: "$1 files", es: "$1 archivos", pt_BR: "$1 arquivos", de: "$1 Dateien",
-    fr: "$1 fichiers", ja: "ファイル $1 件", zh_CN: "$1 个文件", ru: "$1 файлов",
+    fr: "$1 fichiers", ja: "$1 ファイル", zh_CN: "$1 个文件", ru: "$1 файлов",
     ko: "파일 $1개", it: "$1 file", tr: "$1 dosya",
   },
 
