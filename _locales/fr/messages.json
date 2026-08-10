@@ -236,6 +236,12 @@
   "uiStatFilesOther": {
     "message": "$1 fichiers"
   },
+  "uiFileAllChats": {
+    "message": "tous-les-chats"
+  },
+  "uiFileChats": {
+    "message": "chats"
+  },
   "uiFabTitle": {
     "message": "Continuum — capturer cette session"
   },
@@ -271,5 +277,17 @@
   },
   "uiGrantFailed": {
     "message": "Impossible de demander l'accès — réessayez."
+  },
+  "preamblePdf": {
+    "message": "Reprends notre conversation précédente. L'historique complet du chat est joint sous le nom `conversation-history.pdf` — chaque message, avec le contenu des fichiers téléversés intégré et les images incorporées, afin que tu puisses le lire et voir les images directement. Tu disposes de tout le contexte antérieur : reprends exactement là où nous nous étions arrêtés — mêmes objectifs, décisions, contraintes et état actuel. Ne me résume pas l'historique ; continue simplement comme s'il s'agissait de la même conversation."
+  },
+  "preambleMd": {
+    "message": "Reprends notre conversation précédente. L'historique complet du chat est joint sous le nom `conversation-history.md` — chaque message, avec le contenu des fichiers texte téléversés intégré. Les images et les autres fichiers sont désignés par leur nom (non joints) : tu ne les verras donc pas directement. Tu disposes de tout le contexte antérieur : reprends exactement là où nous nous étions arrêtés — mêmes objectifs, décisions, contraintes et état actuel. Ne me résume pas l'historique ; continue simplement comme s'il s'agissait de la même conversation."
+  },
+  "preambleBriefPdf": {
+    "message": "Reprends notre conversation précédente. Le fichier joint `conversation-history.pdf` est une synthèse de passation structurée de tout notre échange jusqu'ici — organisée en Completed work, Current state, In progress, Next steps, Constraints, Critical context et Discarded attempts, avec les images incorporées et les fichiers désignés par leur nom, chacun accompagné d'une note d'une ligne. Cette synthèse constitue tout ton contexte antérieur : reprends exactement là où nous nous étions arrêtés. Ne me la résume pas ; continue simplement comme s'il s'agissait de la même conversation."
+  },
+  "preambleBriefMd": {
+    "message": "Reprends notre conversation précédente. Le fichier joint `conversation-history.md` est une synthèse de passation structurée de tout notre échange jusqu'ici — organisée en Completed work, Current state, In progress, Next steps, Constraints, Critical context et Discarded attempts, les images et les fichiers étant désignés par leur nom (non joints), chacun accompagné d'une note d'une ligne. Cette synthèse constitue tout ton contexte antérieur : reprends exactement là où nous nous étions arrêtés. Ne me la résume pas ; continue simplement comme s'il s'agissait de la même conversation."
   }
 }

@@ -46,3 +46,13 @@ Thumbs.db
 *.canvas
 images/
 20[0-9][0-9]-[0-9][0-9]-[0-9][0-9].md
+
+# Marketing tooling — screenshot generator and the localized-website builder.
+# Both read from website/, which is gitignored, so they cannot run from a clean
+# clone. The extension's own locale pipeline (tools/build-locales.js,
+# tools/check-locales.js) IS tracked — it generates _locales/ at build time.
+tools/store-shots/
+tools/build-website.js
+i18n/frames.js
+i18n/site.js
+i18n/site2.js

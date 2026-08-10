@@ -236,6 +236,12 @@
   "uiStatFilesOther": {
     "message": "$1 archivos"
   },
+  "uiFileAllChats": {
+    "message": "todos-los-chats"
+  },
+  "uiFileChats": {
+    "message": "chats"
+  },
   "uiFabTitle": {
     "message": "Continuum — capturar esta sesión"
   },
@@ -271,5 +277,17 @@
   },
   "uiGrantFailed": {
     "message": "No se pudo solicitar el acceso: inténtalo de nuevo."
+  },
+  "preamblePdf": {
+    "message": "Continúa nuestra conversación anterior. El historial completo del chat está adjunto como `conversation-history.pdf`: cada mensaje, con el contenido de los archivos subidos incorporado y las imágenes insertadas, así que puedes leerlo y ver las imágenes directamente. Tienes todo el contexto previo, así que retoma exactamente donde lo dejamos: mismos objetivos, decisiones, restricciones y estado actual. No me resumas el historial; simplemente continúa como si fuera la misma conversación."
+  },
+  "preambleMd": {
+    "message": "Continúa nuestra conversación anterior. El historial completo del chat está adjunto como `conversation-history.md`: cada mensaje, con el contenido de los archivos de texto subidos incorporado. Las imágenes y otros archivos se mencionan por su nombre (no van adjuntos), así que no podrás verlos directamente. Tienes todo el contexto previo, así que retoma exactamente donde lo dejamos: mismos objetivos, decisiones, restricciones y estado actual. No me resumas el historial; simplemente continúa como si fuera la misma conversación."
+  },
+  "preambleBriefPdf": {
+    "message": "Continúa nuestra conversación anterior. Adjunto como `conversation-history.pdf` va un resumen de traspaso estructurado de todo nuestro chat hasta ahora, organizado en Completed work, Current state, In progress, Next steps, Constraints, Critical context y Discarded attempts, con las imágenes insertadas y los archivos mencionados por su nombre, cada uno con una nota de una línea. Ese resumen es todo tu contexto previo: retoma exactamente donde lo dejamos. No me lo resumas de vuelta; simplemente continúa como si fuera la misma conversación."
+  },
+  "preambleBriefMd": {
+    "message": "Continúa nuestra conversación anterior. Adjunto como `conversation-history.md` va un resumen de traspaso estructurado de todo nuestro chat hasta ahora, organizado en Completed work, Current state, In progress, Next steps, Constraints, Critical context y Discarded attempts, con las imágenes y los archivos mencionados por su nombre (no adjuntos), cada uno con una nota de una línea. Ese resumen es todo tu contexto previo: retoma exactamente donde lo dejamos. No me lo resumas de vuelta; simplemente continúa como si fuera la misma conversación."
   }
 }

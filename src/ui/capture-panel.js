@@ -2100,9 +2100,14 @@
       const entries = await buildFolderZipEntries(metas, all);
       const zipped = ff.zipSync(entries, { level: 9 });
       const blob = new Blob([zipped], { type: "application/zip" });
+      // "continuum-" stays as the brand prefix so exports group together on disk;
+      // the descriptive part is localized. The provider name still goes through
+      // safeName (it's a brand like "Claude"), but the localized token must not —
+      // safeName's \w class would erase CJK and Cyrillic.
       const fname = all
-        ? "continuum-all-chats.zip"
-        : "continuum-" + safeName(providerName(scope)).toLowerCase() + "-chats.zip";
+        ? "continuum-" + TR("uiFileAllChats") + ".zip"
+        : "continuum-" + safeName(providerName(scope)).toLowerCase() +
+          "-" + TR("uiFileChats") + ".zip";
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

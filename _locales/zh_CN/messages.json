@@ -236,6 +236,12 @@
   "uiStatFilesOther": {
     "message": "$1 个文件"
   },
+  "uiFileAllChats": {
+    "message": "全部对话"
+  },
+  "uiFileChats": {
+    "message": "对话"
+  },
   "uiFabTitle": {
     "message": "Continuum — 捕获此对话"
   },
@@ -271,5 +277,17 @@
   },
   "uiGrantFailed": {
     "message": "无法请求访问权限——请重试。"
+  },
+  "preamblePdf": {
+    "message": "接着我们之前的对话继续。完整的聊天记录已作为 `conversation-history.pdf` 附上——包含每一条消息，上传文件的内容已内联，图片也已嵌入，因此你可以直接阅读并查看这些图片。你已经掌握了全部先前的上下文，请从我们停下的地方精确接着往下走：目标、决定、限制条件和当前状态都不变。不要把历史内容复述给我，直接当作同一段对话继续即可。"
+  },
+  "preambleMd": {
+    "message": "接着我们之前的对话继续。完整的聊天记录已作为 `conversation-history.md` 附上——包含每一条消息，上传的文本文件内容已内联。图片和其他文件只按名称引用（未随附），因此你无法直接查看。你已经掌握了全部先前的上下文，请从我们停下的地方精确接着往下走：目标、决定、限制条件和当前状态都不变。不要把历史内容复述给我，直接当作同一段对话继续即可。"
+  },
+  "preambleBriefPdf": {
+    "message": "接着我们之前的对话继续。随附的 `conversation-history.pdf` 是我们迄今整段对话的结构化交接摘要，按 Completed work、Current state、In progress、Next steps、Constraints、Critical context 和 Discarded attempts 组织，图片已嵌入，文件按名称引用，并各附一行说明。这份摘要就是你全部的先前上下文——请从我们停下的地方精确接着往下走。不要把它复述给我，直接当作同一段对话继续即可。"
+  },
+  "preambleBriefMd": {
+    "message": "接着我们之前的对话继续。随附的 `conversation-history.md` 是我们迄今整段对话的结构化交接摘要，按 Completed work、Current state、In progress、Next steps、Constraints、Critical context 和 Discarded attempts 组织，图片和文件仅按名称引用（未随附），并各附一行说明。这份摘要就是你全部的先前上下文——请从我们停下的地方精确接着往下走。不要把它复述给我，直接当作同一段对话继续即可。"
   }
 }

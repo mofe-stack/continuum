@@ -236,6 +236,12 @@
   "uiStatFilesOther": {
     "message": "$1 Dateien"
   },
+  "uiFileAllChats": {
+    "message": "alle-chats"
+  },
+  "uiFileChats": {
+    "message": "chats"
+  },
   "uiFabTitle": {
     "message": "Continuum — diese Sitzung sichern"
   },
@@ -271,5 +277,17 @@
   },
   "uiGrantFailed": {
     "message": "Zugriff konnte nicht angefragt werden — versuche es erneut."
+  },
+  "preamblePdf": {
+    "message": "Setze unsere vorherige Unterhaltung fort. Der vollständige Chatverlauf ist als `conversation-history.pdf` angehängt — jede Nachricht, mit den Inhalten hochgeladener Dateien eingebettet und allen Bildern inline, sodass du ihn lesen und die Bilder direkt sehen kannst. Du hast den vollständigen bisherigen Kontext, mach also genau dort weiter, wo wir aufgehört haben — gleiche Ziele, Entscheidungen, Rahmenbedingungen und aktueller Stand. Fasse den Verlauf nicht für mich zusammen; mach einfach weiter, als wäre es dieselbe Unterhaltung."
+  },
+  "preambleMd": {
+    "message": "Setze unsere vorherige Unterhaltung fort. Der vollständige Chatverlauf ist als `conversation-history.md` angehängt — jede Nachricht, mit den Inhalten hochgeladener Textdateien eingebettet. Bilder und andere Dateien werden nur per Name genannt (nicht angehängt), du siehst sie also nicht direkt. Du hast den vollständigen bisherigen Kontext, mach also genau dort weiter, wo wir aufgehört haben — gleiche Ziele, Entscheidungen, Rahmenbedingungen und aktueller Stand. Fasse den Verlauf nicht für mich zusammen; mach einfach weiter, als wäre es dieselbe Unterhaltung."
+  },
+  "preambleBriefPdf": {
+    "message": "Setze unsere vorherige Unterhaltung fort. Als `conversation-history.pdf` ist ein strukturiertes Übergabe-Briefing unseres gesamten bisherigen Chats angehängt — gegliedert in Completed work, Current state, In progress, Next steps, Constraints, Critical context und Discarded attempts, mit eingebetteten Bildern und per Name genannten Dateien, jeweils mit einer einzeiligen Notiz. Dieses Briefing ist dein vollständiger bisheriger Kontext — mach genau dort weiter, wo wir aufgehört haben. Fasse es nicht für mich zusammen; mach einfach weiter, als wäre es dieselbe Unterhaltung."
+  },
+  "preambleBriefMd": {
+    "message": "Setze unsere vorherige Unterhaltung fort. Als `conversation-history.md` ist ein strukturiertes Übergabe-Briefing unseres gesamten bisherigen Chats angehängt — gegliedert in Completed work, Current state, In progress, Next steps, Constraints, Critical context und Discarded attempts, wobei Bilder und Dateien nur per Name genannt werden (nicht angehängt), jeweils mit einer einzeiligen Notiz. Dieses Briefing ist dein vollständiger bisheriger Kontext — mach genau dort weiter, wo wir aufgehört haben. Fasse es nicht für mich zusammen; mach einfach weiter, als wäre es dieselbe Unterhaltung."
   }
 }

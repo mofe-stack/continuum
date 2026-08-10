@@ -17,6 +17,7 @@ const path = require("path");
 const { LISTING, LOCALES, DEFAULT_LOCALE } = require("../i18n/listing.js");
 const { UI } = require("../i18n/ui.js");
 const { UI_SETTINGS } = require("../i18n/ui-settings.js");
+const { PREAMBLES } = require("../i18n/preambles.js");
 
 const root = path.join(__dirname, "..");
 const OUTDIR = path.join(root, "_locales");
@@ -25,7 +26,10 @@ const OUTDIR = path.join(root, "_locales");
 // so it fails here rather than on upload.
 const CAPS = { extName: 75, extShortDescription: 132, extLongDescription: 250 };
 
-const UI_TABLES = { ...UI, ...UI_SETTINGS };
+// Preambles are not interface chrome — they are the message typed into the new
+// chat — but they live in the same catalog so settings.js can read them through
+// the same lookup, and so they get the same completeness checks.
+const UI_TABLES = { ...UI, ...UI_SETTINGS, ...PREAMBLES };
 
 const errors = [];
 

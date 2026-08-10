@@ -236,6 +236,12 @@
   "uiStatFilesOther": {
     "message": "$1 file"
   },
+  "uiFileAllChats": {
+    "message": "tutte-le-chat"
+  },
+  "uiFileChats": {
+    "message": "chat"
+  },
   "uiFabTitle": {
     "message": "Continuum — cattura questa sessione"
   },
@@ -271,5 +277,17 @@
   },
   "uiGrantFailed": {
     "message": "Impossibile richiedere l'accesso: riprova."
+  },
+  "preamblePdf": {
+    "message": "Riprendi dalla nostra conversazione precedente. L'intera cronologia della chat è allegata come `conversation-history.pdf` — ogni messaggio, con i contenuti dei file caricati incorporati e le immagini inserite, così puoi leggerla e vedere le immagini direttamente. Hai tutto il contesto precedente, quindi riprendi esattamente da dove eravamo rimasti: stessi obiettivi, decisioni, vincoli e stato attuale. Non riassumermi la cronologia; continua semplicemente come se fosse la stessa conversazione."
+  },
+  "preambleMd": {
+    "message": "Riprendi dalla nostra conversazione precedente. L'intera cronologia della chat è allegata come `conversation-history.md` — ogni messaggio, con i contenuti dei file di testo caricati incorporati. Le immagini e gli altri file sono indicati per nome (non allegati), quindi non li vedrai direttamente. Hai tutto il contesto precedente, quindi riprendi esattamente da dove eravamo rimasti: stessi obiettivi, decisioni, vincoli e stato attuale. Non riassumermi la cronologia; continua semplicemente come se fosse la stessa conversazione."
+  },
+  "preambleBriefPdf": {
+    "message": "Riprendi dalla nostra conversazione precedente. In allegato come `conversation-history.pdf` trovi una sintesi di passaggio strutturata di tutta la nostra chat finora — organizzata in Completed work, Current state, In progress, Next steps, Constraints, Critical context e Discarded attempts, con le immagini incorporate e i file indicati per nome, ciascuno con una nota di una riga. Questa sintesi è tutto il tuo contesto precedente: riprendi esattamente da dove eravamo rimasti. Non riassumermela; continua semplicemente come se fosse la stessa conversazione."
+  },
+  "preambleBriefMd": {
+    "message": "Riprendi dalla nostra conversazione precedente. In allegato come `conversation-history.md` trovi una sintesi di passaggio strutturata di tutta la nostra chat finora — organizzata in Completed work, Current state, In progress, Next steps, Constraints, Critical context e Discarded attempts, con immagini e file indicati per nome (non allegati), ciascuno con una nota di una riga. Questa sintesi è tutto il tuo contesto precedente: riprendi esattamente da dove eravamo rimasti. Non riassumermela; continua semplicemente come se fosse la stessa conversazione."
   }
 }

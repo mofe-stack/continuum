@@ -236,6 +236,12 @@
   "uiStatFilesOther": {
     "message": "$1 files"
   },
+  "uiFileAllChats": {
+    "message": "all-chats"
+  },
+  "uiFileChats": {
+    "message": "chats"
+  },
   "uiFabTitle": {
     "message": "Continuum — capture this session"
   },
@@ -271,5 +277,17 @@
   },
   "uiGrantFailed": {
     "message": "Couldn't request access — try again."
+  },
+  "preamblePdf": {
+    "message": "Continue from our previous conversation. The entire chat history is attached as `conversation-history.pdf` — every message, with any uploaded files' contents inlined and any images embedded inline, so you can read it and see the images directly. You have the complete prior context, so pick up exactly where we left off — same goals, decisions, constraints, and current state. Don't recap the history back to me; just continue as if this is the same conversation."
+  },
+  "preambleMd": {
+    "message": "Continue from our previous conversation. The entire chat history is attached as `conversation-history.md` — every message, with any uploaded text files' contents inlined. Any images and other files are referenced by name (not attached), so you won't see those directly. You have the complete prior context, so pick up exactly where we left off — same goals, decisions, constraints, and current state. Don't recap the history back to me; just continue as if this is the same conversation."
+  },
+  "preambleBriefPdf": {
+    "message": "Continue from our previous conversation. Attached as `conversation-history.pdf` is a structured handoff brief of our entire chat so far — organized under Completed work, Current state, In progress, Next steps, Constraints, Critical context, and Discarded attempts, with images embedded inline and files referenced by name, each with a one-line note. This brief is your complete prior context — pick up exactly where we left off. Don't recap it back to me; just continue as if this is the same conversation."
+  },
+  "preambleBriefMd": {
+    "message": "Continue from our previous conversation. Attached as `conversation-history.md` is a structured handoff brief of our entire chat so far — organized under Completed work, Current state, In progress, Next steps, Constraints, Critical context, and Discarded attempts, with images and files referenced by name (not attached), each with a one-line note. This brief is your complete prior context — pick up exactly where we left off. Don't recap it back to me; just continue as if this is the same conversation."
   }
 }

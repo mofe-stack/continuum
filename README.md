@@ -1,4 +1,4 @@
-# Continuum — Capture, Save & Resume AI Chats
+# Continuum — Save & Export AI Chats, Resume Anywhere
 
 > 🏆 Winner — Hack the Valley 2026
 
@@ -104,6 +104,21 @@ Continuum ships from one shared `src/` — only the manifest differs per browser
 node build-firefox.js    # → build/firefox/  and  continuum-firefox.xpi
 node build-chrome.js     # → build/chrome/   and  continuum-chrome.zip
 ```
+
+## Tests
+
+Plain Node — no test runner, no dependencies. Each file runs on its own:
+
+```bash
+node tests/adapter-tree.test.js
+node tests/compressor.test.js
+# …or all of them
+for f in tests/*.test.js; do node "$f"; done
+```
+
+They cover the per-site capture adapters, the compressor and its stats, Markdown
+cleanup, and the text sanitizer — the parts most likely to break silently when a
+supported site changes its DOM.
 
 ## Project layout
 

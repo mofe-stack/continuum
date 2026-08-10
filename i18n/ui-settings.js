@@ -397,6 +397,27 @@ const UI_SETTINGS = {
     ko: "파일 $1개", it: "$1 file", tr: "$1 dosya",
   },
 
+  // ── Bulk-export filenames ─────────────────────────────────────────────
+  // These land on the user's disk and are Continuum's own naming, so they get
+  // translated. NOT to be confused with `conversation-history.pdf`/`.md`, which
+  // stay English in every locale because the resume message names that exact file
+  // for the model to find — see i18n/preambles.js.
+  //
+  // Kept lowercase and hyphenated so they read as filenames. Non-ASCII is fine
+  // here (these only ever hit the local filesystem), but they must NOT be passed
+  // through safeName(), whose \w class would strip CJK and Cyrillic entirely.
+  uiFileAllChats: {
+    en: "all-chats", es: "todos-los-chats", pt_BR: "todas-as-conversas",
+    de: "alle-chats", fr: "tous-les-chats", ja: "すべてのチャット",
+    zh_CN: "全部对话", ru: "все-чаты", ko: "전체-대화",
+    it: "tutte-le-chat", tr: "tum-sohbetler",
+  },
+  uiFileChats: {
+    en: "chats", es: "chats", pt_BR: "conversas", de: "chats",
+    fr: "chats", ja: "チャット", zh_CN: "对话", ru: "чаты",
+    ko: "대화", it: "chat", tr: "sohbetler",
+  },
+
   // ── Floating button ───────────────────────────────────────────────────
   uiFabTitle: {
     en: "Continuum — capture this session",

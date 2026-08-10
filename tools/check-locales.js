@@ -28,6 +28,7 @@ const MANIFEST_KEYS = new Set([
 // Keys assembled at runtime rather than written as a literal, so the scan below
 // cannot see them. plural() builds "uiStat<Unit><One|Other>" from its argument.
 // Listed explicitly — a prefix wildcard would hide genuine orphans.
+const PREAMBLE_KEYS = new Set(["preamblePdf","preambleMd","preambleBriefPdf","preambleBriefMd"]);
 const DYNAMIC_KEYS = new Set([
   "uiStatMessagesOne", "uiStatMessagesOther",
   "uiStatImagesOne", "uiStatImagesOther",
@@ -70,8 +71,54 @@ for (const file of walk(SRC)) {
   }
 }
 
+// settings.js keeps the English resume messages inline as a last-resort fallback
+// (getResumePreamble() must never hand a message key to the injector). That means
+// the same text lives in two places, so verify they have not drifted — a silently
+// stale fallback would only surface when chrome.i18n was already unavailable.
+const PREAMBLE_PAIRS = [
+  ["preamblePdf", "EN_RESUME_PREAMBLE"],
+  ["preambleMd", "EN_RESUME_PREAMBLE_MD"],
+  ["preambleBriefPdf", "EN_RESUME_PREAMBLE_COMPRESSED"],
+  ["preambleBriefMd", "EN_RESUME_PREAMBLE_COMPRESSED_MD"],
+];
+
+function checkPreambleDrift() {
+  const src = fs.readFileSync(path.join(root, "src", "core", "settings.js"), "utf8");
+  for (const [key, constName] of PREAMBLE_PAIRS) {
+    const start = src.indexOf("const " + constName + " =");
+    if (start < 0) {
+      problems.push(`settings.js: ${constName} not found — preamble wiring changed`);
+      continue;
+    }
+    // Newline-agnostic: the file may be CRLF or LF depending on how it was last
+    // written, and hardcoding one silently matched nothing.
+    const after = src.slice(start + ("const " + constName + " =").length);
+    const stop = after.search(/;[\r\n]/);
+    if (stop < 0) {
+      problems.push(`settings.js: could not find the end of ${constName}`);
+      continue;
+    }
+    let english;
+    try {
+      english = new Function("return (" + after.slice(0, stop) + ");")();
+    } catch (e) {
+      problems.push(`settings.js: could not evaluate ${constName} — ${e.message}`);
+      continue;
+    }
+    const catalogued = catalog[key] && catalog[key].message;
+    if (catalogued !== english) {
+      problems.push(
+        `${constName} in settings.js differs from "${key}" in _locales/en — ` +
+          "update i18n/preambles.js and re-run tools/build-locales.js"
+      );
+    }
+  }
+}
+checkPreambleDrift();
+
 const orphans = [...defined].filter(
-  (k) => !used.has(k) && !MANIFEST_KEYS.has(k) && !DYNAMIC_KEYS.has(k)
+  (k) =>
+    !used.has(k) && !MANIFEST_KEYS.has(k) && !DYNAMIC_KEYS.has(k) && !PREAMBLE_KEYS.has(k)
 );
 
 // A dynamic key that vanished from the catalog is just as broken as a typo, so

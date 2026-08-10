@@ -236,6 +236,12 @@
   "uiStatFilesOther": {
     "message": "$1 arquivos"
   },
+  "uiFileAllChats": {
+    "message": "todas-as-conversas"
+  },
+  "uiFileChats": {
+    "message": "conversas"
+  },
   "uiFabTitle": {
     "message": "Continuum — capturar esta sessão"
   },
@@ -271,5 +277,17 @@
   },
   "uiGrantFailed": {
     "message": "Não foi possível solicitar acesso — tente de novo."
+  },
+  "preamblePdf": {
+    "message": "Continue a partir da nossa conversa anterior. O histórico completo está anexado como `conversation-history.pdf` — cada mensagem, com o conteúdo dos arquivos enviados incorporado e as imagens embutidas, então você pode ler tudo e ver as imagens diretamente. Você tem todo o contexto anterior, então retome exatamente de onde paramos: mesmos objetivos, decisões, restrições e estado atual. Não me resuma o histórico; apenas continue como se fosse a mesma conversa."
+  },
+  "preambleMd": {
+    "message": "Continue a partir da nossa conversa anterior. O histórico completo está anexado como `conversation-history.md` — cada mensagem, com o conteúdo dos arquivos de texto enviados incorporado. Imagens e outros arquivos são citados pelo nome (não vão anexados), então você não conseguirá vê-los diretamente. Você tem todo o contexto anterior, então retome exatamente de onde paramos: mesmos objetivos, decisões, restrições e estado atual. Não me resuma o histórico; apenas continue como se fosse a mesma conversa."
+  },
+  "preambleBriefPdf": {
+    "message": "Continue a partir da nossa conversa anterior. Anexado como `conversation-history.pdf` está um resumo de transição estruturado de toda a nossa conversa até aqui, organizado em Completed work, Current state, In progress, Next steps, Constraints, Critical context e Discarded attempts, com as imagens embutidas e os arquivos citados pelo nome, cada um com uma nota de uma linha. Esse resumo é todo o seu contexto anterior — retome exatamente de onde paramos. Não me resuma de volta; apenas continue como se fosse a mesma conversa."
+  },
+  "preambleBriefMd": {
+    "message": "Continue a partir da nossa conversa anterior. Anexado como `conversation-history.md` está um resumo de transição estruturado de toda a nossa conversa até aqui, organizado em Completed work, Current state, In progress, Next steps, Constraints, Critical context e Discarded attempts, com imagens e arquivos citados pelo nome (não anexados), cada um com uma nota de uma linha. Esse resumo é todo o seu contexto anterior — retome exatamente de onde paramos. Não me resuma de volta; apenas continue como se fosse a mesma conversa."
   }
 }

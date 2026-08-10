@@ -236,6 +236,12 @@
   "uiStatFilesOther": {
     "message": "$1 dosya"
   },
+  "uiFileAllChats": {
+    "message": "tum-sohbetler"
+  },
+  "uiFileChats": {
+    "message": "sohbetler"
+  },
   "uiFabTitle": {
     "message": "Continuum — bu oturumu yakala"
   },
@@ -271,5 +277,17 @@
   },
   "uiGrantFailed": {
     "message": "Erişim istenemedi — yeniden deneyin."
+  },
+  "preamblePdf": {
+    "message": "Önceki konuşmamızdan devam et. Sohbet geçmişinin tamamı `conversation-history.pdf` olarak ekli — her mesaj, yüklenen dosyaların içeriği satır içine alınmış ve görseller gömülü hâlde, böylece okuyabilir ve görselleri doğrudan görebilirsin. Önceki bağlamın tamamı sende, o yüzden tam bıraktığımız yerden devam et: aynı hedefler, kararlar, kısıtlar ve mevcut durum. Geçmişi bana özetleme; sadece aynı konuşmanın devamıymış gibi sürdür."
+  },
+  "preambleMd": {
+    "message": "Önceki konuşmamızdan devam et. Sohbet geçmişinin tamamı `conversation-history.md` olarak ekli — her mesaj, yüklenen metin dosyalarının içeriği satır içine alınmış hâlde. Görseller ve diğer dosyalar yalnızca adlarıyla anılıyor (ekli değil), bu yüzden onları doğrudan göremezsin. Önceki bağlamın tamamı sende, o yüzden tam bıraktığımız yerden devam et: aynı hedefler, kararlar, kısıtlar ve mevcut durum. Geçmişi bana özetleme; sadece aynı konuşmanın devamıymış gibi sürdür."
+  },
+  "preambleBriefPdf": {
+    "message": "Önceki konuşmamızdan devam et. `conversation-history.pdf` olarak ekli olan, şimdiye kadarki tüm sohbetimizin yapılandırılmış bir devir özetidir — Completed work, Current state, In progress, Next steps, Constraints, Critical context ve Discarded attempts başlıkları altında düzenlenmiş, görseller gömülü ve dosyalar adlarıyla anılmış, her biri tek satırlık bir notla. Bu özet önceki bağlamının tamamıdır — tam bıraktığımız yerden devam et. Bana geri özetleme; sadece aynı konuşmanın devamıymış gibi sürdür."
+  },
+  "preambleBriefMd": {
+    "message": "Önceki konuşmamızdan devam et. `conversation-history.md` olarak ekli olan, şimdiye kadarki tüm sohbetimizin yapılandırılmış bir devir özetidir — Completed work, Current state, In progress, Next steps, Constraints, Critical context ve Discarded attempts başlıkları altında düzenlenmiş, görseller ve dosyalar yalnızca adlarıyla anılmış (ekli değil), her biri tek satırlık bir notla. Bu özet önceki bağlamının tamamıdır — tam bıraktığımız yerden devam et. Bana geri özetleme; sadece aynı konuşmanın devamıymış gibi sürdür."
   }
 }

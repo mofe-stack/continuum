@@ -40,9 +40,33 @@
     return out;
   };
 
+  // The resume message is localized (i18n/preambles.js): it is typed INTO the new
+  // chat, so an English instruction in a Spanish conversation nudges the model to
+  // switch languages. The English literal below stays as the last-resort fallback
+  // — getResumePreamble() must never return a message key, or that key would be
+  // injected into the user's chat.
+  //
+  // The English text here and the `en` entry in i18n/preambles.js must stay
+  // identical; tools/check-locales.js fails the build if they drift.
+  //
+  // `conversation-history.pdf` and the brief's section names are NOT translated in
+  // any locale — see the header of i18n/preambles.js for why.
+  function localizedDefault(key, english) {
+    try {
+      const i18n = window.Continuum && window.Continuum.i18n;
+      if (i18n && i18n.t) {
+        const value = i18n.t(key);
+        if (value && value !== key) return value;
+      }
+    } catch (e) {
+      /* extension context gone — fall through to English */
+    }
+    return english;
+  }
+
   // Auto-typed into the new chat's composer on resume. Tells the model the full
   // prior conversation is attached so it continues seamlessly. User-editable.
-  const DEFAULT_RESUME_PREAMBLE =
+  const EN_RESUME_PREAMBLE =
     "Continue from our previous conversation. The entire chat history is attached " +
     "as `conversation-history.pdf` — every message, with any uploaded files' " +
     "contents inlined and any images embedded inline, so you can read it and see " +
@@ -52,7 +76,7 @@
   // Markdown-format default: only the .md is attached (text-only, lighter than the
   // PDF). Text-file contents are inlined; images and binary files are referenced by
   // name but NOT attached — so the message must NOT promise the model can see them.
-  const DEFAULT_RESUME_PREAMBLE_MD =
+  const EN_RESUME_PREAMBLE_MD =
     "Continue from our previous conversation. The entire chat history is attached " +
     "as `conversation-history.md` — every message, with any uploaded text files' " +
     "contents inlined. Any images and other files are referenced by name (not " +
@@ -64,20 +88,27 @@
   // (not the full transcript), so the wording differs. PDF embeds the images;
   // Markdown references everything by name. Both user-editable, like the verbatim
   // pair above.
-  const DEFAULT_RESUME_PREAMBLE_COMPRESSED =
+  const EN_RESUME_PREAMBLE_COMPRESSED =
     "Continue from our previous conversation. Attached as `conversation-history.pdf` is a " +
     "structured handoff brief of our entire chat so far — organized under Completed work, Current " +
     "state, In progress, Next steps, Constraints, Critical context, and Discarded attempts, with " +
     "images embedded inline and files referenced by name, each with a one-line note. " +
     "This brief is your complete prior context — pick up exactly where we left off. Don't recap " +
     "it back to me; just continue as if this is the same conversation.";
-  const DEFAULT_RESUME_PREAMBLE_COMPRESSED_MD =
+  const EN_RESUME_PREAMBLE_COMPRESSED_MD =
     "Continue from our previous conversation. Attached as `conversation-history.md` is a structured " +
     "handoff brief of our entire chat so far — organized under Completed work, Current state, In " +
     "progress, Next steps, Constraints, Critical context, and Discarded attempts, with images and " +
     "files referenced by name (not attached), each with a one-line note. This " +
     "brief is your complete prior context — pick up exactly where we left off. Don't recap it back " +
     "to me; just continue as if this is the same conversation.";
+  const DEFAULT_RESUME_PREAMBLE = localizedDefault("preamblePdf", EN_RESUME_PREAMBLE);
+  const DEFAULT_RESUME_PREAMBLE_MD = localizedDefault("preambleMd", EN_RESUME_PREAMBLE_MD);
+  const DEFAULT_RESUME_PREAMBLE_COMPRESSED =
+    localizedDefault("preambleBriefPdf", EN_RESUME_PREAMBLE_COMPRESSED);
+  const DEFAULT_RESUME_PREAMBLE_COMPRESSED_MD =
+    localizedDefault("preambleBriefMd", EN_RESUME_PREAMBLE_COMPRESSED_MD);
+
   const MAX_PREAMBLE_LEN = 4000; // guard against pathological input
 
   let _cache = null;                       // last known settings, populated by init()
